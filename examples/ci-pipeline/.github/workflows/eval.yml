@@ -1,0 +1,193 @@
+name: Agent Eval Suite
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+  # Run nightly to catch drift even without code changes
+  schedule:
+    - cron: "0 4 * * *"   # 04:00 UTC daily
+
+# Cancel in-progress runs on the same branch (saves CI minutes)
+concurrency:
+  group: eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # Job 1: Fast replay tests (no API key needed, ~30 seconds)
+  # These run on every push and every PR. Cost: $0.
+  # ─────────────────────────────────────────────────────────────
+  replay-tests:
+    name: Replay Tests (cassettes)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install evalcraft
+        run: pip install "evalcraft[pytest]>=0.1.0" pytest pytest-json-report
+
+      - name: Install agent dependencies
+        run: |
+          # Install without optional LLM packages — cassette tests don't need them
+          pip install -r examples/openai-agent/requirements.txt --no-deps
+          pip install -r examples/anthropic-agent/requirements.txt --no-deps
+          pip install -r examples/langgraph-workflow/requirements.txt --no-deps
+        continue-on-error: true  # Don't fail if some extras aren't resolvable
+
+      - name: Run support agent replay tests
+        working-directory: examples/openai-agent
+        run: |
+          pytest tests/test_support_agent.py -v \
+            --json-report --json-report-file=../../reports/openai-replay.json \
+            --tb=short
+        env:
+          # Evalcraft blocks real HTTP during replay — no key needed
+          EVALCRAFT_BLOCK_NETWORK: "true"
+
+      - name: Run code review agent replay tests
+        working-directory: examples/anthropic-agent
+        run: |
+          pytest tests/test_code_review_agent.py -v \
+            --json-report --json-report-file=../../reports/anthropic-replay.json \
+            --tb=short
+        env:
+          EVALCRAFT_BLOCK_NETWORK: "true"
+
+      - name: Run LangGraph workflow replay tests
+        working-directory: examples/langgraph-workflow
+        run: |
+          pytest tests/test_rag_workflow.py -v \
+            --json-report --json-report-file=../../reports/langgraph-replay.json \
+            --tb=short
+        env:
+          EVALCRAFT_BLOCK_NETWORK: "true"
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: replay-test-reports
+          path: reports/
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────
+  # Job 2: Golden set regression (compares against saved baselines)
+  # Runs on PRs to main only — catches regressions before merge.
+  # ─────────────────────────────────────────────────────────────
+  golden-regression:
+    name: Golden Set Regression
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    needs: replay-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install evalcraft
+        run: pip install "evalcraft[pytest]>=0.1.0" pytest
+
+      - name: Run golden set comparison — support agent
+        working-directory: examples/openai-agent
+        run: |
+          pytest tests/test_golden.py -v --tb=short
+        continue-on-error: true  # Report but don't hard-fail (golden may not exist yet)
+
+  # ─────────────────────────────────────────────────────────────
+  # Job 3: Live re-capture (optional, manual or nightly only)
+  # Calls real APIs to refresh cassettes. Costs money.
+  # Only runs if REFRESH_CASSETTES=true is set as a repo variable.
+  # ─────────────────────────────────────────────────────────────
+  refresh-cassettes:
+    name: Refresh Cassettes (live)
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.refresh == 'true')
+    environment: production-evals   # requires secret approval in repo settings
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install "evalcraft[all]>=0.1.0"
+          pip install openai anthropic langgraph langchain-openai
+
+      - name: Record fresh cassettes — support agent
+        working-directory: examples/openai-agent
+        run: python record_cassettes.py
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Record fresh cassettes — code review agent
+        working-directory: examples/anthropic-agent
+        run: python record_cassettes.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Rebuild golden sets
+        run: |
+          cd examples/openai-agent && python build_golden.py
+
+      - name: Commit updated cassettes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: refresh eval cassettes [skip ci]"
+          file_pattern: "examples/**/tests/cassettes/*.json examples/**/golden/*.json"
+          branch: ${{ github.ref_name }}
+
+  # ─────────────────────────────────────────────────────────────
+  # Job 4: evalcraft CLI inspection (informational, no failure)
+  # Prints cassette summaries as CI annotations — useful for PR reviews.
+  # ─────────────────────────────────────────────────────────────
+  cassette-summary:
+    name: Cassette Summary
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install evalcraft CLI
+        run: pip install "evalcraft>=0.1.0"
+
+      - name: Inspect cassettes
+        run: |
+          echo "## Cassette Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Cassette | Spans | LLM Calls | Tool Calls | Tokens | Cost |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|-----------|------------|--------|------|" >> $GITHUB_STEP_SUMMARY
+          for cassette in examples/*/tests/cassettes/*.json; do
+            name=$(basename "$cassette" .json)
+            # evalcraft inspect outputs JSON-friendly summary
+            python -c "
+          import json, sys
+          with open('$cassette') as f:
+              d = json.load(f)
+          spans = len(d.get('spans', []))
+          llm = d.get('llm_call_count', 0)
+          tools = d.get('tool_call_count', 0)
+          tokens = d.get('total_tokens', 0)
+          cost = d.get('total_cost_usd', 0)
+          print(f'| $name | {spans} | {llm} | {tools} | {tokens} | \${cost:.5f} |')
+          "
+          done >> $GITHUB_STEP_SUMMARY

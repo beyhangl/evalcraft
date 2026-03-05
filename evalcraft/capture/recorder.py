@@ -53,6 +53,11 @@ class CaptureContext:
             dashboard on exit.  Requires ``EVALCRAFT_API_KEY`` env var or
             ``~/.evalcraft/config.json``.  Can also be an
             ``EvalcraftCloud`` instance for custom config.
+        redact: If ``True``, automatically redact PII/secrets from the
+            cassette using the default :class:`~evalcraft.sanitize.redactor.CassetteRedactor`
+            (MASK mode, all built-in patterns) before saving or uploading.
+            Can also be a :class:`~evalcraft.sanitize.redactor.CassetteRedactor`
+            instance for custom redaction configuration.
     """
 
     def __init__(
@@ -63,6 +68,7 @@ class CaptureContext:
         save_path: str | Path | None = None,
         metadata: dict | None = None,
         cloud: bool | Any = False,
+        redact: bool | Any = False,
     ):
         self.cassette = Cassette(
             name=name,
@@ -72,6 +78,7 @@ class CaptureContext:
         )
         self.save_path = Path(save_path) if save_path else None
         self._cloud = cloud
+        self._redact = redact
         self._token: contextvars.Token | None = None
         self._start_time: float = 0.0
 
@@ -98,14 +105,32 @@ class CaptureContext:
         return None
 
     def _finalize(self) -> None:
-        """Finalize the cassette — compute metrics, optionally save, optionally upload."""
+        """Finalize the cassette — compute metrics, optionally redact, save, or upload."""
         self.cassette.total_duration_ms = (time.time() - self._start_time) * 1000
         self.cassette.compute_metrics()
         self.cassette.compute_fingerprint()
+        if self._redact is not False and self._redact is not None:
+            self._auto_redact()
         if self.save_path:
             self.cassette.save(self.save_path)
         if self._cloud is not False and self._cloud is not None:
             self._auto_upload()
+
+    def _auto_redact(self) -> None:
+        """Redact PII/secrets from the cassette in-place (best-effort, never raises)."""
+        import logging
+        log = logging.getLogger(__name__)
+        try:
+            from evalcraft.sanitize.redactor import CassetteRedactor
+            redactor: CassetteRedactor
+            if hasattr(self._redact, "redact"):
+                redactor = self._redact
+            else:
+                redactor = CassetteRedactor()
+            self.cassette = redactor.redact(self.cassette)
+            log.debug("Auto-redacted cassette %s", self.cassette.id)
+        except Exception as exc:
+            log.warning("Auto-redact failed: %s", exc)
 
     def _auto_upload(self) -> None:
         """Upload the cassette to the cloud dashboard (best-effort, never raises)."""
@@ -207,6 +232,7 @@ def capture(
     save_path: str | Path | None = None,
     metadata: dict | None = None,
     cloud: bool | Any = False,
+    redact: bool | Any = False,
 ) -> Callable:
     """Decorator to capture an agent run into a cassette.
 
@@ -218,6 +244,11 @@ def capture(
 
         # Auto-upload to cloud dashboard on exit:
         @capture(name="weather_agent_test", cloud=True)
+        def test_agent():
+            ...
+
+        # Auto-redact PII/secrets on exit:
+        @capture(name="weather_agent_test", redact=True)
         def test_agent():
             ...
 
@@ -234,6 +265,7 @@ def capture(
                     save_path=save_path,
                     metadata=metadata,
                     cloud=cloud,
+                    redact=redact,
                 )
                 async with ctx:
                     result = await func(*args, **kwargs)
@@ -249,6 +281,7 @@ def capture(
                     save_path=save_path,
                     metadata=metadata,
                     cloud=cloud,
+                    redact=redact,
                 )
                 with ctx:
                     result = func(*args, **kwargs)

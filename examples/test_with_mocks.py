@@ -121,20 +121,22 @@ class TestToolBehavior:
 # ---------------------------------------------------------------------------
 
 class TestOutputBehavior:
-    def test_output_contains_expected_text(self, mock_llm, mock_search):
-        mock_llm.add_response("*", "Python is a high-level programming language.")
+    def test_output_contains_expected_text(self, mock_search):
+        llm = MockLLM(model="mock-gpt-4o")
+        llm.add_response("*", "Python is a high-level programming language.")
 
         with CaptureContext(name="output_check") as ctx:
-            run_research_agent("What is Python?", mock_llm, mock_search, ctx)
+            run_research_agent("What is Python?", llm, mock_search, ctx)
 
         result = assert_output_contains(ctx.cassette, "Python")
         assert result.passed, result.message
 
-    def test_output_case_insensitive(self, mock_llm, mock_search):
-        mock_llm.add_response("*", "PYTHON is popular for data science.")
+    def test_output_case_insensitive(self, mock_search):
+        llm = MockLLM(model="mock-gpt-4o")
+        llm.add_response("*", "PYTHON is popular for data science.")
 
         with CaptureContext(name="case_insensitive") as ctx:
-            run_research_agent("What is Python?", mock_llm, mock_search, ctx)
+            run_research_agent("What is Python?", llm, mock_search, ctx)
 
         result = assert_output_contains(ctx.cassette, "python", case_sensitive=False)
         assert result.passed, result.message

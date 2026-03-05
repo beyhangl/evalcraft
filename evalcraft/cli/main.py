@@ -14,6 +14,7 @@ import click
 from evalcraft.capture.recorder import CaptureContext
 from evalcraft.core.models import Cassette, SpanKind
 from evalcraft.replay.engine import ReplayDiff, ReplayEngine
+from evalcraft.replay.network_guard import ReplayNetworkViolation
 
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
@@ -61,6 +62,52 @@ _SPAN_COLORS: dict[SpanKind, str] = {
 @click.version_option(version="0.1.0", prog_name="evalcraft")
 def cli() -> None:
     """evalcraft — capture, replay, and evaluate AI agent runs."""
+
+
+# ─── init ─────────────────────────────────────────────────────────────────────
+
+@cli.command("init")
+@click.option(
+    "--framework",
+    "-f",
+    default=None,
+    type=click.Choice(
+        ["openai", "anthropic", "langgraph", "crewai", "generic"],
+        case_sensitive=False,
+    ),
+    help="Agent framework to scaffold for (skips interactive prompt).",
+)
+@click.option(
+    "--dir",
+    "-d",
+    "tests_dir",
+    default="tests",
+    show_default=True,
+    help="Directory to create test files in.",
+)
+@click.option(
+    "--overwrite",
+    is_flag=True,
+    default=False,
+    help="Overwrite existing files (default: skip).",
+)
+def init(framework: str | None, tests_dir: str, overwrite: bool) -> None:
+    """Scaffold an evalcraft test project in the current directory.
+
+    Creates a complete, runnable test suite with capture, replay, mock,
+    and assertion examples tailored to your agent framework.
+
+    Examples:
+
+        evalcraft init
+
+        evalcraft init --framework anthropic --dir agent-tests
+
+        evalcraft init --framework openai --overwrite
+    """
+    from evalcraft.cli.init_cmd import run_init
+
+    run_init(framework=framework, tests_dir=tests_dir, overwrite=overwrite)
 
 
 # ─── capture ──────────────────────────────────────────────────────────────────
@@ -128,19 +175,56 @@ def capture(script: str, output: str | None, name: str, agent: str, framework: s
 @cli.command()
 @click.argument("cassette", type=click.Path(exists=True, dir_okay=False))
 @click.option("--verbose", "-v", is_flag=True, help="Show each span")
-def replay(cassette: str, verbose: bool) -> None:
+@click.option(
+    "--block-network/--no-block-network",
+    default=True,
+    show_default=True,
+    help=(
+        "Block outgoing network connections during replay (default: on). "
+        "Use --no-block-network to allow real HTTP calls."
+    ),
+)
+@click.option(
+    "--allow-host",
+    "allow_hosts",
+    multiple=True,
+    metavar="HOST",
+    help="Allow a specific hostname even when --block-network is active (repeatable).",
+)
+def replay(cassette: str, verbose: bool, block_network: bool, allow_hosts: tuple[str, ...]) -> None:
     """Replay CASSETTE and display the results.
 
     Feeds recorded responses back through the replay engine without making
-    any real LLM API calls.
+    any real LLM API calls.  By default, all outgoing network connections
+    are blocked to guarantee a fully deterministic replay.
 
-    Example:
+    Examples:
 
         evalcraft replay cassettes/run1.json --verbose
+
+        evalcraft replay cassettes/run1.json --no-block-network
+
+        evalcraft replay cassettes/run1.json --allow-host localhost --allow-host 127.0.0.1
     """
     c = _load_cassette(cassette)
-    engine = ReplayEngine(c)
-    run = engine.run()
+    engine = ReplayEngine(
+        c,
+        block_network=block_network,
+        network_allowlist=list(allow_hosts) if allow_hosts else None,
+    )
+
+    if block_network:
+        hosts_note = (
+            f"  (allowlist: {', '.join(allow_hosts)})" if allow_hosts else "  (network blocked)"
+        )
+        click.echo(click.style("  network", fg="yellow") + hosts_note)
+
+    try:
+        run = engine.run()
+    except ReplayNetworkViolation as exc:
+        click.echo(click.style("  network violation", fg="red", bold=True), err=True)
+        click.echo(click.style(f"  {exc}", fg="red"), err=True)
+        sys.exit(1)
     rc = run.cassette
 
     click.echo(click.style("  replaying", fg="cyan", bold=True) + f"  {Path(cassette).name}")
@@ -706,6 +790,121 @@ def regression_cmd(cassette: str, golden: str, as_json: bool) -> None:
 
     if report.has_critical:
         sys.exit(1)
+
+
+# ─── sanitize ─────────────────────────────────────────────────────────────────
+
+@cli.command()
+@click.argument("cassette", type=click.Path(exists=True, dir_okay=False))
+@click.option("--output", "-o", default=None,
+              help="Output path (default: overwrite source)")
+@click.option("--mode", "-m",
+              type=click.Choice(["mask", "hash", "remove"], case_sensitive=False),
+              default="mask", show_default=True,
+              help="Redaction mode: mask=***, hash=sha256[:8], remove=''")
+@click.option("--pattern", "-p", "extra_patterns", multiple=True,
+              metavar="NAME=REGEX",
+              help="Extra redaction pattern (repeatable).  E.g. --pattern mykey=MY_KEY_\\w+")
+@click.option("--no-builtin", is_flag=True,
+              help="Disable all built-in patterns (use only --pattern)")
+@click.option("--scan-only", is_flag=True,
+              help="Report found PII without writing any output")
+@click.option("--json", "as_json", is_flag=True,
+              help="Output scan results as JSON (implies --scan-only)")
+def sanitize(
+    cassette: str,
+    output: str | None,
+    mode: str,
+    extra_patterns: tuple[str, ...],
+    no_builtin: bool,
+    scan_only: bool,
+    as_json: bool,
+) -> None:
+    """Redact PII and secrets from CASSETTE.
+
+    By default all built-in patterns are applied (API keys, emails, phone
+    numbers, SSNs, credit cards, IP addresses) and matched text is replaced
+    with ``***`` (MASK mode).
+
+    Examples:
+
+        evalcraft sanitize run.cassette.json
+
+        evalcraft sanitize run.cassette.json --output clean.json --mode hash
+
+        evalcraft sanitize run.cassette.json --scan-only
+
+        evalcraft sanitize run.cassette.json --pattern "mytoken=TOKEN_[A-Z0-9]+"
+    """
+    import re as _re
+    from evalcraft.sanitize.redactor import CassetteRedactor, RedactMode
+
+    # Parse extra patterns
+    parsed_patterns: dict[str, Any] = {}
+    for p in extra_patterns:
+        if "=" not in p:
+            click.echo(
+                click.style(f"  error: pattern must be NAME=REGEX, got: {p!r}", fg="red"),
+                err=True,
+            )
+            sys.exit(1)
+        p_name, p_regex = p.split("=", 1)
+        try:
+            parsed_patterns[p_name.strip()] = _re.compile(p_regex.strip())
+        except _re.error as exc:
+            click.echo(
+                click.style(f"  error: invalid regex for pattern {p_name!r}: {exc}", fg="red"),
+                err=True,
+            )
+            sys.exit(1)
+
+    redactor = CassetteRedactor(
+        mode=RedactMode(mode),
+        patterns=parsed_patterns if parsed_patterns else None,
+        use_builtin=not no_builtin,
+    )
+
+    c = _load_cassette(cassette)
+
+    if as_json or scan_only:
+        findings = redactor.scan(c)
+        total = sum(len(v) for v in findings.values())
+        if as_json:
+            click.echo(json.dumps({"cassette": cassette, "findings": findings, "total": total}, indent=2))
+            return
+        # human-readable scan report
+        click.echo(
+            click.style("  scan", fg="cyan", bold=True)
+            + f"  {Path(cassette).name}"
+        )
+        click.echo()
+        if not findings:
+            click.echo(click.style("  no PII detected", fg="green"))
+            return
+        for cat, matches in findings.items():
+            click.echo(
+                click.style(f"  {cat:<22}", fg="yellow")
+                + f"  {len(matches)} match(es)"
+            )
+            for m in matches[:3]:
+                preview = m[:60] + ("…" if len(m) > 60 else "")
+                click.echo(f"    {click.style(preview, fg='red')}")
+            if len(matches) > 3:
+                click.echo(f"    … and {len(matches) - 3} more")
+        click.echo()
+        click.echo(f"  total: {total} sensitive value(s) found in {len(findings)} category(ies)")
+        return
+
+    # Redact and save
+    out_path = Path(output) if output else Path(cassette)
+    clean = redactor.redact(c)
+    clean.save(out_path)
+
+    click.echo(
+        click.style("  sanitized", fg="green", bold=True)
+        + f"  {Path(cassette).name}  →  {out_path}"
+    )
+    click.echo(f"  mode: {mode}  |  patterns: {len(redactor._patterns)}")
 
 
 # ─── alert ────────────────────────────────────────────────────────────────────

@@ -22,7 +22,7 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Collection
 
 from evalcraft.core.models import (
     Cassette,
@@ -30,6 +30,7 @@ from evalcraft.core.models import (
     SpanKind,
     AgentRun,
 )
+from evalcraft.replay.network_guard import NetworkGuard
 
 
 class ReplayEngine:
@@ -43,7 +44,13 @@ class ReplayEngine:
     - Span filtering
     """
 
-    def __init__(self, cassette: Cassette | str | Path):
+    def __init__(
+        self,
+        cassette: Cassette | str | Path,
+        *,
+        block_network: bool = True,
+        network_allowlist: Collection[str] | None = None,
+    ):
         if isinstance(cassette, (str, Path)):
             self.cassette = Cassette.load(cassette)
         else:
@@ -53,6 +60,8 @@ class ReplayEngine:
         self._llm_overrides: dict[int, Any] = {}
         self._span_filter: Callable[[Span], bool] | None = None
         self._current_index: int = 0
+        self._block_network: bool = block_network
+        self._network_allowlist: Collection[str] = network_allowlist or []
 
     @property
     def spans(self) -> list[Span]:
@@ -100,7 +109,27 @@ class ReplayEngine:
         return self
 
     def run(self) -> AgentRun:
-        """Execute the full replay and return the result."""
+        """Execute the full replay and return the result.
+
+        If ``block_network`` is True (the default), all outgoing socket
+        connections are blocked for the duration of the replay via a
+        :class:`~evalcraft.replay.network_guard.NetworkGuard`.  Any
+        attempt to open a real network connection will raise
+        :class:`~evalcraft.replay.network_guard.ReplayNetworkViolation`.
+        """
+        guard: NetworkGuard | None = None
+        if self._block_network:
+            guard = NetworkGuard(allowlist=self._network_allowlist)
+            guard.__enter__()
+
+        try:
+            return self._run_spans()
+        finally:
+            if guard is not None:
+                guard.__exit__(None, None, None)
+
+    def _run_spans(self) -> AgentRun:
+        """Internal helper: iterate spans, apply overrides, and return AgentRun."""
         replayed_cassette = copy.deepcopy(self.cassette)
         replayed_spans = []
         llm_call_index = 0
@@ -280,17 +309,28 @@ class ReplayDiff:
 def replay(
     cassette_path: str | Path,
     tool_overrides: dict[str, Any] | None = None,
+    *,
+    block_network: bool = True,
+    network_allowlist: Collection[str] | None = None,
 ) -> AgentRun:
     """Convenience function to replay a cassette file.
 
     Args:
         cassette_path: Path to the cassette JSON file
         tool_overrides: Optional dict of tool_name → new_result
+        block_network: If True (default), block all outgoing network
+            connections during replay via :class:`NetworkGuard`.
+        network_allowlist: Hostnames/IPs that are still allowed to
+            connect even when ``block_network`` is True.
 
     Returns:
         AgentRun with the replayed cassette
     """
-    engine = ReplayEngine(cassette_path)
+    engine = ReplayEngine(
+        cassette_path,
+        block_network=block_network,
+        network_allowlist=network_allowlist,
+    )
     if tool_overrides:
         for tool_name, result in tool_overrides.items():
             engine.override_tool_result(tool_name, result)

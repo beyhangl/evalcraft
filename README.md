@@ -176,6 +176,32 @@ pytest tests/ -v
 
 ---
 
+## Examples
+
+Four complete, self-contained example projects — each with pre-recorded cassettes,
+working test suites, and step-by-step READMEs.
+
+| Example | Scenario | What it demonstrates |
+|---------|----------|---------------------|
+| [openai-agent/](examples/openai-agent/) | Customer support agent (ShopEasy) | `OpenAIAdapter`, tool call assertions, golden sets, `MockLLM` + `MockTool` unit tests |
+| [anthropic-agent/](examples/anthropic-agent/) | Code review bot (PRs via Claude) | `AnthropicAdapter`, multi-turn testing, security assertions, `add_sequential_responses` |
+| [langgraph-workflow/](examples/langgraph-workflow/) | RAG policy Q&A pipeline | `LangGraphAdapter`, node-order assertions, `SpanKind.AGENT_STEP` inspection, citation validation |
+| [ci-pipeline/](examples/ci-pipeline/) | GitHub Actions CI gate | GitHub Actions workflow, standalone gate script, cassette refresh strategy |
+
+### Run any example in 60 seconds (no API key needed)
+
+```bash
+cd examples/openai-agent
+pip install -r requirements.txt
+pytest tests/ -v
+# 15 tests pass in ~0.3s, $0.00
+```
+
+All cassettes are pre-recorded and committed to the repo. Tests replay
+them deterministically — no API key, no network calls, no cost.
+
+---
+
 ## Why Evalcraft?
 
 | | Evalcraft | Braintrust | LangSmith | Promptfoo |

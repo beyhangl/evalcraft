@@ -7,6 +7,14 @@ from evalcraft.core.models import (
 
 
 @pytest.fixture
+def cassette_file(simple_cassette, tmp_path):
+    """Save a cassette to a file and return (path, cassette)."""
+    path = tmp_path / "test.json"
+    simple_cassette.save(path)
+    return path, simple_cassette
+
+
+@pytest.fixture
 def simple_cassette():
     """A cassette with a simple tool call and LLM response."""
     c = Cassette(name="test_cassette", agent_name="test_agent", framework="test")
