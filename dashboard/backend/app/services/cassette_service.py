@@ -2,17 +2,18 @@
 
 from __future__ import annotations
 
-import sys
 import uuid
 from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-# Add evalcraft to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-
-from evalcraft.core.models import Cassette as CoreCassette
+try:
+    from evalcraft.core.models import Cassette as CoreCassette
+except ImportError:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+    from evalcraft.core.models import Cassette as CoreCassette
 
 from app.models.cassette import StoredCassette
 

@@ -31,6 +31,11 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
+# Node
+node_modules/
+.npm
+.pnpm-store/
+
 # Cassettes (user-generated, not tracked)
 tests/cassettes/*.json
 !tests/cassettes/.gitkeep

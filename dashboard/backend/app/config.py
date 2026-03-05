@@ -2,9 +2,15 @@
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings
+
+
+def _default_secret() -> str:
+    """Require EVALCRAFT_SECRET_KEY in production, use random key for dev."""
+    return os.environ.get("EVALCRAFT_SECRET_KEY", os.urandom(32).hex())
 
 
 class Settings(BaseSettings):
@@ -22,7 +28,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
 
     # Auth
-    secret_key: str = "CHANGE-ME-in-production"
+    secret_key: str = _default_secret()
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24  # 24 hours
 

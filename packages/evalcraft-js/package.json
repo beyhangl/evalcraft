@@ -23,13 +23,21 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["ai", "agent", "testing", "eval", "llm", "cassette"],
+  "keywords": [
+    "ai",
+    "agent",
+    "testing",
+    "eval",
+    "llm",
+    "cassette"
+  ],
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ai": "^6.0.116",
     "tsup": "^8.0.0",
     "typescript": "^5.3.0",
-    "vitest": "^1.2.0",
-    "@types/node": "^20.0.0"
+    "vitest": "^1.2.0"
   },
   "peerDependencies": {
     "ai": ">=3.0.0",

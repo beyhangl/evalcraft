@@ -66,12 +66,12 @@ function estimateCost(
   promptTokens: number,
   completionTokens: number,
 ): number | null {
-  let pricing = MODEL_PRICING[modelId];
+  let pricing: [number, number] | undefined = MODEL_PRICING[modelId];
   if (!pricing) {
     const entry = Object.entries(MODEL_PRICING).find(([key]) =>
       modelId.startsWith(key),
     );
-    pricing = entry?.[1];
+    pricing = entry?.[1] as [number, number] | undefined;
   }
   if (!pricing) return null;
   return (
@@ -119,11 +119,11 @@ function getModelId(model: unknown): string {
   return 'unknown';
 }
 
-type ToolCallLike = { toolName: string; args: unknown };
+type ToolCallLike = { toolName: string; input?: unknown; args?: unknown };
 
 function toolCallsToOutputStr(toolCalls: ToolCallLike[]): string {
   return toolCalls
-    .map((tc) => `[tool_call:${tc.toolName}(${JSON.stringify(tc.args)})]`)
+    .map((tc) => `[tool_call:${tc.toolName}(${JSON.stringify(tc.input ?? tc.args)})]`)
     .join(' ');
 }
 
@@ -175,15 +175,15 @@ export async function trackedGenerateText(
   const duration_ms = performance.now() - start;
   const ctx = getActiveContext();
   if (ctx) {
-    const prompt_tokens = result.usage?.promptTokens ?? 0;
-    const completion_tokens = result.usage?.completionTokens ?? 0;
-    const toolCalls = (result.toolCalls as ToolCallLike[] | undefined) ?? [];
+    const prompt_tokens = result.usage?.inputTokens ?? 0;
+    const completion_tokens = result.usage?.outputTokens ?? 0;
+    const toolCalls = (result.toolCalls as unknown as ToolCallLike[]) ?? [];
 
     // Record each tool invocation as an individual TOOL_CALL span.
     for (const tc of toolCalls) {
       ctx.recordToolCall({
         tool_name: tc.toolName,
-        args: tc.args as Record<string, unknown>,
+        args: (tc.input ?? tc.args) as Record<string, unknown>,
       });
     }
 
@@ -250,16 +250,16 @@ export function trackedStreamText(params: StreamTextParams): StreamTextResult {
               if (ctx) {
                 try {
                   const usage = await (
-                    target.usage as Promise<
+                    target.usage as unknown as Promise<
                       | {
-                          promptTokens: number;
-                          completionTokens: number;
+                          inputTokens: number;
+                          outputTokens: number;
                         }
                       | undefined
                     >
                   );
-                  const prompt_tokens = usage?.promptTokens ?? 0;
-                  const completion_tokens = usage?.completionTokens ?? 0;
+                  const prompt_tokens = usage?.inputTokens ?? 0;
+                  const completion_tokens = usage?.outputTokens ?? 0;
                   ctx.recordLlmCall({
                     model: modelId,
                     input,

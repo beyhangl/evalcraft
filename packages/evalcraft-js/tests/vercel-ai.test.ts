@@ -30,7 +30,7 @@ const mockModel = {
 
 function makeGenerateResult(overrides: {
   text?: string;
-  usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+  usage?: { inputTokens: number; outputTokens: number; totalTokens: number };
   toolCalls?: Array<{
     type: 'tool-call';
     toolCallId: string;
@@ -42,8 +42,8 @@ function makeGenerateResult(overrides: {
   return {
     text: overrides.text ?? 'Hello world',
     usage: overrides.usage ?? {
-      promptTokens: 10,
-      completionTokens: 5,
+      inputTokens: 10,
+      outputTokens: 5,
       totalTokens: 15,
     },
     toolCalls: overrides.toolCalls ?? [],
@@ -77,7 +77,7 @@ describe('trackedGenerateText', () => {
   it('records an LLM span in the active CaptureContext', async () => {
     const mockResult = makeGenerateResult({
       text: 'Paris.',
-      usage: { promptTokens: 20, completionTokens: 3, totalTokens: 23 },
+      usage: { inputTokens: 20, outputTokens: 3, totalTokens: 23 },
     });
     vi.mocked(generateText).mockResolvedValueOnce(mockResult as any);
 
@@ -203,7 +203,7 @@ describe('trackedGenerateText', () => {
 
   it('estimates cost for known models', async () => {
     const mockResult = makeGenerateResult({
-      usage: { promptTokens: 1000, completionTokens: 500, totalTokens: 1500 },
+      usage: { inputTokens: 1000, outputTokens: 500, totalTokens: 1500 },
     });
     vi.mocked(generateText).mockResolvedValueOnce(mockResult as any);
 
@@ -256,7 +256,7 @@ describe('trackedGenerateText', () => {
     };
     const mockResult = makeGenerateResult({
       text: 'Hello from Claude.',
-      usage: { promptTokens: 50, completionTokens: 10, totalTokens: 60 },
+      usage: { inputTokens: 50, outputTokens: 10, totalTokens: 60 },
     });
     vi.mocked(generateText).mockResolvedValueOnce(mockResult as any);
 
@@ -310,8 +310,8 @@ describe('trackedStreamText', () => {
   it('records an LLM span after stream completes', async () => {
     const textPromise = Promise.resolve('Streaming response here.');
     const usagePromise = Promise.resolve({
-      promptTokens: 15,
-      completionTokens: 8,
+      inputTokens: 15,
+      outputTokens: 8,
       totalTokens: 23,
     });
     vi.mocked(streamText).mockReturnValueOnce({
@@ -352,8 +352,8 @@ describe('trackedStreamText', () => {
     vi.mocked(streamText).mockReturnValueOnce({
       text: Promise.resolve('chunk1chunk2'),
       usage: Promise.resolve({
-        promptTokens: 5,
-        completionTokens: 5,
+        inputTokens: 5,
+        outputTokens: 5,
         totalTokens: 10,
       }),
       textStream,
@@ -374,8 +374,8 @@ describe('trackedStreamText', () => {
     vi.mocked(streamText).mockReturnValueOnce({
       text: Promise.resolve('ok'),
       usage: Promise.resolve({
-        promptTokens: 1,
-        completionTokens: 1,
+        inputTokens: 1,
+        outputTokens: 1,
         totalTokens: 2,
       }),
     } as any);
@@ -390,8 +390,8 @@ describe('trackedStreamText', () => {
   it('memoizes the text promise — records exactly once even if accessed twice', async () => {
     const textPromise = Promise.resolve('hello');
     const usagePromise = Promise.resolve({
-      promptTokens: 5,
-      completionTokens: 3,
+      inputTokens: 5,
+      outputTokens: 3,
       totalTokens: 8,
     });
     vi.mocked(streamText).mockReturnValueOnce({
@@ -421,7 +421,7 @@ describe('trackedStreamText', () => {
   it('records streaming flag in span metadata', async () => {
     vi.mocked(streamText).mockReturnValueOnce({
       text: Promise.resolve('streamed'),
-      usage: Promise.resolve({ promptTokens: 2, completionTokens: 2, totalTokens: 4 }),
+      usage: Promise.resolve({ inputTokens: 2, outputTokens: 2, totalTokens: 4 }),
     } as any);
 
     const ctx = new CaptureContext({ name: 'streaming-meta-test' });
