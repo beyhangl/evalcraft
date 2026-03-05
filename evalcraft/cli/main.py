@@ -706,3 +706,224 @@ def regression_cmd(cassette: str, golden: str, as_json: bool) -> None:
 
     if report.has_critical:
         sys.exit(1)
+
+
+# ─── alert ────────────────────────────────────────────────────────────────────
+
+@cli.group()
+def alert() -> None:
+    """Send regression alerts to Slack, email, or generic webhooks."""
+
+
+@alert.command("test")
+@click.option("--slack", "slack_url", default=None, metavar="WEBHOOK_URL",
+              help="Send test alert to Slack webhook URL")
+@click.option("--email", "email_addr", default=None, metavar="ADDRESS",
+              help="Send test alert to email address")
+@click.option("--smtp-host", default="localhost", show_default=True, help="SMTP host")
+@click.option("--smtp-port", default=587, show_default=True, type=int, help="SMTP port")
+@click.option("--smtp-user", default="", help="SMTP username")
+@click.option("--smtp-password", default="", help="SMTP password")
+@click.option("--from", "sender", default="evalcraft@localhost", show_default=True,
+              help="Sender email address")
+def alert_test(
+    slack_url: str | None,
+    email_addr: str | None,
+    smtp_host: str,
+    smtp_port: int,
+    smtp_user: str,
+    smtp_password: str,
+    sender: str,
+) -> None:
+    """Send a test alert to verify your alert configuration.
+
+    Examples:
+
+        evalcraft alert test --slack https://hooks.slack.com/services/...
+
+        evalcraft alert test --email you@example.com --smtp-host smtp.example.com
+    """
+    from evalcraft.alerts.email import EmailAlert, SMTPConfig
+    from evalcraft.alerts.slack import SlackAlert
+    from evalcraft.regression.detector import Regression, RegressionReport, Severity
+
+    if not slack_url and not email_addr:
+        click.echo(
+            click.style("  error: specify --slack and/or --email", fg="red"), err=True
+        )
+        sys.exit(1)
+
+    # Build a synthetic test report
+    report = RegressionReport(golden_name="test_cassette")
+    report.regressions = [
+        Regression(
+            category="cost_increase",
+            severity=Severity.CRITICAL,
+            message="Cost increased 3.50x ($0.0010 -> $0.0035)",
+            golden_value=0.001,
+            current_value=0.0035,
+            metadata={"ratio": 3.5},
+        ),
+        Regression(
+            category="token_bloat",
+            severity=Severity.WARNING,
+            message="Token usage increased 1.40x (1000 -> 1400)",
+            golden_value=1000,
+            current_value=1400,
+            metadata={"ratio": 1.4},
+        ),
+    ]
+
+    if slack_url:
+        preview = slack_url[:50] + ("…" if len(slack_url) > 50 else "")
+        click.echo(click.style("  testing", fg="cyan", bold=True) + f"  Slack: {preview}")
+        try:
+            SlackAlert(webhook_url=slack_url).send_regression(report)
+            click.echo(click.style("  sent", fg="green", bold=True) + "     Slack test alert delivered")
+        except Exception as exc:
+            click.echo(click.style(f"  error: {exc}", fg="red"), err=True)
+            sys.exit(1)
+
+    if email_addr:
+        click.echo(click.style("  testing", fg="cyan", bold=True) + f"  email: {email_addr}")
+        try:
+            smtp_cfg = SMTPConfig(
+                host=smtp_host,
+                port=smtp_port,
+                username=smtp_user,
+                password=smtp_password,
+            )
+            EmailAlert(smtp=smtp_cfg, sender=sender).send_regression(report, [email_addr])
+            click.echo(
+                click.style("  sent", fg="green", bold=True) + f"     test email → {email_addr}"
+            )
+        except Exception as exc:
+            click.echo(click.style(f"  error: {exc}", fg="red"), err=True)
+            sys.exit(1)
+
+
+# ─── cloud ────────────────────────────────────────────────────────────────────
+
+@cli.group()
+def cloud() -> None:
+    """Push cassettes and golden sets to the Evalcraft cloud dashboard."""
+
+
+@cloud.command("login")
+@click.option("--api-key", prompt="API key", hide_input=True,
+              help="Your Evalcraft API key (ec_...)")
+@click.option("--url", default="https://api.evalcraft.dev/v1",
+              help="Override API base URL")
+def cloud_login(api_key: str, url: str) -> None:
+    """Save your API key to ~/.evalcraft/config.json.
+
+    Example:
+
+        evalcraft cloud login --api-key ec_xxxxxxxxxxxx
+    """
+    from evalcraft.cloud.client import EvalcraftCloud
+    EvalcraftCloud.save_config(api_key=api_key, base_url=url)
+    click.echo(click.style("  saved", fg="green", bold=True) + "  ~/.evalcraft/config.json")
+    click.echo("  API key stored.  Run `evalcraft cloud status` to verify.")
+
+
+@cloud.command("status")
+def cloud_status() -> None:
+    """Check connection to the Evalcraft dashboard.
+
+    Example:
+
+        evalcraft cloud status
+    """
+    from evalcraft.cloud.client import EvalcraftCloud
+    client = EvalcraftCloud()
+    if not client.api_key:
+        click.echo(click.style("  not logged in", fg="yellow", bold=True))
+        click.echo("  Run `evalcraft cloud login` to set your API key.")
+        return
+
+    click.echo(click.style("  checking", fg="cyan") + f"  {client.base_url}")
+    result = client.check_connection()
+    if result["ok"]:
+        click.echo(click.style("  connected", fg="green", bold=True))
+        if result.get("detail"):
+            click.echo(f"  {result['detail']}")
+    else:
+        click.echo(click.style("  unreachable", fg="red", bold=True))
+        click.echo(f"  {result['message']}")
+
+    queued = client.queue_size()
+    if queued:
+        click.echo(f"  offline queue: {queued} item(s) pending — run `evalcraft cloud flush`")
+
+
+@cloud.command("upload")
+@click.argument("cassette", type=click.Path(exists=True, dir_okay=False))
+@click.option("--golden", is_flag=True, help="Treat file as a golden set instead of a cassette")
+def cloud_upload(cassette: str, golden: bool) -> None:
+    """Upload CASSETTE (or a golden-set file) to the dashboard.
+
+    Example:
+
+        evalcraft cloud upload cassettes/run1.json
+        evalcraft cloud upload weather.golden.json --golden
+    """
+    from evalcraft.cloud.client import EvalcraftCloud, CloudUploadError
+
+    client = EvalcraftCloud()
+    if not client.api_key:
+        click.echo(click.style("  error", fg="red", bold=True) + "  not logged in.")
+        click.echo("  Run `evalcraft cloud login` first.")
+        sys.exit(1)
+
+    path = Path(cassette)
+    click.echo(click.style("  uploading", fg="cyan", bold=True) + f"  {path.name}")
+
+    try:
+        if golden:
+            from evalcraft.golden.manager import GoldenSet
+            gs = GoldenSet.load(path)
+            resp = client.upload_golden(gs)
+            click.echo(click.style("  uploaded", fg="green", bold=True)
+                       + f"  golden set '{gs.name}' v{gs.version}")
+        else:
+            c = _load_cassette(cassette)
+            resp = client.upload(c)
+            click.echo(click.style("  uploaded", fg="green", bold=True)
+                       + f"  cassette '{c.name or c.id}'")
+        if resp.get("url"):
+            click.echo(f"  dashboard: {resp['url']}")
+    except CloudUploadError as exc:
+        click.echo(click.style("  failed", fg="red", bold=True) + f"  {exc}")
+        click.echo("  Saved to offline queue — run `evalcraft cloud flush` to retry.")
+        sys.exit(1)
+
+
+@cloud.command("flush")
+def cloud_flush() -> None:
+    """Retry all items in the offline queue.
+
+    Items are queued automatically when uploads fail (network error,
+    API unreachable).
+
+    Example:
+
+        evalcraft cloud flush
+    """
+    from evalcraft.cloud.client import EvalcraftCloud
+
+    client = EvalcraftCloud()
+    queued = client.queue_size()
+    if queued == 0:
+        click.echo(click.style("  empty", fg="green") + "  offline queue is empty.")
+        return
+
+    click.echo(click.style("  flushing", fg="cyan", bold=True) + f"  {queued} queued item(s)")
+    succeeded, failed = client.flush_queue()
+    if failed == 0:
+        click.echo(click.style("  done", fg="green", bold=True)
+                   + f"  {succeeded} item(s) uploaded successfully.")
+    else:
+        click.echo(click.style("  partial", fg="yellow", bold=True)
+                   + f"  {succeeded} uploaded, {failed} still pending.")
+        sys.exit(1)

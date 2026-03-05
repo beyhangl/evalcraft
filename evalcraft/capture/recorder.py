@@ -42,6 +42,17 @@ class CaptureContext:
     """Manages a capture session that records spans into a cassette.
 
     Can be used as both sync and async context manager.
+
+    Args:
+        name: Cassette name.
+        agent_name: Agent tag.
+        framework: Framework tag.
+        save_path: If set, save cassette to this path on exit.
+        metadata: Extra metadata to attach to the cassette.
+        cloud: If ``True``, auto-upload the cassette to the Evalcraft
+            dashboard on exit.  Requires ``EVALCRAFT_API_KEY`` env var or
+            ``~/.evalcraft/config.json``.  Can also be an
+            ``EvalcraftCloud`` instance for custom config.
     """
 
     def __init__(
@@ -51,6 +62,7 @@ class CaptureContext:
         framework: str = "",
         save_path: str | Path | None = None,
         metadata: dict | None = None,
+        cloud: bool | Any = False,
     ):
         self.cassette = Cassette(
             name=name,
@@ -59,6 +71,7 @@ class CaptureContext:
             metadata=metadata or {},
         )
         self.save_path = Path(save_path) if save_path else None
+        self._cloud = cloud
         self._token: contextvars.Token | None = None
         self._start_time: float = 0.0
 
@@ -85,12 +98,30 @@ class CaptureContext:
         return None
 
     def _finalize(self) -> None:
-        """Finalize the cassette — compute metrics, optionally save."""
+        """Finalize the cassette — compute metrics, optionally save, optionally upload."""
         self.cassette.total_duration_ms = (time.time() - self._start_time) * 1000
         self.cassette.compute_metrics()
         self.cassette.compute_fingerprint()
         if self.save_path:
             self.cassette.save(self.save_path)
+        if self._cloud is not False and self._cloud is not None:
+            self._auto_upload()
+
+    def _auto_upload(self) -> None:
+        """Upload the cassette to the cloud dashboard (best-effort, never raises)."""
+        import logging
+        log = logging.getLogger(__name__)
+        try:
+            from evalcraft.cloud.client import EvalcraftCloud, CloudUploadError
+            client: EvalcraftCloud
+            if hasattr(self._cloud, "upload"):
+                client = self._cloud
+            else:
+                client = EvalcraftCloud()
+            client.upload(self.cassette)
+            log.debug("Auto-uploaded cassette %s to cloud", self.cassette.id)
+        except Exception as exc:
+            log.warning("Cloud auto-upload failed (cassette queued if possible): %s", exc)
 
     def record_span(self, span: Span) -> Span:
         """Record a span in the current cassette."""
@@ -175,6 +206,7 @@ def capture(
     framework: str = "",
     save_path: str | Path | None = None,
     metadata: dict | None = None,
+    cloud: bool | Any = False,
 ) -> Callable:
     """Decorator to capture an agent run into a cassette.
 
@@ -183,6 +215,11 @@ def capture(
         def test_agent():
             result = my_agent.run("What's the weather?")
             return result
+
+        # Auto-upload to cloud dashboard on exit:
+        @capture(name="weather_agent_test", cloud=True)
+        def test_agent():
+            ...
 
         # The cassette is available via get_active_context()
     """
@@ -196,6 +233,7 @@ def capture(
                     framework=framework,
                     save_path=save_path,
                     metadata=metadata,
+                    cloud=cloud,
                 )
                 async with ctx:
                     result = await func(*args, **kwargs)
@@ -210,6 +248,7 @@ def capture(
                     framework=framework,
                     save_path=save_path,
                     metadata=metadata,
+                    cloud=cloud,
                 )
                 with ctx:
                     result = func(*args, **kwargs)

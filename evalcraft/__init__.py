@@ -22,6 +22,7 @@ from evalcraft.eval.scorers import (
 from evalcraft.core.models import Span, Cassette, AgentRun, EvalResult
 from evalcraft.golden.manager import GoldenSet
 from evalcraft.regression.detector import RegressionDetector, RegressionReport
+from evalcraft.cloud.client import EvalcraftCloud
 
 __all__ = [
     "capture",
@@ -45,4 +46,5 @@ __all__ = [
     "GoldenSet",
     "RegressionDetector",
     "RegressionReport",
+    "EvalcraftCloud",
 ]
