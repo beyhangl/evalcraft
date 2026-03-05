@@ -526,3 +526,183 @@ def mock(cassette: str, output: str | None, var: str) -> None:
         click.echo(f"  tool fixtures: {len(tool_names)}")
     else:
         click.echo(code)
+
+
+# ─── golden ──────────────────────────────────────────────────────────────────
+
+@cli.group()
+def golden() -> None:
+    """Manage golden-set baselines for regression detection."""
+
+
+@golden.command("save")
+@click.argument("cassette", type=click.Path(exists=True, dir_okay=False))
+@click.option("--name", "-n", required=True, help="Name for the golden set")
+@click.option("--output", "-o", default=None, help="Output path (default: <name>.golden.json)")
+@click.option("--description", "-d", default="", help="Description of the golden set")
+def golden_save(cassette: str, name: str, output: str | None, description: str) -> None:
+    """Save CASSETTE as a golden-set baseline.
+
+    Creates a versioned golden-set file that subsequent runs can be
+    compared against.
+
+    Example:
+
+        evalcraft golden save cassettes/run1.json --name weather_agent
+    """
+    from evalcraft.golden.manager import GoldenSet
+
+    c = _load_cassette(cassette)
+    out_path = Path(output) if output else Path(f"{name}.golden.json")
+
+    # If golden set exists, load it and bump version
+    if out_path.exists():
+        gs = GoldenSet.load(out_path)
+        gs._cassettes.clear()
+        gs.add_cassette(c)
+        gs.bump_version()
+        click.echo(
+            click.style("  updated", fg="cyan", bold=True)
+            + f"  {name} -> v{gs.version}"
+        )
+    else:
+        gs = GoldenSet(name=name, description=description)
+        gs.add_cassette(c)
+        click.echo(
+            click.style("  created", fg="cyan", bold=True)
+            + f"  {name} v{gs.version}"
+        )
+
+    gs.save(out_path)
+    click.echo(click.style("  saved", fg="green", bold=True) + f"     {out_path}")
+    click.echo(f"  cassettes: {gs.cassette_count}")
+    click.echo(f"  version:   v{gs.version}")
+
+
+@golden.command("compare")
+@click.argument("cassette", type=click.Path(exists=True, dir_okay=False))
+@click.option("--against", "-a", required=True, type=click.Path(exists=True, dir_okay=False),
+              help="Golden set to compare against")
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON")
+def golden_compare(cassette: str, against: str, as_json: bool) -> None:
+    """Compare CASSETTE against a golden-set baseline.
+
+    Reports per-field pass/fail with configurable thresholds defined
+    in the golden set.
+
+    Example:
+
+        evalcraft golden compare cassettes/new_run.json --against weather_agent.golden.json
+    """
+    from evalcraft.golden.manager import GoldenSet
+
+    c = _load_cassette(cassette)
+    gs = GoldenSet.load(against)
+    result = gs.compare(c)
+
+    if as_json:
+        click.echo(json.dumps(result.to_dict(), indent=2, default=str))
+        if not result.passed:
+            sys.exit(1)
+        return
+
+    click.echo(
+        click.style("  golden compare", fg="cyan", bold=True)
+        + f"  {Path(cassette).name} vs {gs.name} v{gs.version}"
+    )
+    click.echo()
+
+    for f in result.fields:
+        if f.passed:
+            icon = click.style("  PASS", fg="green", bold=True)
+            click.echo(f"{icon}  {f.name}")
+        else:
+            icon = click.style("  FAIL", fg="red", bold=True)
+            click.echo(f"{icon}  {f.name}")
+            if f.message:
+                click.echo(f"        {click.style(f.message, fg='red')}")
+
+    click.echo()
+    n_pass = sum(1 for f in result.fields if f.passed)
+    n_total = len(result.fields)
+    status = "PASS" if result.passed else "FAIL"
+    color = "green" if result.passed else "red"
+    click.echo(
+        click.style(f"  {status}", fg=color, bold=True)
+        + f"  ({n_pass}/{n_total} checks passed)"
+    )
+
+    if not result.passed:
+        sys.exit(1)
+
+
+# ─── regression ──────────────────────────────────────────────────────────────
+
+@cli.command("regression")
+@click.argument("cassette", type=click.Path(exists=True, dir_okay=False))
+@click.option("--golden", "-g", required=True, type=click.Path(exists=True, dir_okay=False),
+              help="Golden cassette or golden-set file to compare against")
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON")
+def regression_cmd(cassette: str, golden: str, as_json: bool) -> None:
+    """Check CASSETTE for regressions against a golden baseline.
+
+    Detects: tool sequence changes, output drift, cost increases,
+    latency increases, token bloat, and error introduction.
+
+    Example:
+
+        evalcraft regression cassettes/new_run.json --golden cassettes/baseline.json
+    """
+    from evalcraft.golden.manager import GoldenSet
+    from evalcraft.regression.detector import RegressionDetector
+
+    c = _load_cassette(cassette)
+
+    golden_path = Path(golden)
+    # Detect if it's a golden-set file or a plain cassette
+    with open(golden_path) as f:
+        golden_data = json.load(f)
+
+    if golden_data.get("evalcraft_golden_set"):
+        gs = GoldenSet.from_dict(golden_data)
+        golden_cassette = gs.get_primary_cassette()
+        if golden_cassette is None:
+            click.echo(click.style("Error: golden set has no cassettes", fg="red"), err=True)
+            sys.exit(1)
+    else:
+        golden_cassette = Cassette.from_dict(golden_data)
+
+    detector = RegressionDetector()
+    report = detector.compare(golden_cassette, c)
+
+    if as_json:
+        click.echo(json.dumps(report.to_dict(), indent=2, default=str))
+        if report.has_critical:
+            sys.exit(1)
+        return
+
+    click.echo(
+        click.style("  regression check", fg="cyan", bold=True)
+        + f"  {Path(cassette).name}"
+    )
+    click.echo()
+
+    if not report.has_regressions:
+        click.echo(click.style("  no regressions detected", fg="green", bold=True))
+        return
+
+    _SEV_COLORS = {"CRITICAL": "red", "WARNING": "yellow", "INFO": "blue"}
+
+    for r in report.regressions:
+        color = _SEV_COLORS.get(r.severity.value, "white")
+        icon = click.style(f"  {r.severity.value:<8}", fg=color, bold=True)
+        click.echo(f"{icon}  [{r.category}] {r.message}")
+
+    click.echo()
+    click.echo(
+        f"  {len(report.regressions)} regression(s) found — "
+        f"max severity: {click.style(report.max_severity.value if report.max_severity else 'NONE', bold=True)}"
+    )
+
+    if report.has_critical:
+        sys.exit(1)

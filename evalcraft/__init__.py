@@ -20,6 +20,8 @@ from evalcraft.eval.scorers import (
     assert_token_count_under,
 )
 from evalcraft.core.models import Span, Cassette, AgentRun, EvalResult
+from evalcraft.golden.manager import GoldenSet
+from evalcraft.regression.detector import RegressionDetector, RegressionReport
 
 __all__ = [
     "capture",
@@ -40,4 +42,7 @@ __all__ = [
     "Cassette",
     "AgentRun",
     "EvalResult",
+    "GoldenSet",
+    "RegressionDetector",
+    "RegressionReport",
 ]

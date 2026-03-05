@@ -1,0 +1,109 @@
+# Example: Evalcraft CI Gate
+#
+# Copy this workflow to your repo's .github/workflows/ directory and adapt it
+# to your project. Teams using evalcraft can gate PRs on agent test results —
+# blocking merges when tests fail or cost/regression thresholds are exceeded.
+#
+# For full documentation see:
+#   https://github.com/beyhangl/evalcraft/blob/main/docs/user-guide/ci-cd.md
+
+name: Agent Tests (Evalcraft CI Gate)
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+
+# Only allow one run per PR branch at a time; cancel superseded runs.
+concurrency:
+  group: evalcraft-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Replay-only gate (fast, no API keys required) ────────────────────────────
+  #
+  # Runs your agent tests against committed cassettes. Fails if any test fails
+  # or if total cost / token regressions exceed your thresholds.
+  #
+  # This is the recommended default for pull request checks.
+  agent-tests:
+    name: Agent Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read       # read cassette files
+      pull-requests: write # post results comment
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: beyhangl/evalcraft@v0.1.0
+        with:
+          # Path(s) to your agent test files
+          test-path: tests/agent_tests/
+
+          # Cassette directory (must match your pytest --cassette-dir setting)
+          cassette-dir: tests/cassettes/
+
+          # Fail the PR if total agent cost exceeds this value (USD)
+          max-cost: '0.10'
+
+          # Fail the PR if any cassette metric increases by more than this %
+          # relative to the baseline cassettes committed in git.
+          # Only meaningful when record-mode is 'new' or 'all'.
+          max-regression: '5%'
+
+          # Replay recorded cassettes without making real LLM calls (default).
+          # Change to 'new' or 'all' to re-record during CI (requires API keys).
+          record-mode: none
+
+          # Post a results table as a PR comment (requires pull-requests: write)
+          post-comment: 'true'
+
+          # Pin to a specific evalcraft version for reproducible CI
+          # evalcraft-version: '0.1.0'
+
+      # The action exposes outputs you can use in subsequent steps:
+      # - passed         (true/false)
+      # - total-cost     (e.g. "0.0423")
+      # - total-tokens   (e.g. "1840")
+      # - total-tool-calls
+      # - cassette-count
+
+
+  # ── Optional: nightly re-record job ─────────────────────────────────────────
+  #
+  # Runs on a schedule with real LLM calls, re-records cassettes, and opens a
+  # PR if any cassette changed. Requires your LLM API key as a secret.
+  #
+  # Uncomment and adapt if you want automated cassette refresh.
+
+  # nightly-record:
+  #   name: Nightly cassette refresh
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'schedule'
+  #   permissions:
+  #     contents: write
+  #     pull-requests: write
+  #
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #
+  #     - uses: beyhangl/evalcraft@v0.1.0
+  #       env:
+  #         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  #         # or ANTHROPIC_API_KEY, etc.
+  #       with:
+  #         test-path: tests/agent_tests/
+  #         cassette-dir: tests/cassettes/
+  #         record-mode: all          # re-record every cassette
+  #         max-regression: '10%'     # allow up to 10% drift from last recording
+  #         post-comment: 'false'
+  #
+  #     - name: Open PR if cassettes changed
+  #       uses: peter-evans/create-pull-request@v6
+  #       with:
+  #         commit-message: 'chore: refresh evalcraft cassettes'
+  #         title: '🤖 Cassette refresh — nightly agent test update'
+  #         branch: cassette-refresh/nightly
+  #         labels: cassettes, automated

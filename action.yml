@@ -1,0 +1,379 @@
+name: 'Evalcraft CI Gate'
+description: >-
+  Run evalcraft agent tests and gate pull requests on agent behavior.
+  Installs evalcraft, runs your pytest suite, evaluates cassette metrics against
+  thresholds, and posts a results table as a PR comment.
+
+branding:
+  icon: 'check-circle'
+  color: 'purple'
+
+# ── Inputs ─────────────────────────────────────────────────────────────────────
+
+inputs:
+  test-path:
+    description: 'Path to agent test files or directory'
+    required: false
+    default: 'tests/'
+
+  max-cost:
+    description: >-
+      Maximum total cost in USD across all cassettes. Fails the action if
+      exceeded. Example: "0.10"
+    required: false
+    default: ''
+
+  max-regression:
+    description: >-
+      Maximum allowed increase (%) for any cassette metric (tokens, cost)
+      compared to the baseline cassettes committed in git. Requires
+      record-mode=all or new so cassettes are re-recorded. Example: "5" or "5%"
+    required: false
+    default: ''
+
+  cassette-dir:
+    description: 'Directory where cassettes are stored and loaded from'
+    required: false
+    default: 'tests/cassettes'
+
+  record-mode:
+    description: >-
+      Cassette record mode passed to --evalcraft-record:
+        none — replay-only, skip tests with missing cassettes (default)
+        new  — record cassettes that don't exist yet
+        all  — always re-record (live LLM calls required)
+    required: false
+    default: 'none'
+
+  evalcraft-version:
+    description: >-
+      Evalcraft package version to install. Use "latest" for the most recent
+      release or pin to a specific version (e.g. "0.1.0").
+    required: false
+    default: 'latest'
+
+  python-version:
+    description: 'Python version to use when installing and running evalcraft'
+    required: false
+    default: '3.11'
+
+  extra-pytest-args:
+    description: 'Additional arguments forwarded to pytest verbatim'
+    required: false
+    default: ''
+
+  post-comment:
+    description: 'Post a PR comment with the results table (true/false)'
+    required: false
+    default: 'true'
+
+  github-token:
+    description: >-
+      GitHub token used to post PR comments. Defaults to the auto-provided
+      GITHUB_TOKEN secret.
+    required: false
+    default: ${{ github.token }}
+
+# ── Outputs ────────────────────────────────────────────────────────────────────
+
+outputs:
+  total-cost:
+    description: 'Total cost in USD across all agent test cassettes'
+    value: ${{ steps.report.outputs.total-cost }}
+
+  total-tokens:
+    description: 'Total token count across all agent test cassettes'
+    value: ${{ steps.report.outputs.total-tokens }}
+
+  total-tool-calls:
+    description: 'Total tool call count across all agent test cassettes'
+    value: ${{ steps.report.outputs.total-tool-calls }}
+
+  cassette-count:
+    description: 'Number of cassette files evaluated'
+    value: ${{ steps.report.outputs.cassette-count }}
+
+  passed:
+    description: 'Whether all tests and thresholds passed ("true" / "false")'
+    value: ${{ steps.gate.outputs.passed }}
+
+# ── Steps ──────────────────────────────────────────────────────────────────────
+
+runs:
+  using: 'composite'
+  steps:
+
+    # ── 1. Python ──────────────────────────────────────────────────────────────
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    # ── 2. Install evalcraft ───────────────────────────────────────────────────
+    - name: Install evalcraft
+      shell: bash
+      run: |
+        if [ "${{ inputs.evalcraft-version }}" = "latest" ]; then
+          pip install --quiet evalcraft
+        else
+          pip install --quiet "evalcraft==${{ inputs.evalcraft-version }}"
+        fi
+        INSTALLED=$(pip show evalcraft | grep -E '^Version:' | awk '{print $2}')
+        echo "evalcraft ${INSTALLED} ready"
+
+    # ── 3. Run agent tests ─────────────────────────────────────────────────────
+    - name: Run agent tests
+      id: pytest
+      shell: bash
+      run: |
+        set +e
+        pytest "${{ inputs.test-path }}" \
+          --cassette-dir="${{ inputs.cassette-dir }}" \
+          --evalcraft-record="${{ inputs.record-mode }}" \
+          -v --tb=short \
+          ${{ inputs.extra-pytest-args }} \
+          2>&1 | tee /tmp/evalcraft-pytest.log
+        echo "exit-code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+        set -e
+
+    # ── 4. Generate results report ─────────────────────────────────────────────
+    - name: Generate report
+      id: report
+      shell: python
+      env:
+        EVALCRAFT_CASSETTE_DIR: ${{ inputs.cassette-dir }}
+        EVALCRAFT_MAX_COST: ${{ inputs.max-cost }}
+        EVALCRAFT_MAX_REGRESSION: ${{ inputs.max-regression }}
+      run: |
+        import json, os, subprocess, sys
+        from pathlib import Path
+
+        cassette_dir = Path(os.environ.get("EVALCRAFT_CASSETTE_DIR", "tests/cassettes"))
+        max_cost_str = os.environ.get("EVALCRAFT_MAX_COST", "").strip()
+        max_reg_str = os.environ.get("EVALCRAFT_MAX_REGRESSION", "").strip().rstrip("%")
+
+        max_cost = float(max_cost_str) if max_cost_str else None
+        max_regression = float(max_reg_str) if max_reg_str else None
+
+        rows = []
+        total_cost = 0.0
+        total_tokens = 0
+        total_tools = 0
+        total_llm = 0
+        regressions = []
+
+        try:
+            from evalcraft.core.models import Cassette
+            cassette_available = True
+        except ImportError:
+            cassette_available = False
+            print("::warning::evalcraft not importable; skipping cassette evaluation")
+
+        if cassette_available and cassette_dir.exists():
+            for p in sorted(cassette_dir.glob("*.json")):
+                try:
+                    c = Cassette.load(p)
+                    c.compute_metrics()
+                    row = {
+                        "name": c.name or p.stem,
+                        "llm_calls": c.llm_call_count or 0,
+                        "tool_calls": c.tool_call_count or 0,
+                        "tokens": c.total_tokens or 0,
+                        "cost_usd": c.total_cost_usd or 0.0,
+                        "duration_ms": c.total_duration_ms or 0.0,
+                        "fingerprint": (c.fingerprint or "")[:8],
+                    }
+                    rows.append(row)
+                    total_cost += row["cost_usd"]
+                    total_tokens += row["tokens"]
+                    total_tools += row["tool_calls"]
+                    total_llm += row["llm_calls"]
+
+                    # Regression check: compare to git HEAD version of cassette
+                    if max_regression is not None:
+                        try:
+                            git_root = subprocess.run(
+                                ["git", "rev-parse", "--show-toplevel"],
+                                capture_output=True, text=True, check=True
+                            ).stdout.strip()
+                            rel_path = str(p.relative_to(git_root))
+                            result = subprocess.run(
+                                ["git", "show", f"HEAD:{rel_path}"],
+                                capture_output=True, text=True
+                            )
+                            if result.returncode == 0 and result.stdout.strip():
+                                baseline = Cassette.model_validate_json(result.stdout)
+                                baseline.compute_metrics()
+                                checks = [
+                                    ("tokens", baseline.total_tokens or 0, row["tokens"]),
+                                    ("cost", baseline.total_cost_usd or 0.0, row["cost_usd"]),
+                                ]
+                                for metric, old_val, new_val in checks:
+                                    if old_val and old_val > 0 and new_val > old_val:
+                                        pct = (new_val - old_val) / old_val * 100
+                                        if pct > max_regression:
+                                            regressions.append(
+                                                f"`{p.stem}` {metric} increased by **{pct:.1f}%** "
+                                                f"(was {old_val}, now {new_val}, max +{max_regression:.0f}%)"
+                                            )
+                        except Exception as reg_err:
+                            print(f"::debug::Regression check skipped for {p.stem}: {reg_err}")
+
+                except Exception as e:
+                    rows.append({"name": p.stem, "error": str(e)})
+
+        # Max-cost threshold
+        if max_cost is not None and total_cost > max_cost:
+            regressions.append(
+                f"Total cost **${total_cost:.4f}** exceeds `max-cost` limit of **${max_cost:.4f}**"
+            )
+
+        threshold_passed = len(regressions) == 0
+
+        # ── Write GITHUB_OUTPUT ───────────────────────────────────────────────
+        output_file = os.environ.get("GITHUB_OUTPUT", "")
+        if output_file:
+            with open(output_file, "a") as f:
+                f.write(f"total-cost={total_cost:.6f}\n")
+                f.write(f"total-tokens={total_tokens}\n")
+                f.write(f"total-tool-calls={total_tools}\n")
+                f.write(f"cassette-count={len(rows)}\n")
+                f.write(f"threshold-passed={'true' if threshold_passed else 'false'}\n")
+                f.write(f"regression-count={len(regressions)}\n")
+
+        # ── Build markdown report ─────────────────────────────────────────────
+        status = "✅ Passed" if threshold_passed else "❌ Failed"
+        md = [f"## 🧪 Evalcraft Agent Test Results — {status}\n"]
+
+        md += [
+            "| Metric | Value |",
+            "|--------|-------|",
+            f"| Cassettes evaluated | **{len(rows)}** |",
+            f"| Total tokens | **{total_tokens:,}** |",
+            f"| Total cost | **${total_cost:.4f}** |",
+            f"| Total tool calls | **{total_tools}** |",
+            f"| Total LLM calls | **{total_llm}** |",
+            "",
+        ]
+
+        if rows:
+            md += [
+                "### Per-Cassette Metrics\n",
+                "| Cassette | LLM Calls | Tool Calls | Tokens | Cost | Duration | Fingerprint |",
+                "|----------|:---------:|:----------:|-------:|-----:|:--------:|:-----------:|",
+            ]
+            for r in rows:
+                if "error" in r:
+                    md.append(f"| `{r['name']}` | — | — | — | — | — | ⚠️ load error |")
+                else:
+                    dur = r.get("duration_ms", 0) or 0
+                    if dur >= 1000:
+                        dur_str = f"{dur / 1000:.2f}s"
+                    elif dur > 0:
+                        dur_str = f"{dur:.0f}ms"
+                    else:
+                        dur_str = "—"
+                    cost_str = f"${r['cost_usd']:.4f}"
+                    fp = r.get("fingerprint") or "—"
+                    md.append(
+                        f"| `{r['name']}` | {r['llm_calls']} | {r['tool_calls']} "
+                        f"| {r['tokens']:,} | {cost_str} | {dur_str} | `{fp}` |"
+                    )
+            md.append("")
+
+        if regressions:
+            md += ["### ⚠️ Threshold Violations\n"]
+            for reg in regressions:
+                md.append(f"- {reg}")
+            md.append("")
+
+        thresholds_active = []
+        if max_cost is not None:
+            thresholds_active.append(f"`max-cost`: ${max_cost:.4f}")
+        if max_regression is not None:
+            thresholds_active.append(f"`max-regression`: {max_regression:.0f}%")
+        if thresholds_active:
+            md.append(f"> **Active thresholds:** {', '.join(thresholds_active)}")
+            md.append("")
+
+        md.append(
+            "<sub>Generated by [evalcraft](https://github.com/beyhangl/evalcraft) · "
+            f"[docs](https://github.com/beyhangl/evalcraft/blob/main/docs/user-guide/ci-cd.md)</sub>"
+        )
+
+        report = "\n".join(md)
+        Path("/tmp/evalcraft-report.md").write_text(report)
+
+        # ── Write step summary ────────────────────────────────────────────────
+        summary_file = os.environ.get("GITHUB_STEP_SUMMARY", "")
+        if summary_file:
+            with open(summary_file, "a") as f:
+                f.write(report + "\n")
+
+        print(f"Report: {len(rows)} cassette(s), {total_tokens:,} tokens, ${total_cost:.4f} total")
+        if regressions:
+            for r in regressions:
+                print(f"  VIOLATION: {r}")
+
+    # ── 5. Post PR comment ─────────────────────────────────────────────────────
+    - name: Post PR comment
+      if: inputs.post-comment == 'true' && github.event_name == 'pull_request'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        MARKER="<!-- evalcraft-ci-gate -->"
+
+        # Build comment body: marker on first line so we can find it later
+        printf '%s\n' "$MARKER" > /tmp/evalcraft-full-comment.md
+        cat /tmp/evalcraft-report.md >> /tmp/evalcraft-full-comment.md
+
+        # Encode as JSON (handles backticks, quotes, newlines safely)
+        jq -Rs '{"body": .}' /tmp/evalcraft-full-comment.md > /tmp/evalcraft-comment-payload.json
+
+        # Find existing evalcraft comment (update instead of spamming)
+        EXISTING_ID=$(gh api \
+          "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+          --jq ".[] | select(.body | startswith(\"${MARKER}\")) | .id" \
+          2>/dev/null | head -1)
+
+        if [ -n "$EXISTING_ID" ]; then
+          gh api --method PATCH \
+            "repos/${{ github.repository }}/issues/comments/${EXISTING_ID}" \
+            --input /tmp/evalcraft-comment-payload.json --silent
+          echo "Updated PR comment #${EXISTING_ID}"
+        else
+          gh api --method POST \
+            "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            --input /tmp/evalcraft-comment-payload.json --silent
+          echo "Posted new PR comment"
+        fi
+
+    # ── 6. CI gate: fail if tests or thresholds failed ─────────────────────────
+    - name: Gate check
+      id: gate
+      shell: bash
+      run: |
+        PYTEST_EXIT="${{ steps.pytest.outputs.exit-code }}"
+        THRESHOLD_PASSED="${{ steps.report.outputs.threshold-passed }}"
+        REGRESSION_COUNT="${{ steps.report.outputs.regression-count }}"
+
+        PASSED=true
+
+        if [ "$PYTEST_EXIT" != "0" ]; then
+          echo "::error title=Agent tests failed::pytest exited with code ${PYTEST_EXIT}. See test output above."
+          PASSED=false
+        fi
+
+        if [ "$THRESHOLD_PASSED" = "false" ]; then
+          echo "::error title=Evalcraft threshold violations::${REGRESSION_COUNT} violation(s) detected. See report for details."
+          PASSED=false
+        fi
+
+        echo "passed=${PASSED}" >> "$GITHUB_OUTPUT"
+
+        if [ "$PASSED" = "false" ]; then
+          exit 1
+        fi
+
+        echo "All evalcraft checks passed ✓"

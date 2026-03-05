@@ -37,8 +37,10 @@ import pytest
 
 from evalcraft.capture.recorder import CaptureContext
 from evalcraft.core.models import Cassette
+from evalcraft.golden.manager import GoldenSet, ComparisonResult
 from evalcraft.mock.llm import MockLLM
 from evalcraft.mock.tool import MockTool
+from evalcraft.regression.detector import RegressionDetector, RegressionReport
 from evalcraft.replay.engine import ReplayEngine
 
 
@@ -60,6 +62,10 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line(
         "markers",
         "evalcraft_agent: tag test as an agent evaluation test",
+    )
+    config.addinivalue_line(
+        "markers",
+        "evalcraft_golden(path): path to golden-set file for regression comparison",
     )
     # Session-level list accumulates per-test metrics for the terminal summary.
     config._evalcraft_results: list[dict] = []  # type: ignore[attr-defined]
@@ -234,6 +240,40 @@ def replay_engine(request: pytest.FixtureRequest) -> ReplayEngine | None:
     if loaded is None:
         return None
     return ReplayEngine(loaded)
+
+
+@pytest.fixture
+def golden_set(request: pytest.FixtureRequest) -> GoldenSet | None:
+    """Load a :class:`~evalcraft.golden.manager.GoldenSet` from the path given in
+    ``@pytest.mark.evalcraft_golden``.
+
+    Skips the test when the golden-set file is not found.
+
+    Example::
+
+        @pytest.mark.evalcraft_golden("golden/weather_agent.golden.json")
+        def test_golden(golden_set, cassette):
+            result = golden_set.compare(cassette)
+            assert result.passed
+    """
+    marker = request.node.get_closest_marker("evalcraft_golden")
+    if marker is None:
+        return None
+
+    if not marker.args:
+        pytest.fail(
+            "@pytest.mark.evalcraft_golden requires a path argument, "
+            "e.g. @pytest.mark.evalcraft_golden('golden/baseline.golden.json')"
+        )
+
+    path = Path(str(marker.args[0]))
+    if not path.is_absolute():
+        path = Path(str(request.config.rootdir)) / path
+
+    if not path.exists():
+        pytest.skip(f"Golden set not found: {path}")
+
+    return GoldenSet.load(path)
 
 
 # ─────────────────────────────────────────────────────
