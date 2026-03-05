@@ -1,0 +1,40 @@
+name: Feature Request
+description: Propose a new feature or improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the use case or pain point.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What should the API / behavior look like? Code sketches welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you considered and why you prefer this one.
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - Core (capture / replay / assertions)
+        - Mock LLM / Mock Tools
+        - Framework adapter (OpenAI, LangChain, etc.)
+        - CLI
+        - pytest plugin
+        - Docs / examples
+        - Other
+    validations:
+      required: true
