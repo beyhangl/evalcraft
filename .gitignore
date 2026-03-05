@@ -34,3 +34,8 @@ Thumbs.db
 # Cassettes (user-generated, not tracked)
 tests/cassettes/*.json
 !tests/cassettes/.gitkeep
+
+# Internal docs (strategy, launch content — not public)
+docs/strategy/
+docs/launch/
+docs/blog/

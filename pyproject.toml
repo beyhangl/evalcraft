@@ -38,11 +38,13 @@ pytest = ["pytest>=7.0"]
 openai = ["openai>=1.0"]
 anthropic = ["anthropic>=0.30"]
 langchain = ["langchain-core>=0.2"]
+crewai = ["crewai>=0.28"]
 all = [
     "pytest>=7.0",
     "openai>=1.0",
     "anthropic>=0.30",
     "langchain-core>=0.2",
+    "crewai>=0.28",
 ]
 dev = [
     "pytest>=7.0",

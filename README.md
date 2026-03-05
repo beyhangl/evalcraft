@@ -2,10 +2,10 @@
 
 **The pytest for AI agents.** Capture, replay, mock, and evaluate agent behavior — without burning API credits on every test run.
 
+[![CI](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg)](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/evalcraft)](https://pypi.org/project/evalcraft/)
-[![Tests](https://github.com/beyhangl/evalcraft/actions/workflows/tests.yml/badge.svg)](https://github.com/beyhangl/evalcraft/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://pypi.org/project/evalcraft/)
+[![Python](https://img.shields.io/pypi/pyversions/evalcraft)](https://pypi.org/project/evalcraft/)
+[![License](https://img.shields.io/github/license/beyhangl/evalcraft)](LICENSE)
 
 ---
 
@@ -18,6 +18,30 @@ Agent testing is broken:
 - **No CI/CD story.** You can't gate deploys on eval results if evals take 10 minutes and cost $5.
 
 Evalcraft fixes this by recording agent runs as **cassettes** (like VCR for HTTP), then replaying them deterministically. Your test suite goes from 10 minutes + $5 to 200ms + $0.
+
+---
+
+## How it works
+
+```
+  Your Agent
+      │
+      ▼
+┌─────────────┐    record     ┌──────────────┐
+│  CaptureCtx │ ────────────► │   Cassette   │  (plain JSON, git-friendly)
+│             │               │  (spans[])   │
+└─────────────┘               └──────┬───────┘
+                                     │
+                    ┌────────────────┼────────────────┐
+                    ▼                ▼                ▼
+              replay()          MockLLM /        assert_*()
+           (zero API calls)    MockTool()       (scorers)
+                    │                                 │
+                    └──────────────┬──────────────────┘
+                                   ▼
+                            pytest / CI gate
+                           (200ms, $0.00)
+```
 
 ---
 
@@ -53,7 +77,7 @@ with CaptureContext(
 ) as ctx:
     ctx.record_input("What's the weather in Paris?")
 
-    # Run your agent normally — wrap your tool/LLM calls
+    # Run your agent — wrap tool/LLM calls with record_* methods
     ctx.record_tool_call("get_weather", args={"city": "Paris"}, result={"temp": 18, "condition": "cloudy"})
     ctx.record_llm_call(
         model="gpt-4o",
@@ -123,7 +147,6 @@ llm.assert_called(times=1)
 
 ```python
 # tests/test_weather_agent.py
-import pytest
 from evalcraft import replay, assert_tool_called, assert_tool_order, assert_cost_under
 
 def test_agent_calls_weather_tool():
@@ -146,11 +169,27 @@ def test_agent_output():
     assert "Paris" in run.cassette.output_text or "cloudy" in run.cassette.output_text
 ```
 
-Run with:
 ```bash
 pytest tests/ -v
 # 200ms, $0.00
 ```
+
+---
+
+## Why Evalcraft?
+
+| | Evalcraft | Braintrust | LangSmith | Promptfoo |
+|---|---|---|---|---|
+| Cassette-based replay | ✅ | ❌ | ❌ | ❌ |
+| Zero-cost CI testing | ✅ | ❌ | ❌ | Partial |
+| pytest-native | ✅ | ❌ | ❌ | ❌ |
+| Mock LLM / Tools | ✅ | ❌ | ❌ | ❌ |
+| Framework agnostic | ✅ | ✅ | ✅ | ✅ |
+| Self-hostable | ✅ | ❌ | Partial | ✅ |
+| Observability dashboard | ❌ | ✅ | ✅ | ❌ |
+| Pricing | Free / OSS | Paid SaaS | Paid SaaS | Free / OSS |
+
+> Evalcraft is a **testing** tool, not an observability platform. Use Braintrust or LangSmith for production tracing; use Evalcraft to keep your test suite fast and free.
 
 ---
 
@@ -160,26 +199,31 @@ pytest tests/ -v
 |---------|-------------|
 | **Capture** | Record every LLM call, tool use, and agent decision as a cassette |
 | **Replay** | Re-run cassettes deterministically — no API calls, zero cost |
-| **Mock LLM** | Substitute real LLMs with deterministic mocks supporting exact/pattern/wildcard matching |
+| **Mock LLM** | Substitute real LLMs with deterministic mocks (exact / pattern / wildcard) |
 | **Mock Tools** | Mock any tool with static, dynamic, sequential, or error-simulating responses |
-| **Eval** | Built-in scorers for tool calls, output content, cost, latency, token count |
+| **Scorers** | Built-in assertions for tool calls, output content, cost, latency, tokens |
 | **Diff** | Compare two cassette runs to detect regressions |
 | **CLI** | `evalcraft replay`, `evalcraft diff`, `evalcraft inspect` from your terminal |
 | **pytest plugin** | Native fixtures and markers — `cassette`, `mock_llm`, `@pytest.mark.evalcraft` |
 
 ---
 
-## Framework support
+## Supported frameworks
 
-### OpenAI SDK
+| Framework | Integration |
+|-----------|-------------|
+| **OpenAI SDK** | `evalcraft.adapters.openai` — auto-records all `chat.completions.create` calls |
+| **LangGraph** | `evalcraft.adapters.langgraph` — callback handler for graphs and chains |
+| **Any agent** | Manual `record_tool_call` / `record_llm_call` works with any framework |
+
+### OpenAI
 
 ```python
 from evalcraft.adapters.openai import patch_openai
 from evalcraft import CaptureContext
 import openai
 
-# Patch the OpenAI client to auto-record all calls
-patch_openai(openai)
+patch_openai(openai)  # all subsequent calls are auto-recorded
 
 with CaptureContext(name="openai_run", save_path="tests/cassettes/openai_run.json") as ctx:
     ctx.record_input("Summarize the French Revolution")
@@ -189,7 +233,6 @@ with CaptureContext(name="openai_run", save_path="tests/cassettes/openai_run.jso
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": "Summarize the French Revolution"}],
     )
-    # All LLM calls are automatically recorded to the cassette
 
     ctx.record_output(response.choices[0].message.content)
 ```
@@ -199,14 +242,12 @@ with CaptureContext(name="openai_run", save_path="tests/cassettes/openai_run.jso
 ```python
 from evalcraft.adapters.langgraph import EvalcraftCallbackHandler
 from evalcraft import CaptureContext
-from langgraph.graph import StateGraph
 
 handler = EvalcraftCallbackHandler()
 
 with CaptureContext(name="langgraph_run", save_path="tests/cassettes/lg_run.json") as ctx:
     ctx.record_input("Plan a trip to Tokyo")
 
-    # Pass the handler to your graph
     graph = build_travel_agent()
     result = graph.invoke(
         {"messages": [{"role": "user", "content": "Plan a trip to Tokyo"}]},
@@ -226,16 +267,12 @@ evalcraft [command] [options]
 
 ### `evalcraft replay`
 
-Replay a cassette and print a summary.
-
 ```bash
 evalcraft replay tests/cassettes/weather.json
 evalcraft replay tests/cassettes/weather.json --override get_weather='{"temp": 5, "condition": "snow"}'
 ```
 
 ### `evalcraft diff`
-
-Compare two cassettes and show what changed.
 
 ```bash
 evalcraft diff tests/cassettes/weather_v1.json tests/cassettes/weather_v2.json
@@ -246,8 +283,6 @@ evalcraft diff tests/cassettes/weather_v1.json tests/cassettes/weather_v2.json
 
 ### `evalcraft inspect`
 
-Show all spans in a cassette.
-
 ```bash
 evalcraft inspect tests/cassettes/weather.json
 evalcraft inspect tests/cassettes/weather.json --kind tool_call
@@ -255,31 +290,12 @@ evalcraft inspect tests/cassettes/weather.json --kind tool_call
 
 ### `evalcraft run`
 
-Run all cassettes in a directory and report pass/fail.
-
 ```bash
 evalcraft run tests/cassettes/
 # ✓ weather.json   (3 spans, $0.0008, 450ms)
 # ✓ search.json    (7 spans, $0.0021, 1200ms)
 # 2/2 passed
 ```
-
----
-
-## Comparison
-
-| | **Evalcraft** | **Braintrust** | **LangSmith** | **Promptfoo** |
-|---|---|---|---|---|
-| Cassette-based replay | ✅ | ❌ | ❌ | ❌ |
-| Zero-cost CI testing | ✅ | ❌ | ❌ | Partial |
-| pytest-native | ✅ | ❌ | ❌ | ❌ |
-| Mock LLM/Tools | ✅ | ❌ | ❌ | ❌ |
-| Framework agnostic | ✅ | ✅ | ✅ | ✅ |
-| Self-hostable | ✅ | ❌ | Partial | ✅ |
-| Observability dashboard | ❌ | ✅ | ✅ | ❌ |
-| Pricing | Free/OSS | Paid SaaS | Paid SaaS | Free/OSS |
-
-Evalcraft is **not** an observability platform — it's a testing tool. Use Braintrust or LangSmith for production tracing; use Evalcraft to keep your test suite fast and free.
 
 ---
 
@@ -291,7 +307,7 @@ Cassette
 ├── input_text, output_text
 ├── total_tokens, total_cost_usd, total_duration_ms
 ├── llm_call_count, tool_call_count
-├── fingerprint  (SHA-256 of span content — detects changes)
+├── fingerprint  (SHA-256 of span content — detects regressions)
 └── spans[]
     ├── Span (llm_request / llm_response)
     │   ├── model, token_usage, cost_usd
@@ -305,15 +321,7 @@ Cassettes are plain JSON — check them into git, diff them in PRs.
 
 ---
 
-## License
-
-MIT © 2026 Beyhan Gül. See [LICENSE](LICENSE).
-
----
-
 ## Contributing
-
-PRs welcome. Please open an issue first for significant changes.
 
 ```bash
 git clone https://github.com/beyhangl/evalcraft
@@ -325,3 +333,11 @@ pytest
 - Format: `ruff format .`
 - Lint: `ruff check .`
 - Type check: `mypy evalcraft/`
+
+PRs welcome. Please open an issue first for significant changes. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+---
+
+## License
+
+MIT © 2026 Beyhan Gül. See [LICENSE](LICENSE).
