@@ -22,7 +22,6 @@ theme:
   font:
     text: Inter
     code: JetBrains Mono
-  logo: logo.png
   favicon: logo.png
   features:
     - navigation.tabs
