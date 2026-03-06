@@ -3,7 +3,7 @@
 **The pytest for AI agents.** Capture, replay, mock, and evaluate agent behavior — without burning API credits on every test run.
 
 [![CI](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg)](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/github/v/release/beyhangl/evalcraft?label=version)](https://github.com/beyhangl/evalcraft/releases)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/beyhangl/evalcraft)
 [![Python](https://img.shields.io/badge/python-3.9%E2%80%933.13-blue)](https://github.com/beyhangl/evalcraft)
 [![License](https://img.shields.io/github/license/beyhangl/evalcraft)](LICENSE)
 
