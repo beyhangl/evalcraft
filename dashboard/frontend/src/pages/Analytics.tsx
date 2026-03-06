@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import Layout from '../components/Layout';
 import MetricCard from '../components/MetricCard';
+import { SkeletonCard } from '../components/Skeleton';
 import { useAuth } from '../context/AuthContext';
 import { useApi } from '../hooks/useApi';
 import { api } from '../services/api';
@@ -82,7 +83,11 @@ export default function Analytics({ onLogout, addToast: _addToast }: AnalyticsPr
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-3)', fontSize: 14 }}>Loading…</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
+          <SkeletonCard height={200} />
+          <SkeletonCard height={200} />
+          <SkeletonCard height={200} />
+        </div>
       ) : (
         /* Line charts */
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>

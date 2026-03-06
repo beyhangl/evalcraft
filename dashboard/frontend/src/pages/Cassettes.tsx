@@ -2,11 +2,13 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Upload, ChevronUp, ChevronDown, Eye } from 'lucide-react';
 import Layout from '../components/Layout';
+import { SkeletonTable } from '../components/Skeleton';
+import UploadCassetteModal from '../components/UploadCassetteModal';
 import { useAuth } from '../context/AuthContext';
 import { useApi } from '../hooks/useApi';
 import { api } from '../services/api';
 import type { ToastMessage } from '../components/Toast';
-import type { CassetteListItem } from '../services/api';
+import type { CassetteListItem, PaginatedResponse } from '../services/api';
 
 type SortKey = 'name' | 'created_at' | 'total_tokens' | 'total_cost_usd';
 type SortDir = 'asc' | 'desc';
@@ -23,14 +25,16 @@ export default function Cassettes({ onLogout, addToast }: CassettesProps) {
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('created_at');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [showUpload, setShowUpload] = useState(false);
 
-  const { data: cassettes, loading } = useApi<CassetteListItem[]>(
-    () => projectId ? api.listCassettes(projectId) : Promise.resolve([]),
+  const { data: paginated, loading, refetch } = useApi<PaginatedResponse<CassetteListItem>>(
+    () => projectId ? api.listCassettes(projectId) : Promise.resolve({ items: [], total: 0, page: 1, page_size: 50 }),
     [projectId],
   );
+  const cassettes = paginated?.items ?? [];
 
   const filtered = useMemo(() => {
-    let list = (cassettes ?? []).filter(c => {
+    let list = cassettes.filter(c => {
       if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
@@ -56,7 +60,7 @@ export default function Cassettes({ onLogout, addToast }: CassettesProps) {
 
   const actions = (
     <button
-      onClick={() => addToast({ type: 'info', text: 'Upload cassette dialog would open here' })}
+      onClick={() => setShowUpload(true)}
       style={{
         display: 'flex', alignItems: 'center', gap: 6,
         padding: '6px 14px',
@@ -73,7 +77,7 @@ export default function Cassettes({ onLogout, addToast }: CassettesProps) {
   if (loading) {
     return (
       <Layout title="Cassettes" actions={actions} onLogout={onLogout}>
-        <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-3)', fontSize: 14 }}>Loading cassettes…</div>
+        <SkeletonTable rows={6} />
       </Layout>
     );
   }
@@ -180,8 +184,39 @@ export default function Cassettes({ onLogout, addToast }: CassettesProps) {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-3)', fontSize: 14 }}>
-                    No cassettes found
+                  <td colSpan={7} style={{ padding: '48px 20px', textAlign: 'center' }}>
+                    {search ? (
+                      <div style={{ color: 'var(--text-3)', fontSize: 14 }}>No cassettes match "{search}"</div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                        <div style={{
+                          width: 48, height: 48, borderRadius: 12,
+                          background: 'var(--accent-glow)', border: '1px solid var(--accent)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <Upload size={20} color="var(--accent)" />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>No cassettes yet</div>
+                          <div style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 16, maxWidth: 320 }}>
+                            Upload your first cassette to start tracking agent performance.
+                          </div>
+                        </div>
+                        <button
+                          onClick={e => { e.stopPropagation(); setShowUpload(true); }}
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 6,
+                            padding: '8px 18px',
+                            background: 'linear-gradient(135deg, #a78bfa, #8b5cf6)',
+                            border: 'none', borderRadius: 8,
+                            color: 'white', fontSize: 13, fontWeight: 600,
+                            cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                          }}
+                        >
+                          <Upload size={13} /> Upload Cassette
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               )}
@@ -189,6 +224,15 @@ export default function Cassettes({ onLogout, addToast }: CassettesProps) {
           </table>
         </div>
       </div>
+
+      {showUpload && projectId && (
+        <UploadCassetteModal
+          projectId={projectId}
+          onClose={() => setShowUpload(false)}
+          onUploaded={() => { refetch(); addToast({ type: 'success', text: 'Cassette uploaded!' }); }}
+          onError={msg => addToast({ type: 'error', text: msg })}
+        />
+      )}
     </Layout>
   );
 }

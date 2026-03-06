@@ -37,6 +37,19 @@ class UserResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8)
+
+
+class MessageResponse(BaseModel):
+    message: str
+
+
 # ── API Keys ──────────────────────────────────
 
 class APIKeyCreateRequest(BaseModel):
@@ -135,6 +148,19 @@ class CompareResponse(BaseModel):
     fields: list[CompareFieldResult]
 
 
+class CassetteDiffField(BaseModel):
+    field: str
+    value_a: object = None
+    value_b: object = None
+    changed: bool
+
+
+class CassetteDiffResponse(BaseModel):
+    cassette_a_id: uuid.UUID
+    cassette_b_id: uuid.UUID
+    fields: list[CassetteDiffField]
+
+
 # ── Golden Sets ───────────────────────────────
 
 class ThresholdsSchema(BaseModel):
@@ -218,10 +244,31 @@ class WebhookResponse(BaseModel):
     regressions_found: int = 0
 
 
-# ── Generic ───────────────────────────────────
+# ── Pagination ────────────────────────────────
 
 class PaginatedResponse(BaseModel):
     items: list
+    total: int
+    page: int
+    page_size: int
+
+
+class CassettePaginatedResponse(BaseModel):
+    items: list[CassetteListItem]
+    total: int
+    page: int
+    page_size: int
+
+
+class RegressionPaginatedResponse(BaseModel):
+    items: list[RegressionEventResponse]
+    total: int
+    page: int
+    page_size: int
+
+
+class GoldenSetPaginatedResponse(BaseModel):
+    items: list[GoldenSetResponse]
     total: int
     page: int
     page_size: int

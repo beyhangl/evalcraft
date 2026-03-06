@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Cassettes from './pages/Cassettes';
 import CassetteDetail from './pages/CassetteDetail';
 import GoldenSets from './pages/GoldenSets';
+import GoldenSetDetail from './pages/GoldenSetDetail';
 import Regressions from './pages/Regressions';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
@@ -47,6 +49,7 @@ function AppRoutes() {
             <Route path="/cassettes" element={<Cassettes onLogout={logout} addToast={addToast} />} />
             <Route path="/cassettes/:id" element={<CassetteDetail onLogout={logout} addToast={addToast} />} />
             <Route path="/golden-sets" element={<GoldenSets onLogout={logout} addToast={addToast} />} />
+            <Route path="/golden-sets/:id" element={<GoldenSetDetail onLogout={logout} addToast={addToast} />} />
             <Route path="/regressions" element={<Regressions onLogout={logout} addToast={addToast} />} />
             <Route path="/analytics" element={<Analytics onLogout={logout} addToast={addToast} />} />
             <Route path="/settings" element={<Settings onLogout={logout} addToast={addToast} />} />
@@ -61,10 +64,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
