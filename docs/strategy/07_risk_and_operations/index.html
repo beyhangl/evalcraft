@@ -1,0 +1,1688 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The pytest for AI agents — capture, replay, mock, and evaluate agent behavior.">
+      
+      
+      
+        <link rel="canonical" href="https://beyhangl.github.io/evalcraft/docs/strategy/07_risk_and_operations/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Risk Analysis, Legal Considerations & Operational Plan - Evalcraft</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#risk-analysis-legal-considerations-operational-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Evalcraft" class="md-header__button md-logo" aria-label="Evalcraft" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Evalcraft
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Risk Analysis, Legal Considerations &amp; Operational Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/beyhangl/evalcraft" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    beyhangl/evalcraft
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Evalcraft" class="md-nav__button md-logo" aria-label="Evalcraft" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Evalcraft
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/beyhangl/evalcraft" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    beyhangl/evalcraft
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/five-minute-case-study/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Case Study: Catching a Regression
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/capture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capture API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/replay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replay Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/mock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mock LLM & Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/scorers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scorers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/pytest-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pytest Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_11" id="__nav_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapters
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Adapters
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/openai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/anthropic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anthropic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/langgraph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/crewai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CrewAI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/ci-cd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI/CD Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="risk-analysis-legal-considerations-operational-plan">Risk Analysis, Legal Considerations &amp; Operational Plan<a class="headerlink" href="#risk-analysis-legal-considerations-operational-plan" title="Permanent link">&para;</a></h1>
+<h2 id="evalcraft-agent-testing-observability-platform">Evalcraft — Agent Testing &amp; Observability Platform<a class="headerlink" href="#evalcraft-agent-testing-observability-platform" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="1-risk-analysis">1. Risk Analysis<a class="headerlink" href="#1-risk-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="11-competitive-risks">1.1 Competitive Risks<a class="headerlink" href="#11-competitive-risks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LangChain/LangSmith expands into capture-replay</td>
+<td>High</td>
+<td>High</td>
+<td>Move fast on network-level capture differentiation; build ecosystem integrations that are costly for them to match; become the "test runner" they integrate with, not compete against</td>
+</tr>
+<tr>
+<td>AWS/GCP/Azure release native agent observability</td>
+<td>Medium</td>
+<td>High</td>
+<td>Cloud-native tools are always generic; build depth in eval quality, CI/CD integration, and cross-cloud testing that clouds won't prioritize; position as "cloud-agnostic"</td>
+</tr>
+<tr>
+<td>Well-funded competitor (a16z-backed) enters</td>
+<td>Medium</td>
+<td>High</td>
+<td>First-mover advantage in capture-replay for agents; community + open-source creates switching cost before competitor can gain traction</td>
+</tr>
+<tr>
+<td>Arize, Braintrust, Langfuse add agent capture-replay</td>
+<td>High</td>
+<td>Medium</td>
+<td>These platforms are eval-centric; full capture-replay requires deep instrumentation investment; stay 12–18 months ahead on infrastructure fidelity</td>
+</tr>
+<tr>
+<td>Framework vendor (Anthropic, OpenAI) ships built-in testing</td>
+<td>Low-Medium</td>
+<td>Critical</td>
+<td>If Anthropic ships first-class agent testing for Claude, we lose a key use case; mitigate by staying framework-agnostic and covering multi-LLM scenarios their tools won't</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key insight:</strong> The most dangerous competitor is not a startup — it's LangSmith expanding scope. Their distribution moat (LangChain users) is formidable. Differentiation must center on (a) framework-agnostic network-level capture and (b) CI/CD-native test suites that developers own.</p>
+<hr />
+<h3 id="12-technology-risks">1.2 Technology Risks<a class="headerlink" href="#12-technology-risks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent frameworks (LangGraph, CrewAI, AutoGen) evolve faster than capture layer keeps up</td>
+<td>High</td>
+<td>High</td>
+<td>Build capture at the network/API call layer, not framework hooks — this is resilient to framework churn; maintain thin adapters per framework</td>
+</tr>
+<tr>
+<td>LLM APIs (OpenAI, Anthropic) change format/response schemas</td>
+<td>High</td>
+<td>Medium</td>
+<td>Response parsing must be schema-version-aware; snapshot tests should tolerate semantic equivalence not byte equality</td>
+</tr>
+<tr>
+<td>Replay fidelity degrades as LLMs become non-deterministic</td>
+<td>High</td>
+<td>High</td>
+<td>Core technical risk: model responses change with new versions or temp changes; replay must support "semantic match" evals, not exact match</td>
+</tr>
+<tr>
+<td>Vector DB / embedding API instability</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Abstract storage layer; support multiple vector backends; snapshot embedding similarity scores not raw embeddings</td>
+</tr>
+<tr>
+<td>Capture infrastructure becomes a performance bottleneck</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Async capture pipeline; configurable sampling rates for production; prove &lt;5ms capture overhead early</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Core technical bet:</strong> The capture-replay value proposition only holds if replay fidelity is high enough to catch real regressions. This requires investing heavily in semantic equivalence evaluation — not just "did it run" but "did it do the same thing." This is the hardest engineering problem and the biggest defensibility moat.</p>
+<hr />
+<h3 id="13-market-risks">1.3 Market Risks<a class="headerlink" href="#13-market-risks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent adoption slower than expected — most teams still on simple RAG, no complex agents to test</td>
+<td>Medium</td>
+<td>High</td>
+<td>Build for RAG/simple LLM testing first as a wedge; position as "LLM testing" not just "agent testing"</td>
+</tr>
+<tr>
+<td>Developers don't value testing for AI (ship-and-see culture)</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Show concrete regression examples; build free tier that demonstrates value before asking for payment; integrate into existing CI/CD so testing happens automatically</td>
+</tr>
+<tr>
+<td>Enterprise procurement cycles too slow for early revenue</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Self-serve PLG motion first; land developers, expand to teams; enterprise revenue is 12–18 months out</td>
+</tr>
+<tr>
+<td>"Good enough" solutions (manual evals, spreadsheets) persist</td>
+<td>Medium</td>
+<td>Low</td>
+<td>These are actually good — they validate the problem exists and the market is undereducated, not that the problem is unreal</td>
+</tr>
+<tr>
+<td>Economic downturn causes developer tool budget cuts</td>
+<td>Low-Medium</td>
+<td>Medium</td>
+<td>Justify on cost savings (catching regressions before prod = cheaper than incidents); price aggressively at startup tier</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="14-execution-risks">1.4 Execution Risks<a class="headerlink" href="#14-execution-risks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hiring: finding engineers with LLM + distributed systems + testing expertise</td>
+<td>High</td>
+<td>High</td>
+<td>Target engineers from Datadog, Honeycomb, New Relic who are excited about AI; university recruiting at ML labs; remote-first to expand talent pool</td>
+</tr>
+<tr>
+<td>Burn rate exceeds runway before PMF</td>
+<td>Medium</td>
+<td>Critical</td>
+<td>Start with minimal infra; keep team ≤5 until PMF signals; raise seed on vision + team, Series A on metrics</td>
+</tr>
+<tr>
+<td>Founding team lacks a sales/GTM co-founder</td>
+<td>Medium</td>
+<td>High</td>
+<td>Developer-led PLG doesn't require traditional sales early; but need one founder who will do developer advocacy, content, community</td>
+</tr>
+<tr>
+<td>Open-source community doesn't adopt</td>
+<td>Medium</td>
+<td>High</td>
+<td>Need genuine open-source investment (docs, contributor experience, community calls); can't be "open-core theater"</td>
+</tr>
+<tr>
+<td>Data privacy incident during capture (capturing PII inadvertently)</td>
+<td>Low-Medium</td>
+<td>Critical</td>
+<td>Build PII scrubbing into capture pipeline from day one; make redaction configuration the default, not an opt-in</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-legal-considerations">2. Legal Considerations<a class="headerlink" href="#2-legal-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="21-license-strategy-full-comparison">2.1 License Strategy: Full Comparison<a class="headerlink" href="#21-license-strategy-full-comparison" title="Permanent link">&para;</a></h3>
+<h4 id="mit-license">MIT License<a class="headerlink" href="#mit-license" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>What it allows:</strong> Anyone can use, modify, distribute, including building commercial SaaS</li>
+<li><strong>Pros:</strong> Maximum adoption, most developer-friendly, no legal friction</li>
+<li><strong>Cons:</strong> AWS/GCP/Azure can take the code and offer it as a managed service with no obligation to contribute back. This is the "cloud exploitation" problem that killed Elastic's pure open-source model.</li>
+<li><strong>Best for:</strong> Libraries, utilities, projects where ecosystem adoption &gt; revenue protection</li>
+</ul>
+<h4 id="apache-20">Apache 2.0<a class="headerlink" href="#apache-20" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>What it allows:</strong> Similar to MIT but includes explicit patent grants</li>
+<li><strong>Pros:</strong> Patent protection for contributors; widely accepted by enterprises</li>
+<li><strong>Cons:</strong> Same cloud exploitation vulnerability as MIT</li>
+<li><strong>Best for:</strong> Enterprise-facing tooling where patent clarity matters; similar adoption profile to MIT</li>
+</ul>
+<h4 id="agpl-v3-affero-gpl">AGPL v3 (Affero GPL)<a class="headerlink" href="#agpl-v3-affero-gpl" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>What it allows:</strong> Anyone can use, but if you run it as a network service you must release your source code (including modifications)</li>
+<li><strong>Pros:</strong> Closes the SaaS loophole; forces cloud competitors to open-source any modifications; strong copyleft</li>
+<li><strong>Cons:</strong> Many enterprises prohibit AGPL by policy (legal review friction); "viral" copyleft can deter enterprise self-hosting adoption; creates dual-licensing complexity</li>
+<li><strong>Best for:</strong> Databases, infrastructure tools (MongoDB used AGPL before SSPL)</li>
+</ul>
+<h4 id="bsl-business-source-license">BSL (Business Source License)<a class="headerlink" href="#bsl-business-source-license" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>What it allows:</strong> Source-available with commercial use restrictions; converts to open-source (MIT/Apache) after a specified period (typically 4 years)</li>
+<li><strong>Pros:</strong> Prevents direct commercial competition; full transparency of code; time-limited restriction reassures community</li>
+<li><strong>Cons:</strong> NOT open source by OSI definition; triggers fork risk (see HashiCorp below); community hostility if perceived as bait-and-switch</li>
+<li><strong>Best for:</strong> Companies with a dominant market position that are trying to protect from cloud commoditization</li>
+</ul>
+<h4 id="fsl-functional-source-license">FSL (Functional Source License)<a class="headerlink" href="#fsl-functional-source-license" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Sentry's innovation (2023): BSL-like but converts to Apache 2.0 in 2 years (not 4)</li>
+<li>Explicit "compete" clause is narrowly defined (only prevents competitive services, not general commercial use)</li>
+<li>Received significantly less community backlash than HashiCorp BSL</li>
+</ul>
+<hr />
+<h3 id="22-case-studies-how-others-handled-licensing">2.2 Case Studies: How Others Handled Licensing<a class="headerlink" href="#22-case-studies-how-others-handled-licensing" title="Permanent link">&para;</a></h3>
+<h4 id="hashicorp-2023-lessons-learned">HashiCorp (2023) — Lessons Learned<a class="headerlink" href="#hashicorp-2023-lessons-learned" title="Permanent link">&para;</a></h4>
+<p>In August 2023, HashiCorp switched all products (including Terraform) from MPL to BSL 1.1. The community reaction was swift and severe:</p>
+<ul>
+<li><strong>OpenTofu fork</strong>: Within 30 days, 140+ companies and 700+ individuals signed the "Open Terraform Manifesto"</li>
+<li><strong>Linux Foundation adoption</strong>: OpenTofu joined the Linux Foundation within 6 weeks</li>
+<li><strong>Reputational damage</strong>: HashiCorp (now owned by IBM/acquired by IBM for $6.4B) is viewed as having abandoned the community that built Terraform into a standard</li>
+</ul>
+<p><strong>Key mistakes:</strong>
+1. They had the dominant market position (Terraform was <em>the</em> IaC standard) but still felt threatened
+2. The "non-compete" clause in the BSL was vague — left too much wiggle room for future enforcement
+3. They announced the change unilaterally, without community consultation
+4. The MPL → BSL gap was huge; MPL is effectively open-source, BSL is not</p>
+<p><strong>Lesson for Evalcraft:</strong> If you start with MIT/Apache, you cannot credibly switch to BSL/AGPL later without triggering a fork. Decide your license philosophy at founding.</p>
+<h4 id="sentry-functional-source-license-fsl">Sentry — Functional Source License (FSL)<a class="headerlink" href="#sentry-functional-source-license-fsl" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Initially BSD, switched to BSL in 2019, then relicensed to FSL in 2023</li>
+<li>FSL converts to Apache 2.0 after <strong>2 years</strong> (vs. BSL's typical 4 years)</li>
+<li>Community response was positive; framing as "freedom without free-riding" resonated</li>
+<li>Key: the 2-year window is short enough that the community views it as fair</li>
+</ul>
+<h4 id="cockroachdb">CockroachDB<a class="headerlink" href="#cockroachdb" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Moved from Apache to BSL to prevent AWS from offering managed CockroachDB without contributing</li>
+<li>Launched "CockroachDB Community License" as a separate tier</li>
+<li>Maintained permissive license for non-commercial and small-scale use</li>
+<li>Model: BSL for the main database, Apache for peripheral tooling</li>
+</ul>
+<hr />
+<h3 id="23-recommended-license-strategy-for-evalcraft">2.3 Recommended License Strategy for Evalcraft<a class="headerlink" href="#23-recommended-license-strategy-for-evalcraft" title="Permanent link">&para;</a></h3>
+<p><strong>Recommendation: Dual-tier open-core with AGPL core + commercial license</strong></p>
+<ul>
+<li><strong>Core capture-replay engine</strong>: AGPL v3</li>
+<li>Rationale: Prevents cloud exploitation; any company running Evalcraft as a service must open-source their modifications</li>
+<li>
+<p>Risk: Enterprise policy friction (mitigate with commercial license option)</p>
+</li>
+<li>
+<p><strong>SDK / integrations / plugins</strong>: MIT or Apache 2.0</p>
+</li>
+<li>
+<p>Rationale: Maximum adoption for client-side instrumentation libraries; low risk since SDKs alone aren't the product</p>
+</li>
+<li>
+<p><strong>Commercial License</strong>: Available for enterprises that cannot use AGPL</p>
+</li>
+<li>Standard open-core model: Sentry, GitLab, Metabase use this successfully</li>
+<li>Typically $X/seat/year or $X/month for self-hosted deployments</li>
+</ul>
+<p><strong>Alternative: FSL for everything</strong>
+- If AGPL is too controversial for the target market, FSL with 2-year Apache conversion is the next best option
+- More developer-friendly than standard BSL; less enterprise friction than AGPL</p>
+<p><strong>Do NOT start with MIT/Apache for the core engine</strong> unless your plan is purely cloud-hosted SaaS (where you never distribute the software). Once you give away MIT rights, you can never get them back without a fork.</p>
+<hr />
+<h3 id="24-contributor-license-agreement-cla">2.4 Contributor License Agreement (CLA)<a class="headerlink" href="#24-contributor-license-agreement-cla" title="Permanent link">&para;</a></h3>
+<p><strong>Required? Yes, especially under AGPL.</strong></p>
+<ul>
+<li><strong>Purpose</strong>: CLA gives the company the right to re-license contributions (e.g., dual-license under commercial terms), protects against contributor IP claims, and allows future license changes without needing consent from every contributor</li>
+<li><strong>CLA vs. DCO</strong>: DCO (Developer Certificate of Origin) is simpler and lower friction (used by Linux kernel); CLA is stronger but can deter contributors</li>
+<li><strong>Recommendation</strong>: Individual CLA (short, 1-page) that grants the company re-licensing rights while preserving contributor credit. Use CLA Assistant (free, GitHub-integrated) to automate signing.</li>
+<li><strong>Enterprise CLA</strong>: Separate CCLA for companies contributing through their employees</li>
+</ul>
+<hr />
+<h3 id="25-data-privacy-gdprccpa-for-agent-captures">2.5 Data Privacy: GDPR/CCPA for Agent Captures<a class="headerlink" href="#25-data-privacy-gdprccpa-for-agent-captures" title="Permanent link">&para;</a></h3>
+<p>This is the <strong>most critical legal risk</strong> for Evalcraft. Agent captures may contain:
+- User queries (often PII — names, emails, health data, financial data)
+- LLM responses referencing users
+- Tool call inputs/outputs (API calls with personal data)
+- Memory/context windows with accumulated user information</p>
+<h4 id="gdpr-implications-eu">GDPR Implications (EU)<a class="headerlink" href="#gdpr-implications-eu" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Legal basis for processing</strong>: Must have one of six legal bases. For a developer tool, "legitimate interests" (Art. 6(1)(f)) is most applicable for test/dev data; "contractual necessity" for production monitoring</li>
+<li><strong>Data minimization</strong>: Only capture what's needed for testing; avoid storing raw user queries by default</li>
+<li><strong>Right to erasure</strong>: Must be able to delete all traces containing a specific user's data — this requires a PII identifier index, not just trace IDs</li>
+<li><strong>Data retention limits</strong>: Cannot store captures indefinitely; must define and enforce retention policies (recommend default: 90 days, configurable down to 30)</li>
+<li><strong>Data residency</strong>: EU customers will require EU-hosted infrastructure (eu-west-1 or eu-central-1 region); this must be built into the architecture</li>
+<li><strong>DPA (Data Processing Agreement)</strong>: Required for all enterprise customers; must be ready at launch for EU market</li>
+</ul>
+<h4 id="ccpa-implications-california">CCPA Implications (California)<a class="headerlink" href="#ccpa-implications-california" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Consumers have rights to know, delete, and opt-out of sale of personal information</li>
+<li>For B2B SaaS capturing business user data, this primarily affects how you handle end-user PII in test traces</li>
+<li><strong>Service Provider Agreement</strong>: Evalcraft processes data on behalf of customers (as a service provider, not a data broker); must have appropriate DPA language</li>
+</ul>
+<h4 id="technical-mitigations-must-build">Technical Mitigations (Must-Build)<a class="headerlink" href="#technical-mitigations-must-build" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Automatic PII redaction in capture pipeline</strong>: Use Microsoft Presidio or equivalent; redact PII before storage by default</li>
+<li><strong>Field-level encryption</strong>: Allow customers to mark specific input/output fields as sensitive; encrypt at capture time with customer-managed keys</li>
+<li><strong>Retention policies</strong>: Configurable TTL on all stored captures; enforce with automated deletion jobs</li>
+<li><strong>Data locality</strong>: Multi-region architecture from day one; EU, US, APAC deployments</li>
+<li><strong>Audit logs</strong>: Every access to captures must be logged; required for enterprise security reviews</li>
+<li><strong>Zero-data mode</strong>: Option to run capture+analysis in-process without sending data off-network (for most sensitive enterprise use cases)</li>
+</ol>
+<hr />
+<h3 id="26-patent-considerations">2.6 Patent Considerations<a class="headerlink" href="#26-patent-considerations" title="Permanent link">&para;</a></h3>
+<p>The capture-replay space has <strong>significant existing patent coverage</strong> (primarily in network testing, enterprise QA, and security domains). See Google Patents US7653006, US8352777B2, US8171553B2 for examples.</p>
+<p><strong>What is likely patentable for Evalcraft:</strong>
+- Novel methods for semantic equivalence evaluation of non-deterministic AI agent outputs
+- Graph-diff algorithms for multi-step agent trace comparison
+- Automated test case generation from captured agent execution traces
+- PII-aware capture with privacy-preserving replay (synthetic data substitution)</p>
+<p><strong>Recommendations:</strong>
+1. File provisional patents within 12 months of any novel technical approach being production-ready
+2. Do a freedom-to-operate (FTO) search before product launch for any specific capture/replay implementation
+3. Patent strategy goal: defensive (preventing claims against us) not offensive (asserting against competitors)
+4. Budget $15K–$50K for initial patent filings with a specialized software IP attorney</p>
+<hr />
+<h3 id="27-terms-of-service-and-other-legal-documents">2.7 Terms of Service and Other Legal Documents<a class="headerlink" href="#27-terms-of-service-and-other-legal-documents" title="Permanent link">&para;</a></h3>
+<p>Required before public launch:
+- <strong>Terms of Service</strong>: Clear IP ownership (customer owns their data and test cases; Evalcraft owns the platform)
+- <strong>Privacy Policy</strong>: GDPR/CCPA compliant; specify data retention, sub-processors, DPA availability
+- <strong>Data Processing Agreement (DPA)</strong>: Template available; required for EU customers and SOC 2 Type II
+- <strong>Acceptable Use Policy (AUP)</strong>: Prohibit using Evalcraft to test agents designed for harm, spam, or illegal activity</p>
+<hr />
+<h2 id="3-team-hiring-plan">3. Team &amp; Hiring Plan<a class="headerlink" href="#3-team-hiring-plan" title="Permanent link">&para;</a></h2>
+<h3 id="31-ideal-founding-team-3-co-founders">3.1 Ideal Founding Team (3 Co-Founders)<a class="headerlink" href="#31-ideal-founding-team-3-co-founders" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Background</th>
+<th>What They Own</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CEO/Product</strong></td>
+<td>Previously built developer tools or observability products; ideally exited or senior PM/founder at Datadog, Sentry, LaunchDarkly</td>
+<td>Vision, fundraising, key enterprise relationships, product strategy</td>
+</tr>
+<tr>
+<td><strong>CTO/Backend</strong></td>
+<td>Distributed systems engineer; experience with observability/APM infrastructure (Jaeger, OpenTelemetry); understands LLM APIs deeply</td>
+<td>Core capture-replay engine, infrastructure architecture, technical hiring</td>
+</tr>
+<tr>
+<td><strong>Head of Developer Experience</strong></td>
+<td>Previously a developer advocate or senior engineer at an open-source company; strong writer and community builder</td>
+<td>SDK design, documentation, open-source community, technical marketing</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why this composition:</strong>
+- The DX founder is often missing from AI startups and is critical for PLG adoption
+- Deep observability infrastructure experience is non-negotiable for the CTO role — this isn't a standard CRUD app
+- The CEO needs credibility with developers (ideally technical background) + ability to close enterprise deals</p>
+<hr />
+<h3 id="32-first-5-hires-months-312-seed-stage">3.2 First 5 Hires (Months 3–12, Seed Stage)<a class="headerlink" href="#32-first-5-hires-months-312-seed-stage" title="Permanent link">&para;</a></h3>
+<p><strong>Hire 1: Senior Infrastructure Engineer</strong> ($170K–$220K + equity ~0.5–1%)
+- Background: Datadog, Honeycomb, Grafana Labs, or similar APM company
+- Owns: Capture pipeline scalability, Kafka/queue infrastructure, data ingestion architecture
+- Why first: The capture infrastructure needs to be rock-solid before any GTM</p>
+<p><strong>Hire 2: SDK/Integration Engineer</strong> ($150K–$190K + equity ~0.3–0.7%)
+- Background: Has built developer-facing SDKs (Python, TypeScript); OpenTelemetry contributor a huge plus
+- Owns: Python SDK, TypeScript/JS SDK, framework integrations (LangChain, AutoGen, etc.)
+- Why second: SDKs are the GTM — no SDKs, no adoption</p>
+<p><strong>Hire 3: ML/Eval Engineer</strong> ($180K–$230K + equity ~0.3–0.7%)
+- Background: Applied ML with focus on NLP/LLM evaluation; ideally from an LLM lab or evaluation research background
+- Owns: Semantic equivalence evaluation, automated assertion generation, eval scoring algorithms
+- Why third: This is the core technical differentiator — the eval quality is what makes capture-replay valuable</p>
+<p><strong>Hire 4: Developer Advocate / Technical Writer</strong> ($120K–$160K + equity ~0.2–0.4%)
+- Background: Former engineer who loves writing and teaching; has published tutorials, conference talks, or OSS projects
+- Owns: Blog content, documentation, example repos, conference presence, community Slack/Discord
+- Why fourth: PLG only works if developers can discover and adopt independently; this hire is GTM</p>
+<p><strong>Hire 5: Head of Enterprise Sales</strong> ($150K–$200K base + OTE 2x + equity ~0.3–0.5%)
+- Background: Previously sold developer tools or observability to engineering teams ($50K–$250K ACV)
+- Owns: First 5–10 enterprise accounts, sales playbook, pricing validation
+- Why fifth: By month 9–12 with open-source traction, need to convert community users to paying enterprise customers</p>
+<hr />
+<h3 id="33-engineering-team-structure-at-scale">3.3 Engineering Team Structure at Scale<a class="headerlink" href="#33-engineering-team-structure-at-scale" title="Permanent link">&para;</a></h3>
+<h4 id="at-10-people-seed-series-a-3m8m-raised">At 10 People (Seed → Series A, $3M–$8M raised)<a class="headerlink" href="#at-10-people-seed-series-a-3m8m-raised" title="Permanent link">&para;</a></h4>
+<p><div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>CTO
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── Infrastructure Team (2 engineers) — Capture pipeline, storage, scalability
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── SDK Team (2 engineers) — Language SDKs, framework integrations
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── Product Team (1 engineer + 1 PM) — Dashboard, UI, API
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└── ML/Eval Team (1 ML engineer) — Eval algorithms, assertion generation
+</span></code></pre></div>
+Supporting: 1 DevRel, 1 Enterprise AE, 1 Customer Success</p>
+<h4 id="at-25-people-series-a-12m20m-raised">At 25 People (Series A, $12M–$20M raised)<a class="headerlink" href="#at-25-people-series-a-12m20m-raised" title="Permanent link">&para;</a></h4>
+<p><div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>CTO → VP Engineering
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── Platform Eng (5) — Core infrastructure, data pipeline, reliability
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├── SDK/Integrations (4) — SDKs, 10+ framework integrations
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>├── Product Eng (4) — Dashboard, CI/CD integrations, reporting
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>├── ML/AI Eng (3) — Eval models, anomaly detection, auto-assertion
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>└── Security/Compliance (1) — SOC 2, enterprise security reviews
+</span></code></pre></div>
+Supporting: 3 DevRel, 2 AEs, 2 CSMs, 1 Marketing</p>
+<h4 id="at-50-people-series-a-growth-series-b">At 50 People (Series A growth → Series B)<a class="headerlink" href="#at-50-people-series-a-growth-series-b" title="Permanent link">&para;</a></h4>
+<p><div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>CTO → VP Engineering → 4 Engineering Managers
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── Core Platform (8) — Multi-region infra, high-availability
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>├── Integrations (6) — 30+ integrations, partner ecosystem
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>├── Product (8) — Multiple product lines, enterprise features
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>├── AI/ML (6) — Proprietary eval models, fine-tuning pipeline
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>├── DevEx (4) — SDK, CLI, developer portal
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>└── Security/Compliance (3) — SOC 2 Type II, GDPR, FedRAMP path
+</span></code></pre></div>
+Supporting: Sales (8), Marketing (5), CS (4), G&amp;A (3)</p>
+<hr />
+<h3 id="34-hard-to-hire-roles">3.4 Hard-to-Hire Roles<a class="headerlink" href="#34-hard-to-hire-roles" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>LLM Evaluation Researchers</strong>: Rare combination of ML research background + practical software engineering. Competition: Anthropic, OpenAI, Google DeepMind. Strategy: reach PhD candidates in NLP/AI evaluation who want to build products, not papers.</p>
+</li>
+<li>
+<p><strong>Distributed Systems Engineers with Observability Background</strong>: Experienced engineers from Datadog, New Relic, Dynatrace are expensive ($250K+) and often equity-rich. Strategy: target engineers 3–4 years in who haven't vested enough to stay, or engineers at companies mid-acquisition.</p>
+</li>
+<li>
+<p><strong>Developer Advocates Who Can Code AND Write</strong>: Extremely rare. Most DevRels are either good speakers or good writers, not both. Strategy: sponsor open-source contributors; hire technical bloggers with engineering day jobs.</p>
+</li>
+<li>
+<p><strong>Enterprise SaaS AEs Who Know Developer Tools</strong>: Selling observability/testing tools requires technical fluency. Traditional SaaS AEs struggle. Strategy: target Datadog, LaunchDarkly, Sentry field team alumni.</p>
+</li>
+</ol>
+<hr />
+<h2 id="4-operational-plan">4. Operational Plan<a class="headerlink" href="#4-operational-plan" title="Permanent link">&para;</a></h2>
+<h3 id="41-legal-structure">4.1 Legal Structure<a class="headerlink" href="#41-legal-structure" title="Permanent link">&para;</a></h3>
+<p><strong>Delaware C-Corporation</strong> — standard for VC-backed startups.</p>
+<p><strong>Why Delaware C-Corp:</strong>
+- Required by virtually all institutional investors (angels, seed VCs, Series A+ funds)
+- Allows multiple share classes (common, preferred, convertible)
+- Stock options (ISOs) available for employees — key for compensation
+- Delaware Court of Chancery has 200+ years of corporate law precedent — investor comfort
+- $89 filing fee; registered agent ~$50–$200/year</p>
+<p><strong>Key early legal steps:</strong>
+1. Incorporate (Stripe Atlas, Clerky, or lawyer): ~$1,000–$5,000
+2. Issue founder shares; file 83(b) elections within 30 days of issuance (critical — don't miss this)
+3. 4-year vesting with 1-year cliff for all founders
+4. 10M shares authorized; reserve 10–15% for ESOP from the start
+5. IP assignment agreements signed by all founders before any code is written
+6. Standard NVCA-form documents for seed round</p>
+<hr />
+<h3 id="42-infrastructure-costs-at-scale">4.2 Infrastructure Costs at Scale<a class="headerlink" href="#42-infrastructure-costs-at-scale" title="Permanent link">&para;</a></h3>
+<h4 id="pre-launch-mvp-5001500month">Pre-Launch / MVP ($500–$1,500/month)<a class="headerlink" href="#pre-launch-mvp-5001500month" title="Permanent link">&para;</a></h4>
+<ul>
+<li>2x small compute instances (API + worker): ~$200/month</li>
+<li>PostgreSQL (RDS db.t3.medium): ~$150/month</li>
+<li>Redis (ElastiCache t3.micro): ~$30/month</li>
+<li>S3 storage for captures (estimate 100GB): ~$25/month</li>
+<li>CloudWatch + basic monitoring: ~$50/month</li>
+<li>Misc (domains, SSL, email): ~$50/month</li>
+<li><strong>Note</strong>: AWS Activate provides up to $100K in credits for qualified startups — apply immediately</li>
+</ul>
+<h4 id="at-100-active-customers-8k15kmonth">At 100 Active Customers ($8K–$15K/month)<a class="headerlink" href="#at-100-active-customers-8k15kmonth" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Compute (EKS cluster, 10–15 nodes): ~$3,000/month</li>
+<li>Managed databases (RDS Multi-AZ + read replicas): ~$1,200/month</li>
+<li>Message queue (Kafka/MSK or SQS): ~$800/month</li>
+<li>S3 + cold storage for captures: ~$500/month</li>
+<li>CDN (CloudFront): ~$200/month</li>
+<li>Monitoring (Datadog or self-hosted): ~$1,500/month</li>
+<li>Multi-region (US + EU): +50% premium</li>
+<li><strong>Target infrastructure COGS</strong>: 15–20% of revenue</li>
+</ul>
+<h4 id="at-1000-active-customers-60k100kmonth">At 1,000 Active Customers ($60K–$100K/month)<a class="headerlink" href="#at-1000-active-customers-60k100kmonth" title="Permanent link">&para;</a></h4>
+<ul>
+<li>EKS cluster (50+ nodes, auto-scaling): ~$15,000/month</li>
+<li>Database fleet (RDS Aurora, read replicas, multi-region): ~$8,000/month</li>
+<li>Kafka (MSK): ~$4,000/month</li>
+<li>S3 + Glacier (capture retention management): ~$5,000/month</li>
+<li>Network egress (significant at this scale): ~$8,000/month</li>
+<li>Monitoring + security + logging: ~$6,000/month</li>
+<li><strong>Target infrastructure COGS</strong>: 12–15% of revenue at scale</li>
+</ul>
+<hr />
+<h3 id="43-support-model-evolution">4.3 Support Model Evolution<a class="headerlink" href="#43-support-model-evolution" title="Permanent link">&para;</a></h3>
+<h4 id="stage-1-community-support-months-112">Stage 1: Community Support (Months 1–12)<a class="headerlink" href="#stage-1-community-support-months-112" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Channels</strong>: GitHub Issues, community Discord/Slack, documentation</li>
+<li><strong>Team</strong>: Founders + DevRel handle all support</li>
+<li><strong>SLA</strong>: Best-effort; no formal commitments</li>
+<li><strong>Cost</strong>: Near-zero (time cost only)</li>
+<li><strong>Goal</strong>: Learn from early adopters; every support ticket is product research</li>
+</ul>
+<h4 id="stage-2-paid-support-tiers-months-1224">Stage 2: Paid Support Tiers (Months 12–24)<a class="headerlink" href="#stage-2-paid-support-tiers-months-1224" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Community tier</strong> (free): Discord + GitHub; 72-hour response target</li>
+<li><strong>Team tier</strong> ($X/month): Email support; 24-hour business hours response</li>
+<li><strong>Business tier</strong> ($XX/month): Priority email + Slack Connect; 8-hour response; monthly check-in call</li>
+<li><strong>Team</strong>: 1–2 dedicated Customer Success hires</li>
+</ul>
+<h4 id="stage-3-enterprise-dedicated-csm-24-months">Stage 3: Enterprise / Dedicated CSM (24+ months)<a class="headerlink" href="#stage-3-enterprise-dedicated-csm-24-months" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Enterprise tier</strong>: Named CSM, 4-hour SLA, quarterly business reviews, custom onboarding</li>
+<li><strong>CSM:Customer ratio</strong>: 1:10 at launch, target 1:20 at scale</li>
+<li><strong>Team</strong>: CS team of 4–6 serving enterprise accounts</li>
+<li><strong>Escalation path</strong>: CSM → Engineering → CTO for P1 incidents</li>
+</ul>
+<hr />
+<h3 id="44-on-call-and-reliability-requirements">4.4 On-Call and Reliability Requirements<a class="headerlink" href="#44-on-call-and-reliability-requirements" title="Permanent link">&para;</a></h3>
+<h4 id="target-slas">Target SLAs<a class="headerlink" href="#target-slas" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>API availability</strong>: 99.9% (≤8.7 hours downtime/year) for paid tiers</li>
+<li><strong>Capture pipeline</strong>: 99.5% — capture drops are serious but not as critical as API availability</li>
+<li><strong>Dashboard</strong>: 99.5% — acceptable to have brief maintenance windows during off-hours</li>
+</ul>
+<h4 id="on-call-structure">On-Call Structure<a class="headerlink" href="#on-call-structure" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Pre-Series A</strong>: Founders take on-call; rotate weekly between CTO and senior engineers</li>
+<li><strong>Post-Series A</strong>: Dedicated ops engineer; 2-person on-call rotation; PagerDuty integration</li>
+<li><strong>Incident response</strong>: Defined runbooks for all critical failure modes; post-mortems required for all P1/P2 incidents</li>
+</ul>
+<h4 id="reliability-engineering-priorities-first-year">Reliability Engineering Priorities (First Year)<a class="headerlink" href="#reliability-engineering-priorities-first-year" title="Permanent link">&para;</a></h4>
+<ol>
+<li>Capture pipeline durability — never drop a trace silently; dead-letter queues for all failures</li>
+<li>Data store backup and recovery — daily backups, tested quarterly restore</li>
+<li>Circuit breakers on all external LLM API calls</li>
+<li>Graceful degradation — if analysis is slow, still serve stored captures</li>
+</ol>
+<hr />
+<h2 id="5-ip-moat-analysis">5. IP &amp; Moat Analysis<a class="headerlink" href="#5-ip-moat-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="51-sources-of-defensibility">5.1 Sources of Defensibility<a class="headerlink" href="#51-sources-of-defensibility" title="Permanent link">&para;</a></h3>
+<h4 id="511-data-moat-primary-long-term-moat">5.1.1 Data Moat (Primary Long-Term Moat)<a class="headerlink" href="#511-data-moat-primary-long-term-moat" title="Permanent link">&para;</a></h4>
+<ul>
+<li>As customers run more tests, Evalcraft accumulates the largest dataset of agent behaviors, failure patterns, and eval benchmarks in existence</li>
+<li>This dataset enables:</li>
+<li><strong>Proprietary eval models</strong> trained on real agent failure modes (cannot be replicated by a new entrant)</li>
+<li><strong>Industry benchmarks</strong> ("50% of agents fail on multi-hop reasoning tasks with tool errors") — Evalcraft publishes the reports, owns the data</li>
+<li><strong>Anomaly detection baselines</strong> — "this agent response is 3σ worse than the industry average for this task type"</li>
+<li><strong>Timeline to moat</strong>: 18–24 months after achieving meaningful market share</li>
+</ul>
+<h4 id="512-ecosystemintegration-moat">5.1.2 Ecosystem/Integration Moat<a class="headerlink" href="#512-ecosystemintegration-moat" title="Permanent link">&para;</a></h4>
+<ul>
+<li>First-class integrations with GitHub Actions, GitLab CI, CircleCI, Jenkins — tests become part of the standard engineering workflow</li>
+<li>Switching cost: once Evalcraft is wired into CI/CD and teams have accumulated historical baselines, the switching cost to a competitor is high (you lose all your regression history)</li>
+<li><strong>Timeline to moat</strong>: 12–18 months</li>
+</ul>
+<h4 id="513-open-source-community-moat">5.1.3 Open-Source Community Moat<a class="headerlink" href="#513-open-source-community-moat" title="Permanent link">&para;</a></h4>
+<ul>
+<li>A thriving open-source community around the core capture-replay engine creates:</li>
+<li>Free distribution (developers install because their colleagues use it)</li>
+<li>Community-built framework integrations (self-extending network)</li>
+<li>Mindshare — "Evalcraft" becomes the verb for agent testing</li>
+<li>This requires genuine investment: good docs, active maintainers, community calls, swag, conference presence</li>
+<li><strong>Risk</strong>: If community is exploitative (open-core theater), this moat doesn't materialize</li>
+</ul>
+<h4 id="514-developer-trust-brand-moat">5.1.4 Developer Trust / Brand Moat<a class="headerlink" href="#514-developer-trust-brand-moat" title="Permanent link">&para;</a></h4>
+<ul>
+<li>In developer tooling, trust and reputation are strategic assets</li>
+<li>Sentry, Datadog, HashiCorp all have this — developers advocate for these tools internally</li>
+<li>Built through: reliability (never lose a trace), privacy (don't abuse captured data), transparency (open-source core)</li>
+<li><strong>Timeline</strong>: 2–3 years of consistent execution</li>
+</ul>
+<h4 id="515-eval-algorithm-ip">5.1.5 Eval Algorithm IP<a class="headerlink" href="#515-eval-algorithm-ip" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Proprietary algorithms for semantic equivalence evaluation of non-deterministic agent outputs</li>
+<li>If patented, creates defensive IP position</li>
+<li>More importantly: the best eval algorithms become self-reinforcing (more usage → more training data → better algorithms → better value → more usage)</li>
+</ul>
+<hr />
+<h3 id="52-network-effects-analysis">5.2 Network Effects Analysis<a class="headerlink" href="#52-network-effects-analysis" title="Permanent link">&para;</a></h3>
+<p><strong>Direct network effects</strong>: Weak to none — one company's Evalcraft deployment doesn't benefit another</p>
+<p><strong>Indirect/data network effects</strong>: Strong over time
+- More customers → more captured agent behaviors → better eval models → better product for all customers
+- This is the same flywheel that powers Datadog's proprietary anomaly detection</p>
+<p><strong>Ecosystem network effects</strong>: Medium
+- More framework integrations → more developers can adopt → more community contribution → more integrations
+- Needs active management to sustain</p>
+<p><strong>Benchmark/standards network effects</strong>: Strong if captured
+- If Evalcraft's eval benchmarks become the industry standard that enterprises require passing before deployment, this creates a regulatory-like moat</p>
+<hr />
+<h3 id="53-how-to-build-switching-costs">5.3 How to Build Switching Costs<a class="headerlink" href="#53-how-to-build-switching-costs" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Historical regression baselines</strong>: Customers accumulate months/years of test history; switching means losing regression context</li>
+<li><strong>Custom eval configurations</strong>: Teams spend significant time tuning eval assertions to their specific agent behavior; these configs are Evalcraft-specific</li>
+<li><strong>CI/CD integration depth</strong>: The more deeply embedded into pipelines, the more disruptive to remove</li>
+<li><strong>Team workflows</strong>: If developers' daily workflow includes the Evalcraft dashboard, they become dependent on it</li>
+<li><strong>Compliance documentation</strong>: For regulated industries, test history becomes audit evidence; migration risk is high</li>
+</ol>
+<p><strong>Strategy</strong>: Prioritize features that create workflow entrenchment over features that are impressive but shallow.</p>
+<hr />
+<h3 id="54-patent-worthy-innovations">5.4 Patent-Worthy Innovations<a class="headerlink" href="#54-patent-worthy-innovations" title="Permanent link">&para;</a></h3>
+<p>The following technical approaches are potentially novel and patentable:</p>
+<ol>
+<li>
+<p><strong>Semantic Equivalence Evaluation for Non-Deterministic Agent Traces</strong>: Method for determining whether two agent execution traces are "functionally equivalent" despite surface-level output differences caused by LLM non-determinism. Involves embedding comparison, semantic graph matching, and outcome equivalence assessment.</p>
+</li>
+<li>
+<p><strong>Privacy-Preserving Replay with PII Substitution</strong>: System for replacing PII in captured agent inputs with semantically equivalent synthetic data during replay, preserving the semantic properties of the input while eliminating privacy risk.</p>
+</li>
+<li>
+<p><strong>Automated Test Case Generation from Captured Traces</strong>: Method for automatically generating assertion sets from observed agent behavior patterns, creating regression tests without manual test authoring.</p>
+</li>
+<li>
+<p><strong>Differential Trace Analysis for Multi-Step Agent Workflows</strong>: Algorithm for identifying the minimal set of divergence points between two agent execution traces that explain an observed output difference (root-cause localization for agent regressions).</p>
+</li>
+</ol>
+<p><strong>Filing priority</strong>: Items 1 and 4 are the most technically novel and commercially valuable. File provisional patents on these within the first product year.</p>
+<hr />
+<h2 id="6-risk-summary-matrix">6. Risk Summary Matrix<a class="headerlink" href="#6-risk-summary-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Top Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Competitive</td>
+<td>LangSmith expansion</td>
+<td>High</td>
+<td>High</td>
+<td>Monitor; accelerate capture-replay differentiation</td>
+</tr>
+<tr>
+<td>Technology</td>
+<td>Replay fidelity for non-deterministic models</td>
+<td>High</td>
+<td>High</td>
+<td>Core R&amp;D priority from day one</td>
+</tr>
+<tr>
+<td>Legal</td>
+<td>PII in captures causing GDPR incident</td>
+<td>Medium</td>
+<td>Critical</td>
+<td>Build redaction pipeline before launch</td>
+</tr>
+<tr>
+<td>Legal</td>
+<td>License controversy if switching later</td>
+<td>Medium</td>
+<td>High</td>
+<td>Decide AGPL vs FSL at founding; don't defer</td>
+</tr>
+<tr>
+<td>Market</td>
+<td>Agent adoption slower than expected</td>
+<td>Medium</td>
+<td>High</td>
+<td>Build for LLM testing first, agents second</td>
+</tr>
+<tr>
+<td>Execution</td>
+<td>Can't hire ML eval engineers</td>
+<td>High</td>
+<td>High</td>
+<td>Start recruiting 3 months before you need them</td>
+</tr>
+<tr>
+<td>Operations</td>
+<td>Capture pipeline data loss</td>
+<td>Low</td>
+<td>Critical</td>
+<td>Dead-letter queues + durability from day one</td>
+</tr>
+<tr>
+<td>IP</td>
+<td>Patent infringement claim on capture-replay</td>
+<td>Low-Medium</td>
+<td>Medium</td>
+<td>FTO search before product launch</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Document prepared for Evalcraft founding team planning. Research current as of March 2026.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/beyhangl/evalcraft" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/evalcraft/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "toc.integrate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

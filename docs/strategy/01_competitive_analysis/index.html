@@ -1,0 +1,2104 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The pytest for AI agents — capture, replay, mock, and evaluate agent behavior.">
+      
+      
+      
+        <link rel="canonical" href="https://beyhangl.github.io/evalcraft/docs/strategy/01_competitive_analysis/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Competitive Analysis: Agent Testing & LLM Evaluation Space - Evalcraft</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#competitive-analysis-agent-testing-llm-evaluation-space" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Evalcraft" class="md-header__button md-logo" aria-label="Evalcraft" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Evalcraft
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Competitive Analysis: Agent Testing &amp; LLM Evaluation Space
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/beyhangl/evalcraft" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    beyhangl/evalcraft
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Evalcraft" class="md-nav__button md-logo" aria-label="Evalcraft" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Evalcraft
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/beyhangl/evalcraft" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    beyhangl/evalcraft
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/five-minute-case-study/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Case Study: Catching a Regression
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/capture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capture API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/replay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replay Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/mock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mock LLM & Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/scorers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scorers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/pytest-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pytest Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_11" id="__nav_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapters
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Adapters
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/openai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/anthropic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anthropic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/langgraph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/crewai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CrewAI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/ci-cd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI/CD Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="competitive-analysis-agent-testing-llm-evaluation-space">Competitive Analysis: Agent Testing &amp; LLM Evaluation Space<a class="headerlink" href="#competitive-analysis-agent-testing-llm-evaluation-space" title="Permanent link">&para;</a></h1>
+<p><em>Research Date: March 2026 | Compiled for Evalcraft Platform Planning</em></p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>The AI agent evaluation space is crowded with ~20+ funded companies, yet fragmented: most tools solve <strong>observability</strong> or <strong>LLM-as-judge scoring</strong>, not true <strong>deterministic regression testing</strong>. The dominant workflow is: ship to prod → trace → manually review. No player has nailed <strong>pre-deployment CI/CD gating with deterministic replay + cheap non-LLM assertions</strong> as a first-class product. That is the white space.</p>
+<p><strong>Total funding in this space (2023–2026):</strong> &gt;$400M across direct competitors.</p>
+<hr />
+<h2 id="part-1-direct-competitor-profiles">Part 1: Direct Competitor Profiles<a class="headerlink" href="#part-1-direct-competitor-profiles" title="Permanent link">&para;</a></h2>
+<h3 id="1-braintrust">1. Braintrust<a class="headerlink" href="#1-braintrust" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> braintrust.dev | <strong>Founded:</strong> 2023</p>
+<p><strong>What they actually do:</strong>
+- Observability platform: tracing, scoring, datasets, prompt management
+- "Loop" AI assistant generates prompts/scorers/datasets automatically
+- Custom annotation interfaces (human labeling)
+- Experiments: A/B prompt comparison, CI integration
+- LLM-as-judge scoring + code scorers + human scoring</p>
+<p><strong>Funding:</strong> $121M total — $5M Seed (Dec 2023) → $36M Series A (Oct 2024) → $80M Series B (Feb 2026) led by ICONIQ Capital; a16z, Greylock participate. <strong>Valuation: ~$800M</strong></p>
+<p><strong>Team:</strong> ~50-80 employees (est.)</p>
+<p><strong>Pricing:</strong>
+| Tier | Price | Spans/mo | Scores/mo |
+|------|-------|----------|-----------|
+| Free | $0 | 1M | 10K |
+| Pro | $249/mo | Unlimited | 50K |
+| Enterprise | Custom | Unlimited | Unlimited |</p>
+<p><strong>Customers:</strong> Notion, Replit, Cloudflare, Ramp, Dropbox, Vercel, Navan, BILL</p>
+<p><strong>Key differentiation:</strong> Full platform play; "observability-first"; strong CI/CD GitHub integration; sleek UI; backed by top VCs.</p>
+<p><strong>What they DON'T do:</strong>
+- No capture-replay / VCR-style deterministic mocking
+- No cheap non-LLM assertions for agent paths/tool calls
+- No "test your agent in isolation without real API keys"
+- Scoring still primarily LLM-based (expensive at scale)
+- No native multi-agent simulation / adversarial testing</p>
+<p><strong>User complaints (G2/Slack/HN):</strong>
+- Span costs escalate quickly at production volume
+- LLM-as-judge eval costs add up; hard to run on every commit
+- UI can feel complex for simple use cases
+- Data retention caps on lower tiers frustrating</p>
+<hr />
+<h3 id="2-promptfoo">2. Promptfoo<a class="headerlink" href="#2-promptfoo" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> promptfoo.dev | <strong>Founded:</strong> 2023</p>
+<p><strong>What they actually do:</strong>
+- CLI + library for LLM eval and red-teaming
+- Declarative YAML config; runs locally
+- 50+ vulnerability types (injection, jailbreak, PII leakage)
+- 25+ LLM provider support
+- GitHub Action for CI/CD
+- Primary pivot: <strong>AI security testing</strong> (not general agent eval)
+- Community: 125,000+ users; 200,000+ developers</p>
+<p><strong>Funding:</strong> $23.6M total — Seed (Jun 2024) → <strong>$18.4M Series A</strong> (Jul 2025) led by Insight Partners + a16z</p>
+<p><strong>Team:</strong> 11 FT employees (very lean)</p>
+<p><strong>GitHub:</strong> ~9,000 stars (growing)</p>
+<p><strong>Pricing:</strong>
+- Community: Free (open source, self-hosted, 10k probes/mo)
+- Enterprise: Custom (adds SSO, advanced vuln scanning, support)</p>
+<p><strong>Customers:</strong> 80+ Fortune 500 companies (security use case)</p>
+<p><strong>Key differentiation:</strong> Developer-first; open source; red-teaming focus; massive community; CI/CD native.</p>
+<p><strong>What they DON'T do:</strong>
+- No full observability/tracing stack
+- No production monitoring
+- Focused on prompts/security, not full agent workflow testing
+- No agent replay or session simulation
+- No multi-turn agent trajectory evaluation</p>
+<p><strong>User complaints:</strong>
+- YAML config can become unwieldy at scale
+- Limited visualization beyond HTML reports
+- No managed cloud — everything self-hosted</p>
+<hr />
+<h3 id="3-deepeval-confident-ai">3. DeepEval / Confident AI<a class="headerlink" href="#3-deepeval-confident-ai" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> deepeval.com / confident-ai.com | <strong>Founded:</strong> 2023 | <strong>YC W23</strong></p>
+<p><strong>What they actually do:</strong>
+- DeepEval: Open-source Python eval framework (pytest-style)
+- 50+ metrics (G-Eval, hallucination, answer relevancy, task completion)
+- LLM-as-judge + NLP models running locally
+- Red-team for 40+ safety vulnerabilities
+- Synthetic dataset generation
+- Confident AI cloud: team collaboration, CI/CD integration, dashboards
+- Agent-specific eval metrics (published guides)</p>
+<p><strong>Funding:</strong> YC W23; total funding undisclosed (likely $2-5M seed)</p>
+<p><strong>GitHub Stars (DeepEval):</strong> ~13,000 stars; <strong>3M monthly downloads; 20M daily evals</strong></p>
+<p><strong>Pricing (Confident AI cloud):</strong>
+| Tier | Price | Traces/mo | Retention |
+|------|-------|-----------|-----------|
+| Free | $0 | 10K | 1 week |
+| Starter | $19.99/user/mo | 20K | 1 month |
+| Premium | $79.99/user/mo | 100K | 3 months |
+| Enterprise | Custom | Unlimited | Custom |</p>
+<p><strong>Key differentiation:</strong> Most widely adopted OSS eval framework; pytest integration; huge community; very cheap entry point.</p>
+<p><strong>What they DON'T do:</strong>
+- Cloud platform is secondary to OSS; product quality lags
+- No production tracing/APM-style monitoring
+- No agent simulation or capture-replay
+- No CI blocking with deterministic assertions on tool call sequences</p>
+<p><strong>User complaints:</strong>
+- Confident AI cloud product less polished than DeepEval OSS
+- LLM-as-judge evals are slow and expensive to run in CI
+- Limited support for complex multi-agent systems
+- Enterprise plans feel expensive vs. OSS alternative</p>
+<hr />
+<h3 id="4-langsmith-by-langchain">4. LangSmith (by LangChain)<a class="headerlink" href="#4-langsmith-by-langchain" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> langchain.com/langsmith | <strong>Founded:</strong> 2022</p>
+<p><strong>What they actually do:</strong>
+- Full LLM observability: trace every LLM call, tool use, agent step
+- Evaluation framework: heuristic, LLM-as-judge, pairwise, human annotation
+- Offline evals (dev/CI) + online evals (production traffic sampling)
+- CI/CD integration with regression detection
+- Prompt management and versioning
+- Python, TypeScript, Go, Java SDKs
+- Recently added: cost tracking across full agent workflow (Jan 2026)
+- Deep LangGraph/LangChain native integration</p>
+<p><strong>Funding (LangChain):</strong> $260M total — $10M Seed → $25M Series A (Feb 2024) → <strong>$125M Series B</strong> (Oct 2025) led by IVP. <strong>Valuation: $1.25B (Unicorn)</strong></p>
+<p><strong>Revenue:</strong> ~$16M ARR (2025)</p>
+<p><strong>Adoption:</strong> 90M combined monthly downloads (LangChain + LangGraph); 35% of Fortune 500</p>
+<p><strong>Pricing:</strong>
+| Tier | Price | Notes |
+|------|-------|-------|
+| Developer | Free (1 seat) | 5K traces/mo base |
+| Plus | $39/seat/mo | 10K base traces; $5/10K extra |
+| Enterprise | Custom | Advanced security, SSO |</p>
+<p><strong>Key differentiation:</strong> Ecosystem lock-in via LangChain/LangGraph; massive adoption; unicorn-backed; comprehensive platform.</p>
+<p><strong>What they DON'T do:</strong>
+- Heavily LangChain-centric; other framework users feel second-class
+- No deterministic replay / VCR mocking
+- No cheap non-LLM path assertions
+- Multi-agent eval is still evolving (Dec 2025 update)
+- Expensive at scale (per-trace pricing adds up)</p>
+<p><strong>User complaints:</strong>
+- "If you're not using LangChain, it's a lot more work to integrate"
+- Trace data retention short on free/plus tiers
+- Eval UI can be complex; steep learning curve
+- Vendor lock-in concerns</p>
+<hr />
+<h3 id="5-galileo-ai">5. Galileo AI<a class="headerlink" href="#5-galileo-ai" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> galileo.ai | <strong>Founded:</strong> 2021 (AI team from Google AI, Apple Siri, Google Brain)</p>
+<p><strong>What they actually do:</strong>
+- Enterprise AI reliability platform: observability + evaluation
+- Proprietary Evaluation Foundation Models (EFMs) — Luna-2 family
+- Agentic Evaluations: purpose-built metrics for agent testing (Jan 2025)
+- RAG pipeline monitoring: context adherence, chunk utilization
+- Real-time guardrails against hallucination in production
+- NVIDIA NIM integration
+- Free "Agent Reliability Platform" tier (announced 2025)</p>
+<p><strong>Funding:</strong> <strong>$68M</strong> from Battery Ventures, Scale Venture Partners, Databricks Ventures, Citi Ventures, Hugging Face CEO</p>
+<p><strong>Team:</strong> ~100 employees (est.)</p>
+<p><strong>Pricing:</strong>
+- Free: 5K traces/mo
+- Enterprise: Custom pricing (contact sales)</p>
+<p><strong>Customers:</strong> HP, Twilio, Reddit, Comcast</p>
+<p><strong>Key differentiation:</strong> Proprietary EFMs (not just GPT-4 as judge); enterprise-grade; strong RAG evaluation; NVIDIA partnership.</p>
+<p><strong>What they DON'T do:</strong>
+- No open-source version or developer-first pricing
+- No capture-replay or deterministic mocking
+- No CI/CD hard block on regression
+- Complex for small teams; enterprise-only orientation</p>
+<p><strong>User complaints:</strong>
+- Pricing opacity ("contact sales" wall for everything useful)
+- Setup complexity for smaller teams
+- EFMs not customizable
+- Limited community/documentation</p>
+<hr />
+<h3 id="6-honeyhive">6. HoneyHive<a class="headerlink" href="#6-honeyhive" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> honeyhive.ai | <strong>Founded:</strong> 2023</p>
+<p><strong>What they actually do:</strong>
+- Agent observability with OpenTelemetry-based tracing
+- MCP/A2A protocol support (agent-to-agent)
+- 25+ pre-built evaluators; custom evaluators
+- Experiment suite: pre-deployment validation, CI regression detection
+- Human-in-the-loop annotation workflows
+- Artifact management: prompts, datasets, evaluators in sync between UI and code
+- Self-hosted and dedicated cloud options
+- Targets regulated industries (fintech, healthcare)</p>
+<p><strong>Funding:</strong> <strong>$7.4M total</strong> — $1.9M Pre-Seed (Zero Prime) + $5.5M Seed (Insight Partners, Apr 2025)</p>
+<p><strong>Team:</strong> ~15-20 employees (est.)</p>
+<p><strong>Pricing:</strong> Free (individual) → Team (scaling) → Enterprise (self-hosted); exact figures not public</p>
+<p><strong>Key differentiation:</strong> MCP/A2A native; enterprise compliance focus; clean OpenTelemetry integration; Insight Partners backing.</p>
+<p><strong>What they DON'T do:</strong>
+- No deterministic replay
+- Limited CI/CD documentation
+- No multi-agent simulation
+- Product still maturing (GA launched 2025)</p>
+<hr />
+<h3 id="7-patronus-ai">7. Patronus AI<a class="headerlink" href="#7-patronus-ai" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> patronus.ai | <strong>Founded:</strong> 2023</p>
+<p><strong>What they actually do:</strong>
+- Hallucination detection API: <strong>Lynx model</strong> (+18% better than GPT-4)
+- "Judge evaluators": custom rules in plain English → automatic evaluation
+- Off-the-shelf evaluators: toxicity, PII leakage, etc.
+- Real-time evaluation API (100ms latency)
+- Pay-per-use: no commitment</p>
+<p><strong>Funding:</strong> <strong>$20M total</strong> — $3M launch + $17M Series A</p>
+<p><strong>Team:</strong> ~20-30 employees (est.)</p>
+<p><strong>Pricing:</strong>
+- $10/1000 API calls (smaller evaluators)
+- $20/1000 API calls (larger evaluators)</p>
+<p><strong>Customers:</strong> HP, AngelList, Pearson; partnerships with NVIDIA, MongoDB, IBM</p>
+<p><strong>Key differentiation:</strong> Best-in-class hallucination detection; fastest API eval; pay-as-you-go; simple integration.</p>
+<p><strong>What they DON'T do:</strong>
+- No observability/tracing
+- No agent testing (single-turn eval only)
+- No dataset management
+- No CI/CD workflow tooling
+- Narrow scope: evaluation API only</p>
+<hr />
+<h3 id="8-agentops">8. AgentOps<a class="headerlink" href="#8-agentops" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> agentops.ai | <strong>Founded:</strong> 2023</p>
+<p><strong>What they actually do:</strong>
+- Python SDK for AI agent monitoring
+- Session replay + "time-travel debugging"
+- LLM cost tracking across 400+ framework integrations
+- Visual trace of every agent step
+- Token usage monitoring + fine-tune on saved completions
+- CrewAI, Agno, OpenAI Agents SDK, LangGraph integrations</p>
+<p><strong>Funding:</strong> Undisclosed (seed-stage, likely &lt;$5M)</p>
+<p><strong>GitHub Stars:</strong> ~2,500 stars</p>
+<p><strong>Pricing:</strong>
+- Free to start; paid tiers undisclosed</p>
+<p><strong>Key differentiation:</strong> "Time-travel debugging" for agents; 400+ framework integrations; cost optimization focus.</p>
+<p><strong>What they DON'T do:</strong>
+- No eval/scoring framework
+- No CI/CD integration for quality gates
+- No dataset management
+- No pre-deployment testing (production monitoring only)
+- No deterministic replay (time-travel is post-hoc, not re-runnable)</p>
+<p><strong>User complaints:</strong>
+- 12% overhead on agent performance
+- Limited evaluation capabilities
+- No structured testing framework</p>
+<hr />
+<h3 id="9-gentrace">9. Gentrace<a class="headerlink" href="#9-gentrace" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> gentrace.ai | <strong>Founded:</strong> 2022</p>
+<p><strong>What they actually do:</strong>
+- Evaluation in development, CI/CD, and production
+- Heuristic + AI + manual human grading
+- Continuous production evaluation with sampling rate config
+- CI gate: test failures throw errors, block deployment
+- Experiments tool (threshold-based, auto-optimization in roadmap)
+- Usage-based pricing, no per-seat charges</p>
+<p><strong>Funding:</strong> <strong>$14M total</strong> — $6M seed + $8M Series A (Dec 2024) led by Matrix Partners</p>
+<p><strong>Team:</strong> ~15-20 employees (est.)</p>
+<p><strong>Pricing:</strong>
+- Free tier available
+- Standard: usage-based (no per-seat)
+- Enterprise: self-hosting + priority support (custom)</p>
+<p><strong>Key differentiation:</strong> CI/CD blocking as first-class feature; usage-based (not per-seat); no code required for basic evals; hybrid human+AI+heuristic evaluation.</p>
+<p><strong>What they DON'T do:</strong>
+- No observability/tracing stack
+- No capture-replay / deterministic mocking
+- No multi-agent simulation
+- Limited adoption/community vs. larger players
+- No synthetic data generation</p>
+<hr />
+<h3 id="10-giskard">10. Giskard<a class="headerlink" href="#10-giskard" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> giskard.ai | <strong>Founded:</strong> 2021 (France)</p>
+<p><strong>What they actually do:</strong>
+- Open-source Python library for AI red-teaming and evaluation
+- Enterprise Hub: continuous LLM security testing and RAG evaluation
+- OWASP Top 10 for LLMs vulnerability scanning
+- RAG pipeline evaluation with pre-built and custom detectors
+- CI/CD integration for regression testing</p>
+<p><strong>Funding:</strong> Raised initial round 2022 (Elaia + Bessemer Venture Partners); specific amount undisclosed</p>
+<p><strong>Key differentiation:</strong> Strong European enterprise presence; open-source community; AI safety/security focus; RAG-specialized.</p>
+<p><strong>What they DON'T do:</strong>
+- No agent-level testing (multi-step workflow)
+- No capture-replay
+- No production monitoring/tracing
+- Limited CI/CD tooling beyond basic Python test runners</p>
+<hr />
+<h3 id="11-wb-weave-weights-biases">11. W&amp;B Weave (Weights &amp; Biases)<a class="headerlink" href="#11-wb-weave-weights-biases" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> wandb.ai/site/weave | <strong>Founded (W&amp;B):</strong> 2017</p>
+<p><strong>What they actually do:</strong>
+- Weave: LLM observability and evaluation layer for W&amp;B users
+- @weave.op decorator auto-tracks every LLM call (cost, latency, evals)
+- Industry-standard scorers built-in + custom scorer support
+- RAG evaluation with LLM judges
+- Integrates with W&amp;B's ML experiment tracking ecosystem
+- Evaluations for comparing model outputs (accuracy, latency, cost)</p>
+<p><strong>W&amp;B Funding:</strong> ~$200M+ total (large, mature MLOps company)</p>
+<p><strong>Pricing (Weave):</strong>
+- Free: 200GB storage, 25GB/mo Weave data ingest, up to 100 seats
+- Pro: Usage-based beyond free tier
+- Enterprise: Custom</p>
+<p><strong>Key differentiation:</strong> Leverages existing W&amp;B customer base (ML/data science teams); mature platform; strong ML experiment lineage.</p>
+<p><strong>What they DON'T do:</strong>
+- Not agent-testing first; bolted onto ML training tooling
+- No agent simulation or replay
+- No CI/CD hard block on eval regression
+- Complex for teams just doing LLM apps (not model training)</p>
+<hr />
+<h3 id="12-arize-phoenix">12. Arize Phoenix<a class="headerlink" href="#12-arize-phoenix" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> phoenix.arize.com | <strong>Founded (Arize):</strong> 2020</p>
+<p><strong>What they actually do:</strong>
+- Open-source AI observability: tracing, evaluation, experimentation
+- OpenTelemetry-based (vendor-neutral)
+- LLM judges for evaluation; experiment tracking
+- Prompt playground and management
+- Supports: OpenAI Agents SDK, LangGraph, Vercel AI SDK, Mastra, CrewAI, LlamaIndex, DSPy
+- Arize AX: enterprise SaaS version (~$50K-100K/yr)</p>
+<p><strong>Arize Funding:</strong> ~$62M total (mature observability company)</p>
+<p><strong>Pricing (Phoenix):</strong>
+- Open source: Free (self-hosted)
+- Infrastructure cost: ~$50-500/mo
+- Arize AX enterprise: $50K-100K/yr</p>
+<p><strong>Key differentiation:</strong> True open-source (MIT); OpenTelemetry native; framework-agnostic; strong OSS community.</p>
+<p><strong>What they DON'T do:</strong>
+- No deterministic replay
+- No CI/CD blocking
+- No synthetic data generation
+- OSS version limited vs. expensive enterprise jump</p>
+<hr />
+<h3 id="13-langfuse">13. Langfuse<a class="headerlink" href="#13-langfuse" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> langfuse.com | <strong>Founded:</strong> 2023 | <strong>YC W23</strong></p>
+<p><strong>What they actually do:</strong>
+- Open-source LLM engineering platform (MIT license)
+- Observability + tracing with OpenTelemetry integration
+- Evaluation: LLM-as-judge, user feedback, manual labeling, custom pipelines
+- Prompt management: versioning, A/B testing, caching
+- LLM Playground for prompt iteration
+- Dataset management + experiment tracking
+- Cost/latency tracking by user, session, geography, feature, model, prompt version
+- Self-hosted or managed cloud</p>
+<p><strong>Funding:</strong> <strong>$4M Seed</strong> (Lightspeed, La Famiglia, YC W23)</p>
+<p><strong>GitHub Stars:</strong> ~15,000+</p>
+<p><strong>Pricing:</strong>
+- Free cloud: 50K observations/mo
+- Pro: $59/mo
+- Self-hosted: Free (open source)
+- Enterprise: Custom</p>
+<p><strong>Key differentiation:</strong> Best open-source option; self-hostable; very active community; clean API; framework-agnostic via OpenTelemetry.</p>
+<p><strong>What they DON'T do:</strong>
+- No capture-replay / deterministic mocking
+- No CI/CD hard blocking
+- No multi-agent simulation
+- No red-teaming or adversarial testing
+- Eval less mature than pure-play eval tools</p>
+<hr />
+<h3 id="14-parea-ai">14. Parea AI<a class="headerlink" href="#14-parea-ai" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> parea.ai | <strong>Founded:</strong> 2023</p>
+<p><strong>What they actually do:</strong>
+- Prompt engineering + evaluation platform
+- Side-by-side prompt comparison; A/B testing
+- Pre-built metrics: llm_grader, answer_relevancy, self_check, factuality, semantic_similarity
+- Custom evaluation metrics
+- Observability + CI/CD eval integration</p>
+<p><strong>Funding:</strong> Undisclosed (seed-stage)</p>
+<p><strong>Pricing:</strong>
+| Tier | Price | Logs/mo |
+|------|-------|---------|
+| Free | $0 | 3K |
+| Team | $150/mo | 100K |
+| Enterprise | Custom | Unlimited |</p>
+<p><strong>Key differentiation:</strong> Prompt-engineer-first UX; clean comparison interface; accessible pricing.</p>
+<p><strong>What they DON'T do:</strong>
+- No agent testing (prompt-focused, not workflow-focused)
+- No observability beyond logs
+- No capture-replay
+- Very narrow scope; likely acquisition target</p>
+<hr />
+<h3 id="15-helicone">15. Helicone<a class="headerlink" href="#15-helicone" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> helicone.ai | <strong>Founded:</strong> 2023 | <strong>YC W23</strong></p>
+<p><strong>What they actually do:</strong>
+- LLM gateway/proxy: one-line integration (change API base URL)
+- Observability: cost, latency, errors automatically tracked
+- Caching built-in
+- Rust-based gateway (low latency overhead)
+- Load balancing + failover
+- Open-source and self-hostable</p>
+<p><strong>Funding:</strong> YC W23 (undisclosed seed)</p>
+<p><strong>GitHub Stars:</strong> ~7,000+</p>
+<p><strong>Pricing:</strong> Free self-hosted; cloud pricing usage-based</p>
+<p><strong>Key differentiation:</strong> Easiest integration (change 1 line); Rust performance; gateway + observability in one.</p>
+<p><strong>What they DON'T do:</strong>
+- No evaluation framework
+- No CI/CD testing
+- No dataset management
+- Gateway/proxy only — not a testing tool</p>
+<hr />
+<h3 id="16-datadog-llm-observability">16. Datadog LLM Observability<a class="headerlink" href="#16-datadog-llm-observability" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> datadoghq.com/product/llm-observability | <strong>Public company (DDOG)</strong></p>
+<p><strong>What they actually do:</strong>
+- End-to-end agent tracing: inputs, outputs, latency, token usage, errors
+- Integration with OpenAI, LangChain, AWS Bedrock, Anthropic (auto-instrumented)
+- AI Agent Monitoring + LLM Experiments (Jun 2025)
+- Cost estimation per LLM request
+- Unified with existing Datadog APM/infra monitoring</p>
+<p><strong>Pricing:</strong>
+- Usage-based per LLM request (exact pricing on website)
+- 1GB Sensitive Data Scanner per 10K LLM requests included</p>
+<p><strong>Key differentiation:</strong> Integrates with existing Datadog stack (if already customer); enterprise trust; SIEM/security integration.</p>
+<p><strong>What they DON'T do:</strong>
+- No evaluation/scoring framework
+- No CI/CD quality gates
+- No agent pre-deployment testing
+- Not a standalone product (requires Datadog ecosystem)
+- Very expensive for LLM-only users</p>
+<hr />
+<h3 id="17-ragas">17. Ragas<a class="headerlink" href="#17-ragas" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> ragas.io | <strong>Open Source</strong> | <strong>Founded:</strong> 2023</p>
+<p><strong>What they actually do:</strong>
+- OSS framework for RAG pipeline evaluation
+- "Reference-free" evaluation (no human ground truth needed)
+- Core metrics: context precision, context recall, faithfulness, answer relevancy
+- Synthetic test set generation (knowledge graph-based)
+- Reduces manual test curation by ~90%
+- Not a platform — a Python library</p>
+<p><strong>GitHub Stars:</strong> ~10,000+</p>
+<p><strong>Pricing:</strong> Open source (Apache 2.0); Ragas Cloud in development</p>
+<p><strong>Key differentiation:</strong> Best OSS RAG eval metrics; reference-free evaluation; great for retrieval systems.</p>
+<p><strong>What they DON'T do:</strong>
+- No observability/tracing
+- No production monitoring
+- No CI/CD integration (library only)
+- RAG-only; no general agent testing</p>
+<hr />
+<h3 id="18-trulens-snowflake">18. TruLens (Snowflake)<a class="headerlink" href="#18-trulens-snowflake" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> trulens.org | <strong>Backed by Snowflake</strong></p>
+<p><strong>What they actually do:</strong>
+- OSS RAG evaluation via "feedback functions"
+- "RAG Triad": groundedness, context relevance, coherence
+- Integrates with Snowflake Cortex
+- Python library</p>
+<p><strong>Key differentiation:</strong> Snowflake backing (enterprise distribution); RAG Triad framework.</p>
+<p><strong>What they DON'T do:</strong>
+- Same gaps as Ragas (RAG-only, library only, no agent testing)
+- CI/CD integration minimal
+- No replay or simulation</p>
+<hr />
+<h3 id="19-arthur-ai">19. Arthur AI<a class="headerlink" href="#19-arthur-ai" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> arthur.ai</p>
+<p><strong>What they actually do:</strong>
+- Traditional MLOps + GenAI observability
+- Real-time firewalling against LLM threats
+- Model monitoring, explainability, bias detection
+- GenAI observability + safety guardrails
+- AWS Marketplace listed</p>
+<p><strong>Key differentiation:</strong> Traditional ML + GenAI monitoring bridge; enterprise compliance (bias, fairness, explainability).</p>
+<p><strong>What they DON'T do:</strong>
+- Not agent-testing focused
+- No eval framework for LLM outputs
+- Legacy ML tooling ported to GenAI</p>
+<hr />
+<h3 id="20-quotient-ai">20. Quotient AI<a class="headerlink" href="#20-quotient-ai" title="Permanent link">&para;</a></h3>
+<p><strong>Website:</strong> quotientai.co | <strong>Founded:</strong> 2023</p>
+<p><strong>What they actually do:</strong>
+- Post-training layer for self-improving AI agents
+- Real-world telemetry → automated RL fine-tuning
+- Evaluation infrastructure for accelerating agent development
+- Team previously built GitHub Copilot's eval infra</p>
+<p><strong>Funding:</strong> $0 (no external funding as of research date)</p>
+<p><strong>Key differentiation:</strong> Founder pedigree (GitHub Copilot eval); focus on autonomous agent improvement loop.</p>
+<p><strong>What they DON'T do:</strong>
+- Product details sparse (early-stage / stealth)
+- No public pricing or documentation
+- Not a general-purpose testing tool</p>
+<hr />
+<h2 id="part-2-academic-oss-benchmarks">Part 2: Academic / OSS Benchmarks<a class="headerlink" href="#part-2-academic-oss-benchmarks" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Focus</th>
+<th>Key Stats</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SWE-bench</strong></td>
+<td>Coding agents on real GitHub issues</td>
+<td>2,294 issues; execution-based; gold standard for code agents</td>
+</tr>
+<tr>
+<td><strong>SWE-bench Verified</strong></td>
+<td>Same + handwritten unit tests</td>
+<td>Used by all major AI providers</td>
+</tr>
+<tr>
+<td><strong>GAIA</strong></td>
+<td>Real-world reasoning + tool use</td>
+<td>466 questions; 77% human-AI performance gap</td>
+</tr>
+<tr>
+<td><strong>AgentBench</strong></td>
+<td>Multi-environment agent eval</td>
+<td>8 environments (OS, DB, web, games, etc.)</td>
+</tr>
+<tr>
+<td><strong>WebArena</strong></td>
+<td>Web navigation tasks</td>
+<td>Realistic browser environment</td>
+</tr>
+<tr>
+<td><strong>OSWorld</strong></td>
+<td>OS-level computer use</td>
+<td>Desktop/OS task completion</td>
+</tr>
+<tr>
+<td><strong>HAL Harness</strong></td>
+<td>Holistic agent leaderboard</td>
+<td>Cross-benchmark comparison</td>
+</tr>
+<tr>
+<td><strong>LMSYS Chatbot Arena</strong></td>
+<td>Human-preference model ranking</td>
+<td>Elo-based crowdsourced evals</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key insight:</strong> Academic benchmarks measure model capability, not product quality. They don't gate CI/CD, don't run on your agent code, don't cost &lt;$0.001/assertion. There's a massive gap between "does GPT-4 pass SWE-bench" and "does my agent pass my regression suite in 30 seconds."</p>
+<hr />
+<h2 id="part-3-feature-comparison-matrix">Part 3: Feature Comparison Matrix<a class="headerlink" href="#part-3-feature-comparison-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Braintrust</th>
+<th>Promptfoo</th>
+<th>DeepEval</th>
+<th>LangSmith</th>
+<th>Galileo</th>
+<th>HoneyHive</th>
+<th>AgentOps</th>
+<th>Gentrace</th>
+<th>Langfuse</th>
+<th>Arize Phoenix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Observability/Tracing</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>LLM-as-judge eval</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅ (EFMs)</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Code/heuristic eval</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>CI/CD integration</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>CI/CD hard BLOCK on fail</strong></td>
+<td>Partial</td>
+<td>✅</td>
+<td>Partial</td>
+<td>Partial</td>
+<td>❌</td>
+<td>Partial</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Capture-replay / VCR mock</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>Partial</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Deterministic agent replay</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Multi-agent testing</strong></td>
+<td>Partial</td>
+<td>❌</td>
+<td>Partial</td>
+<td>Partial</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>Partial</td>
+<td>Partial</td>
+</tr>
+<tr>
+<td><strong>Tool call path assertion</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>Partial</td>
+<td>Partial</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Agent simulation / synthetic users</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Cheap non-LLM assertions</strong></td>
+<td>Partial</td>
+<td>✅</td>
+<td>✅</td>
+<td>Partial</td>
+<td>❌</td>
+<td>Partial</td>
+<td>❌</td>
+<td>✅</td>
+<td>Partial</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Red-teaming / security</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>Partial</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Synthetic data generation</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Human annotation</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Prompt management</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Production monitoring</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Self-hosted option</strong></td>
+<td>Enterprise</td>
+<td>✅</td>
+<td>✅</td>
+<td>Enterprise</td>
+<td>Enterprise</td>
+<td>Enterprise</td>
+<td>❌</td>
+<td>Enterprise</td>
+<td>✅ Free</td>
+<td>✅ Free</td>
+</tr>
+<tr>
+<td><strong>OSS / free core</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>Partial</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>RAG-specific eval</strong></td>
+<td>Partial</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>Partial</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>&lt;$0.01/eval cost possible</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Framework agnostic</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>Partial</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-4-gap-analysis-what-no-competitor-does-today">Part 4: Gap Analysis — What NO Competitor Does Today<a class="headerlink" href="#part-4-gap-analysis-what-no-competitor-does-today" title="Permanent link">&para;</a></h2>
+<h3 id="gap-1-deterministic-capture-replay-biggest-gap">Gap #1: Deterministic Capture-Replay (BIGGEST GAP)<a class="headerlink" href="#gap-1-deterministic-capture-replay-biggest-gap" title="Permanent link">&para;</a></h3>
+<p><strong>What it is:</strong> Record a live agent session (LLM calls, tool calls, environment state) once, then replay it identically — no real API calls, zero cost, millisecond speed.</p>
+<p><strong>Who tried it:</strong>
+- Docker's <code>cagent</code> (Jan 2026): VCR-cassette pattern for LLMs — a blog post / experimental tool, not a production eval platform
+- AgentOps "time-travel debugging": post-hoc replay for inspection, NOT regression testing, NOT runnable in CI
+- LangChain docs mention VCR pattern but no tooling</p>
+<p><strong>The gap:</strong> No commercial platform offers capture-replay as a first-class feature for <strong>regression testing</strong> in CI. Every tool assumes you re-run against the live API on every test.</p>
+<p><strong>Business impact:</strong> Teams with 100+ agent tests spend $5-20/CI run just on LLM API calls. A 10-developer team might spend $50K-200K/year in eval API costs.</p>
+<hr />
+<h3 id="gap-2-deterministic-tool-call-path-assertions">Gap #2: Deterministic Tool-Call Path Assertions<a class="headerlink" href="#gap-2-deterministic-tool-call-path-assertions" title="Permanent link">&para;</a></h3>
+<p><strong>What it is:</strong> Assert that an agent called <code>search_tool</code> before <code>write_file</code>, or that it used <code>calculator</code> exactly twice, or that it never called <code>delete_record</code> unless <code>confirm_deletion</code> was called first.</p>
+<p><strong>Current state:</strong> Partial in DeepEval (trajectory metrics); LangSmith can show tool calls in traces. But <strong>no tool lets you write <code>assert agent.called("tool_a").before("tool_b")</code> as a cheap, deterministic CI assertion</strong> the way you'd write <code>assert response.status == 200</code> in a REST test.</p>
+<hr />
+<h3 id="gap-3-cheap-pre-production-ci-gate-sub-cent-assertions">Gap #3: Cheap Pre-Production CI Gate (Sub-cent assertions)<a class="headerlink" href="#gap-3-cheap-pre-production-ci-gate-sub-cent-assertions" title="Permanent link">&para;</a></h3>
+<p><strong>What it is:</strong> A test run that costs $0.001 not $1.00.</p>
+<p><strong>Current state:</strong> All LLM-as-judge evals cost $0.002-0.02 per assertion. Running 500 tests = $1-10 per CI run. This leads teams to either: (a) skip CI testing, (b) test only on merge (slow feedback), or (c) maintain separate "cheap" and "expensive" eval suites manually.</p>
+<p><strong>The gap:</strong> A tiered evaluation pipeline where deterministic assertions (tool call paths, output schemas, latency bounds, regex matches) run in &lt;1 second for &lt;$0.001, and LLM judges are invoked only as a second tier for ambiguous cases.</p>
+<hr />
+<h3 id="gap-4-multi-agent-system-testing">Gap #4: Multi-Agent System Testing<a class="headerlink" href="#gap-4-multi-agent-system-testing" title="Permanent link">&para;</a></h3>
+<p><strong>What it is:</strong> Testing orchestrator→sub-agent→tool call chains where agents call other agents.</p>
+<p><strong>Current state:</strong> Most tools trace multi-agent systems post-hoc. No tool lets you <strong>inject a synthetic sub-agent</strong> to test your orchestrator in isolation, or <strong>mock an agent's responses</strong> to test edge cases in the calling agent.</p>
+<hr />
+<h3 id="gap-5-adversarial-synthetic-user-simulation">Gap #5: Adversarial Synthetic User Simulation<a class="headerlink" href="#gap-5-adversarial-synthetic-user-simulation" title="Permanent link">&para;</a></h3>
+<p><strong>What it is:</strong> Generate a battery of adversarial user inputs (edge cases, ambiguous queries, injection attempts) automatically and evaluate agent responses against a rubric.</p>
+<p><strong>Current state:</strong> Promptfoo/DeepEval do adversarial <strong>prompt</strong> testing, not <strong>full session simulation</strong> with follow-up turns, memory state, and multi-turn coherence.</p>
+<hr />
+<h3 id="gap-6-zero-setup-ci-integration">Gap #6: Zero-Setup CI Integration<a class="headerlink" href="#gap-6-zero-setup-ci-integration" title="Permanent link">&para;</a></h3>
+<p><strong>What it is:</strong> <code>npx evalcraft run</code> or <code>pip install evalcraft &amp;&amp; evalcraft run</code> that auto-discovers agent tests, runs them, and comments on the PR with a score card.</p>
+<p><strong>Current state:</strong> All tools require instrumentation (SDK integration, decorator setup, YAML config). No "plug in a GitHub Action, get results immediately" tool for agent testing.</p>
+<hr />
+<h2 id="part-5-threat-assessment">Part 5: Threat Assessment<a class="headerlink" href="#part-5-threat-assessment" title="Permanent link">&para;</a></h2>
+<h3 id="tier-1-high-pivot-risk-could-compete-in-12-18-months">Tier 1 — High Pivot Risk (could compete in 12-18 months)<a class="headerlink" href="#tier-1-high-pivot-risk-could-compete-in-12-18-months" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Company</th>
+<th>Pivot Risk</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Braintrust</strong></td>
+<td>HIGH</td>
+<td>Has $121M, full platform, just needs replay + CI blocking; already doing CI eval</td>
+</tr>
+<tr>
+<td><strong>LangSmith</strong></td>
+<td>HIGH</td>
+<td>$1.25B unicorn; 35% Fortune 500; deep LangGraph integration; just needs deterministic testing layer</td>
+</tr>
+<tr>
+<td><strong>Promptfoo</strong></td>
+<td>HIGH</td>
+<td>Already has CI blocking + VCR-adjacent patterns; $23M + a16z backing; very developer-focused</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tier-2-moderate-pivot-risk-18-36-months">Tier 2 — Moderate Pivot Risk (18-36 months)<a class="headerlink" href="#tier-2-moderate-pivot-risk-18-36-months" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Company</th>
+<th>Pivot Risk</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Langfuse</strong></td>
+<td>MEDIUM</td>
+<td>Strong OSS community; would need significant product investment</td>
+</tr>
+<tr>
+<td><strong>Galileo</strong></td>
+<td>MEDIUM</td>
+<td>Has $68M and EFMs; enterprise-focused (not developer-first)</td>
+</tr>
+<tr>
+<td><strong>W&amp;B Weave</strong></td>
+<td>MEDIUM</td>
+<td>Mature company but ML-training first; LLM eval is secondary</td>
+</tr>
+<tr>
+<td><strong>HoneyHive</strong></td>
+<td>MEDIUM</td>
+<td>MCP/A2A native is future-proof; small team limits velocity</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tier-3-low-pivot-risk-focused-elsewhere">Tier 3 — Low Pivot Risk (focused elsewhere)<a class="headerlink" href="#tier-3-low-pivot-risk-focused-elsewhere" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Company</th>
+<th>Pivot Risk</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Patronus AI</strong></td>
+<td>LOW</td>
+<td>Hallucination API only; not platform-building</td>
+</tr>
+<tr>
+<td><strong>Ragas/TruLens</strong></td>
+<td>LOW</td>
+<td>OSS libraries; RAG-only focus</td>
+</tr>
+<tr>
+<td><strong>Datadog</strong></td>
+<td>LOW</td>
+<td>Enterprise incumbent; slow to build developer-first products</td>
+</tr>
+<tr>
+<td><strong>Arize Phoenix</strong></td>
+<td>LOW</td>
+<td>OSS + $50K/yr enterprise; missing middle market</td>
+</tr>
+<tr>
+<td><strong>AgentOps</strong></td>
+<td>LOW</td>
+<td>Seed-stage; monitoring-only</td>
+</tr>
+</tbody>
+</table>
+<h3 id="wild-card-big-tech">Wild Card: Big Tech<a class="headerlink" href="#wild-card-big-tech" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>OpenAI Evals</strong> (OSS framework, not commercial): Could productize; has distribution</li>
+<li><strong>Anthropic</strong> (no eval product currently): Could build one; has Claude-native eval models</li>
+<li><strong>Microsoft/GitHub</strong>: Could extend GitHub Actions with LLM-native testing</li>
+<li><strong>Google Cloud</strong>: Vertex AI has eval APIs; could integrate into Cloud Build</li>
+</ul>
+<hr />
+<h2 id="part-6-pricing-comparison-table">Part 6: Pricing Comparison Table<a class="headerlink" href="#part-6-pricing-comparison-table" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Free Tier</th>
+<th>Entry Paid</th>
+<th>Mid-Market</th>
+<th>Enterprise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Braintrust</td>
+<td>1M spans/mo</td>
+<td>$249/mo (unlimited spans)</td>
+<td>—</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>Promptfoo</td>
+<td>Unlimited (OSS)</td>
+<td>Free / Enterprise custom</td>
+<td>Enterprise</td>
+<td>Enterprise</td>
+</tr>
+<tr>
+<td>DeepEval OSS</td>
+<td>Unlimited (OSS)</td>
+<td>$19.99/user/mo</td>
+<td>$79.99/user/mo</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>LangSmith</td>
+<td>5K traces (1 seat)</td>
+<td>$39/seat/mo</td>
+<td>$39/seat/mo</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>Galileo</td>
+<td>5K traces/mo</td>
+<td>—</td>
+<td>—</td>
+<td>Custom ($$$)</td>
+</tr>
+<tr>
+<td>HoneyHive</td>
+<td>Yes (individual)</td>
+<td>Not disclosed</td>
+<td>Not disclosed</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>Patronus AI</td>
+<td>No</td>
+<td>$10/1K API calls</td>
+<td>$20/1K calls</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>AgentOps</td>
+<td>Free</td>
+<td>Not disclosed</td>
+<td>Not disclosed</td>
+<td>Not disclosed</td>
+</tr>
+<tr>
+<td>Gentrace</td>
+<td>Free</td>
+<td>Usage-based</td>
+<td>Usage-based</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>Langfuse</td>
+<td>50K obs/mo</td>
+<td>$59/mo</td>
+<td>Custom</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>Arize Phoenix</td>
+<td>Free (OSS)</td>
+<td>$50-500/mo infra</td>
+<td>—</td>
+<td>$50K-100K/yr</td>
+</tr>
+<tr>
+<td>Parea AI</td>
+<td>3K logs/mo</td>
+<td>$150/mo</td>
+<td>—</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>Helicone</td>
+<td>Free (OSS)</td>
+<td>Usage-based</td>
+<td>—</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>W&amp;B Weave</td>
+<td>25GB ingest/mo</td>
+<td>Usage-based</td>
+<td>Usage-based</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>Confident AI</td>
+<td>10K traces/mo</td>
+<td>$19.99/user/mo</td>
+<td>$79.99/user/mo</td>
+<td>Custom</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pricing Insight:</strong> The market bifurcates between:
+1. <strong>Developer-first OSS</strong> (Langfuse, DeepEval, Promptfoo, Arize): Free to start, monetize on cloud/enterprise
+2. <strong>Enterprise-first SaaS</strong> (Braintrust, Galileo, LangSmith): $249+/mo or custom, sell top-down
+3. <strong>API-metered</strong> (Patronus): Pay per eval call</p>
+<p>The <strong>missing model:</strong> Developer-first with a <strong>hard CI gate</strong> product that charges on test run volume, not on observability spans.</p>
+<hr />
+<h2 id="part-7-key-user-complaints-synthesized">Part 7: Key User Complaints (Synthesized)<a class="headerlink" href="#part-7-key-user-complaints-synthesized" title="Permanent link">&para;</a></h2>
+<h3 id="from-reddithngithub-issues">From Reddit/HN/GitHub Issues:<a class="headerlink" href="#from-reddithngithub-issues" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>"LLM evals are too slow and expensive to run in CI on every commit"</strong> — forces teams to defer eval to merge/nightly, missing regressions</li>
+<li><strong>"Vendor lock-in once you instrument everything with their SDK"</strong> — switching costs are huge</li>
+<li><strong>"The free tier always runs out at exactly the wrong moment"</strong> — trace limits hit right when debugging production issues</li>
+<li><strong>"Human review doesn't scale; LLM-as-judge isn't trustworthy enough for hard gates"</strong> — teams don't trust automated evals to block deployment</li>
+<li><strong>"Too much setup to get started"</strong> — decorators, YAML config, API keys, dataset uploads before seeing first result</li>
+<li><strong>"Tool call evaluation is still manual/visual"</strong> — have to click through traces to verify the agent did the right thing</li>
+<li><strong>"No way to test agent behavior without spending money on every run"</strong> — recording + replay is the missing primitive</li>
+<li><strong>"Multi-agent systems are untestable pre-production"</strong> — teams ship to prod and debug live</li>
+</ol>
+<hr />
+<h2 id="part-8-strategic-conclusions">Part 8: Strategic Conclusions<a class="headerlink" href="#part-8-strategic-conclusions" title="Permanent link">&para;</a></h2>
+<h3 id="the-winning-wedge">The Winning Wedge<a class="headerlink" href="#the-winning-wedge" title="Permanent link">&para;</a></h3>
+<p>The biggest unmet need in the market is: <strong>"Run my agent test suite in CI in 30 seconds for $0.01, get a pass/fail signal, block the deploy if it fails."</strong></p>
+<p>Today's tools can give you either:
+- Expensive LLM-judge evals (slow, costly)
+- Observability dashboards (post-hoc, no gate)
+- Basic CI integration (still requires API calls)</p>
+<p>No one owns the <strong>"pytest for agents"</strong> position with:
+1. Capture-replay (record once, replay free)
+2. Cheap deterministic assertions on tool call paths
+3. Hard CI/CD block on regression
+4. &lt;$0.01/test-run cost model</p>
+<h3 id="go-to-market-implication">Go-to-Market Implication<a class="headerlink" href="#go-to-market-implication" title="Permanent link">&para;</a></h3>
+<p>The first company to build a VCR-cassette system for AI agents + deterministic tool-call path assertions + zero-setup CI integration will attract every engineering team that's currently either:
+- Skipping agent testing entirely
+- Spending $5K/mo on eval API calls
+- Doing manual QA before every release</p>
+<p>That's the majority of the ~100,000 companies building production AI agents in 2026.</p>
+<hr />
+<p><em>Sources: Braintrust.dev, Promptfoo.dev, DeepEval/Confident-AI, LangChain.com, Galileo.ai, HoneyHive.ai, Patronus.ai, AgentOps.ai, Gentrace.ai, Langfuse.com, Phoenix.Arize.com, W&amp;B Weave, Giskard.ai, Docker/cagent blog, SiliconAngle, TechCrunch, Fortune, VentureBeat, Tracxn, Crunchbase, various G2/Sourceforge reviews, Anthropic engineering blog, Sakurasky.com deterministic replay analysis</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/beyhangl/evalcraft" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/evalcraft/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "toc.integrate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

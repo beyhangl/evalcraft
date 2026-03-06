@@ -1,0 +1,2445 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The pytest for AI agents — capture, replay, mock, and evaluate agent behavior.">
+      
+      
+      
+        <link rel="canonical" href="https://beyhangl.github.io/evalcraft/docs/strategy/04_product_requirements/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Product Requirements Document (PRD) - Evalcraft</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#product-requirements-document-prd" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Evalcraft" class="md-header__button md-logo" aria-label="Evalcraft" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Evalcraft
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Product Requirements Document (PRD)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/beyhangl/evalcraft" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    beyhangl/evalcraft
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Evalcraft" class="md-nav__button md-logo" aria-label="Evalcraft" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Evalcraft
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/beyhangl/evalcraft" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    beyhangl/evalcraft
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/five-minute-case-study/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Case Study: Catching a Regression
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/capture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capture API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/replay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replay Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/mock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mock LLM & Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/scorers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scorers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/pytest-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pytest Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_11" id="__nav_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapters
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Adapters
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/openai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/anthropic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anthropic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/langgraph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/crewai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CrewAI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/ci-cd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI/CD Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="product-requirements-document-prd">Product Requirements Document (PRD)<a class="headerlink" href="#product-requirements-document-prd" title="Permanent link">&para;</a></h1>
+<h2 id="evalcraft-the-agent-testing-evaluation-platform">Evalcraft — The Agent Testing &amp; Evaluation Platform<a class="headerlink" href="#evalcraft-the-agent-testing-evaluation-platform" title="Permanent link">&para;</a></h2>
+<p><em>Task #4 | Author: product-lead | Date: March 2026</em></p>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
+<p><strong>Evalcraft</strong> is the "pytest for AI agents" — an open-source testing framework and cloud platform that lets developers capture, replay, mock, and evaluate AI agent behavior with deterministic, sub-cent assertions that run in CI/CD on every commit.</p>
+<p>The market has $400M+ invested across 20+ competitors, yet <strong>no tool provides deterministic capture-replay + cheap non-LLM assertions + hard CI/CD blocking</strong> as a first-class product. Evalcraft fills this gap by merging VCR.py's record/replay paradigm, pytest's developer experience, and Braintrust/DeepEval's eval scoring into a single, framework-agnostic system.</p>
+<p><strong>Product vision:</strong> Every team shipping AI agents tests them with the same rigor they test REST APIs today — automatically, cheaply, on every commit.</p>
+<hr />
+<h2 id="2-user-personas">2. User Personas<a class="headerlink" href="#2-user-personas" title="Permanent link">&para;</a></h2>
+<h3 id="persona-1-solo-ai-developer-sam">Persona 1: Solo AI Developer ("Sam")<a class="headerlink" href="#persona-1-solo-ai-developer-sam" title="Permanent link">&para;</a></h3>
+<p><strong>Profile:</strong> Senior engineer building a side-project or early-stage agent. Uses LangGraph or OpenAI Agents SDK. Working alone or with 1-2 collaborators.</p>
+<p><strong>Pain points:</strong>
+- Tests agents by running them manually and eyeballing output
+- Spends $5-20/day on LLM API calls during development iteration
+- No way to regression-test after prompt changes
+- Afraid to refactor because "it was working before"</p>
+<p><strong>Jobs to be done:</strong>
+- Record a working agent session once, replay it free forever
+- Get a pass/fail signal on agent behavior without re-calling the LLM
+- Run tests locally in &lt;5 seconds</p>
+<p><strong>Success metric:</strong> Time-to-first-test &lt; 5 minutes from <code>pip install</code></p>
+<hr />
+<h3 id="persona-2-startup-engineering-team-team-neon-3-10-devs">Persona 2: Startup Engineering Team ("Team Neon", 3-10 devs)<a class="headerlink" href="#persona-2-startup-engineering-team-team-neon-3-10-devs" title="Permanent link">&para;</a></h3>
+<p><strong>Profile:</strong> Series A-B startup with multiple agents in production (customer support, data extraction, code generation). 1-2 dedicated "agent engineers", rest are full-stack.</p>
+<p><strong>Pain points:</strong>
+- CI/CD pipeline exists for code but agents aren't tested
+- Deployed a prompt change that broke 3 customer workflows — caught by user complaint, not testing
+- Eval costs ($1-10/CI run on LLM judges) make per-commit testing uneconomical
+- Different team members have different intuitions about "good agent output"</p>
+<p><strong>Jobs to be done:</strong>
+- Shared golden test sets that define expected agent behavior
+- CI/CD gate that blocks merges when agent behavior regresses
+- Cost &lt;$0.01/test run for deterministic assertions; LLM judges only for ambiguous cases
+- Dashboard showing agent quality trends over time</p>
+<p><strong>Success metric:</strong> Agent regression caught in CI before merge; eval cost &lt;$50/month for team</p>
+<hr />
+<h3 id="persona-3-enterprise-ml-platform-team-platform-corp-50-devs">Persona 3: Enterprise ML Platform Team ("Platform Corp", 50+ devs)<a class="headerlink" href="#persona-3-enterprise-ml-platform-team-platform-corp-50-devs" title="Permanent link">&para;</a></h3>
+<p><strong>Profile:</strong> Large organization with 10+ agents across business units. Dedicated ML platform team provides infrastructure. Compliance requirements (SOC 2, GDPR). Multiple environments (staging, prod).</p>
+<p><strong>Pain points:</strong>
+- No standardized testing framework across agent teams
+- Compliance requires evidence of pre-deployment validation
+- Agent failures in production cost $10K-100K per incident
+- Need audit trail of what was tested, when, by whom</p>
+<p><strong>Jobs to be done:</strong>
+- Standardized eval framework that all agent teams adopt
+- SSO, RBAC, audit logs for compliance
+- Self-hosted / VPC deployment option
+- Integration with existing CI/CD (Jenkins, GitLab CI, GitHub Actions)
+- Cross-agent benchmarking dashboard</p>
+<p><strong>Success metric:</strong> 100% of agent deployments gated by eval suite; SOC 2 audit evidence</p>
+<hr />
+<h3 id="persona-4-qa-engineer-at-ai-company-quinn">Persona 4: QA Engineer at AI Company ("Quinn")<a class="headerlink" href="#persona-4-qa-engineer-at-ai-company-quinn" title="Permanent link">&para;</a></h3>
+<p><strong>Profile:</strong> QA engineer transitioning from traditional testing to AI agent validation. May not write Python daily. Needs accessible tooling.</p>
+<p><strong>Pain points:</strong>
+- Traditional testing tools don't work for non-deterministic agent output
+- Doesn't know how to evaluate "good enough" agent responses
+- Needs to create test cases without deep framework knowledge
+- Wants visual tools, not just CLI</p>
+<p><strong>Jobs to be done:</strong>
+- Visual dashboard to review agent traces and annotate pass/fail
+- Test case creation without writing code (YAML/GUI-based)
+- Human-in-the-loop annotation workflows
+- Export QA reports for stakeholder review</p>
+<p><strong>Success metric:</strong> Can create and run agent test suite without writing Python</p>
+<hr />
+<h2 id="3-core-feature-specifications">3. Core Feature Specifications<a class="headerlink" href="#3-core-feature-specifications" title="Permanent link">&para;</a></h2>
+<h3 id="31-capture-system">3.1 Capture System<a class="headerlink" href="#31-capture-system" title="Permanent link">&para;</a></h3>
+<p><strong>What it does:</strong> Records all LLM calls, tool executions, and agent state transitions during a live agent run into a "cassette" file (inspired by VCR.py).</p>
+<p><strong>Data captured per interaction:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Data Point</th>
+<th>Format</th>
+<th>Storage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LLM requests (messages, model, params)</td>
+<td>Structured YAML/JSON</td>
+<td>Cassette file</td>
+</tr>
+<tr>
+<td>LLM responses (content, tool calls, usage)</td>
+<td>Structured YAML/JSON</td>
+<td>Cassette file</td>
+</tr>
+<tr>
+<td>Tool inputs and outputs</td>
+<td>Structured YAML/JSON</td>
+<td>Cassette file</td>
+</tr>
+<tr>
+<td>Agent state transitions</td>
+<td>Event stream</td>
+<td>Cassette file</td>
+</tr>
+<tr>
+<td>Timestamps and latency</td>
+<td>ISO 8601 + ms</td>
+<td>Cassette file</td>
+</tr>
+<tr>
+<td>Token usage and cost estimates</td>
+<td>Numeric</td>
+<td>Cassette file</td>
+</tr>
+<tr>
+<td>Framework metadata (name, version)</td>
+<td>String</td>
+<td>Cassette file header</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recording modes</strong> (inspired by VCR.py):</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Behavior</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>all</code></td>
+<td>Always record, overwrite cassette</td>
+<td>Fresh recording</td>
+</tr>
+<tr>
+<td><code>once</code></td>
+<td>Record if cassette missing, replay if present</td>
+<td>Default for development</td>
+</tr>
+<tr>
+<td><code>new_episodes</code></td>
+<td>Record new unmatched requests, replay known ones</td>
+<td>Incremental development</td>
+</tr>
+<tr>
+<td><code>none</code></td>
+<td>Replay-only, fail on unrecorded requests</td>
+<td>CI/CD (deterministic)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Privacy &amp; sanitization:</strong>
+- <strong>Automatic:</strong> API keys, Bearer tokens, common secret patterns stripped before write
+- <strong>PII detection:</strong> Email, phone, SSN, credit card patterns → <code>{{REDACTED_EMAIL}}</code> placeholders
+- <strong>Custom rules:</strong> Developer-defined regex patterns for domain-specific secrets
+- <strong>ID normalization:</strong> Dynamic IDs (UUIDs, DB IDs) → stable placeholders <code>{{NORMALIZED_ID_1}}</code>
+- <strong>Cassettes are human-readable YAML</strong> — developers can inspect and edit them
+- <strong><code>.evalcraftignore</code></strong> file to exclude paths/data from recording (like <code>.gitignore</code>)</p>
+<p><strong>User story (US-CAP-1):</strong> <em>As a developer, I want to record my agent's behavior with a single decorator so that I can replay it later without making real API calls.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>@evalcraft.capture("path/to/cassette.yaml")</code> records all LLM + tool interactions
+- [ ] Cassette file is valid YAML readable by humans
+- [ ] API keys and Bearer tokens are automatically stripped
+- [ ] Recording completes in &lt;100ms overhead above agent runtime
+- [ ] Cassette includes full metadata (framework, version, timestamps, cost)</p>
+<p><strong>User story (US-CAP-2):</strong> <em>As a developer, I want my cassettes to automatically strip sensitive data so that I can safely commit them to version control.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Default sanitizers catch OpenAI, Anthropic, Google API key patterns
+- [ ] PII sanitizer detects email, phone, SSN with &gt;95% recall
+- [ ] Custom sanitization rules via <code>evalcraft.toml</code> config
+- [ ] Normalized IDs are deterministic (same input → same placeholder)
+- [ ] <code>evalcraft sanitize --verify &lt;cassette&gt;</code> validates no secrets remain</p>
+<hr />
+<h3 id="32-replay-system">3.2 Replay System<a class="headerlink" href="#32-replay-system" title="Permanent link">&para;</a></h3>
+<p><strong>What it does:</strong> Replays a recorded cassette to re-execute the agent with identical LLM responses and tool outputs, without making any network calls. Enables deterministic regression testing.</p>
+<p><strong>Determinism guarantees:</strong>
+1. <strong>Network firewall:</strong> During replay, all outbound HTTP to LLM providers is blocked. Any unrecorded request = immediate test failure with clear error message.
+2. <strong>Sequential matching:</strong> Requests matched to cassette entries in recorded order (VCR.py pattern).
+3. <strong>Matching strategies:</strong>
+   - <code>exact</code> — byte-for-byte request body match
+   - <code>body_exact</code> — exact body, ignore headers/timestamps
+   - <code>body_semantic</code> — embedding-based similarity (threshold 0.95) for tolerance to minor prompt changes
+   - <code>structural</code> — match message structure, ignore content (most flexible)
+4. <strong>Divergence detection:</strong> If agent behavior deviates from recorded trace, the diff is captured and reported.</p>
+<p><strong>Diff algorithm:</strong>
+- Structural diff of agent trace (tool call sequence, LLM message count)
+- Content diff of LLM outputs (semantic similarity score)
+- Cost diff (token usage comparison)
+- Side-by-side diff output in terminal (inspired by <code>git diff</code>)</p>
+<p><strong>User story (US-REP-1):</strong> <em>As a developer, I want to replay a recorded agent session so that my tests run in milliseconds without API costs.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>@evalcraft.replay("cassette.yaml")</code> replays without network calls
+- [ ] Replay of a 5-step agent completes in &lt;500ms (vs. 3-5s live)
+- [ ] API cost during replay is $0.00
+- [ ] Unrecorded requests produce clear error: <code>ReplayError: No cassette entry for POST /v1/chat/completions with body hash &lt;hash&gt;. Run with EVALCRAFT_RECORD=1 to re-record.</code></p>
+<p><strong>User story (US-REP-2):</strong> <em>As a developer, I want to see exactly what changed when my agent's behavior diverges from the recording so that I can decide if the change is intentional.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Divergence produces structured diff showing: old vs. new tool calls, LLM outputs, token usage
+- [ ] Diff is rendered in terminal with colors (green/red like <code>git diff</code>)
+- [ ] <code>evalcraft diff &lt;cassette1&gt; &lt;cassette2&gt;</code> CLI command for manual comparison
+- [ ] Diff includes semantic similarity score for LLM output changes</p>
+<hr />
+<h3 id="33-mock-system">3.3 Mock System<a class="headerlink" href="#33-mock-system" title="Permanent link">&para;</a></h3>
+<p><strong>What it does:</strong> Provides configurable fake LLMs and tools for testing agent logic without any external dependencies. Complements capture/replay for scenarios where you want full control over responses.</p>
+<p><strong>Mock types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Mock</th>
+<th>What it replaces</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MockLLM</code></td>
+<td>Any LLM provider</td>
+<td>Canned responses, conditional rules, response sequences</td>
+</tr>
+<tr>
+<td><code>MockTool</code></td>
+<td>Any tool/function</td>
+<td>Static responses, input-dependent responses, error simulation</td>
+</tr>
+<tr>
+<td><code>mock_provider()</code></td>
+<td>HTTP-level mock</td>
+<td>Intercepts all calls to a provider's API</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Limitations (explicitly documented):</strong>
+- Mocks don't capture agent state transitions (use capture/replay for that)
+- MockLLM response quality is only as good as the developer's mock definitions
+- Conditional rules use string matching, not semantic understanding
+- Mock does not simulate token counting or rate limiting by default</p>
+<p><strong>User story (US-MOC-1):</strong> <em>As a developer, I want to mock LLM responses so that I can test my agent's branching logic deterministically without an API key.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>MockLLM(responses=["a", "b"])</code> returns responses in sequence
+- [ ] <code>MockLLM(rules=[...])</code> matches input patterns to responses
+- [ ] <code>MockLLM.from_cassette("file.yaml")</code> creates mock from recorded session
+- [ ] <code>MockTool(name="search", responses={...})</code> mocks tool by name
+- [ ] Tests using mocks run without any environment variables or API keys set</p>
+<p><strong>User story (US-MOC-2):</strong> <em>As a developer, I want to simulate tool failures so that I can test my agent's error handling paths.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>MockTool(name="db_query", error=TimeoutError("connection timed out"))</code> raises on call
+- [ ] <code>MockTool(name="api", responses={"default": None}, error_rate=0.3)</code> fails 30% of calls
+- [ ] Agent's error handling behavior is captured in test assertions</p>
+<hr />
+<h3 id="34-eval-system">3.4 Eval System<a class="headerlink" href="#34-eval-system" title="Permanent link">&para;</a></h3>
+<p><strong>What it does:</strong> Scores agent outputs using pluggable evaluators. Supports cheap deterministic scorers (tool call checks, regex, classifiers) and expensive LLM-as-judge scorers, with a tiered pipeline that runs cheap evals first.</p>
+<p><strong>Supported evaluators:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Scorer</th>
+<th>Type</th>
+<th>Cost/eval</th>
+<th>Latency</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ExactMatch</code></td>
+<td>Deterministic</td>
+<td>$0.000</td>
+<td>&lt;1ms</td>
+<td>Binary correct/incorrect</td>
+</tr>
+<tr>
+<td><code>RegexScorer</code></td>
+<td>Deterministic</td>
+<td>$0.000</td>
+<td>&lt;1ms</td>
+<td>Output format validation</td>
+</tr>
+<tr>
+<td><code>ToolUseCorrectness</code></td>
+<td>Deterministic</td>
+<td>$0.000</td>
+<td>&lt;1ms</td>
+<td>Tool call path assertion</td>
+</tr>
+<tr>
+<td><code>TrajectoryScorer</code></td>
+<td>Deterministic</td>
+<td>$0.000</td>
+<td>&lt;1ms</td>
+<td>Step count, token bounds</td>
+</tr>
+<tr>
+<td><code>JSONSchemaValidator</code></td>
+<td>Deterministic</td>
+<td>$0.000</td>
+<td>&lt;1ms</td>
+<td>Structured output validation</td>
+</tr>
+<tr>
+<td><code>ClassifierScorer</code></td>
+<td>ML (local)</td>
+<td>$0.000</td>
+<td>~5ms</td>
+<td>Trained quality classifier</td>
+</tr>
+<tr>
+<td><code>SemanticSimilarity</code></td>
+<td>Embedding</td>
+<td>~$0.0001</td>
+<td>~50ms</td>
+<td>Output similarity to reference</td>
+</tr>
+<tr>
+<td><code>LLMJudge</code></td>
+<td>LLM-as-judge</td>
+<td>~$0.005</td>
+<td>~2s</td>
+<td>Open-ended quality assessment</td>
+</tr>
+<tr>
+<td><code>CompositeScorer</code></td>
+<td>Aggregated</td>
+<td>Varies</td>
+<td>Varies</td>
+<td>Weighted multi-scorer</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Custom eval API:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">evalcraft.eval.scorers</span> <span class="kn">import</span> <span class="n">Scorer</span><span class="p">,</span> <span class="n">EvalResult</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">class</span> <span class="nc">MyCustomScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;my_scorer&quot;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.8</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="c1"># Your custom scoring logic</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="n">passed</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="k">return</span> <span class="n">EvalResult</span><span class="p">(</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>            <span class="n">score</span><span class="o">=</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">passed</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>            <span class="n">passed</span><span class="o">=</span><span class="n">passed</span><span class="p">,</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>            <span class="n">scorer_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>            <span class="n">explanation</span><span class="o">=</span><span class="s2">&quot;Output contained error keyword&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">passed</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="p">)</span>
+</span></code></pre></div>
+<p><strong>Tiered evaluation pipeline (recommended):</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Tier 1: Deterministic ($0.000/eval, &lt;1ms)
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  → ToolUseCorrectness, TrajectoryScorer, RegexScorer, JSONSchemaValidator
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  → If ALL pass → GREEN (deploy)
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  → If ANY fail → RED (block immediately, no need for expensive evals)
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Tier 2: ML-local ($0.000/eval, ~5ms)
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  → ClassifierScorer, SemanticSimilarity
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  → If pass → GREEN
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  → If fail → proceed to Tier 3
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>Tier 3: LLM-as-Judge ($0.005/eval, ~2s)
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>  → LLMJudge with custom rubric
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>  → Final pass/fail decision
+</span></code></pre></div></p>
+<p><strong>User story (US-EVL-1):</strong> <em>As a developer, I want to assert that my agent called the right tools in the right order so that I can catch behavioral regressions without using an LLM judge.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>assert_tool_called("search", args={"query": "weather"})</code> validates tool was called with args
+- [ ] <code>assert_tool_called("search").before("summarize")</code> validates ordering
+- [ ] <code>assert_no_tool_called("delete_user")</code> validates forbidden tools not invoked
+- [ ] <code>assert_llm_calls_count(lte=3)</code> validates LLM call budget
+- [ ] <code>assert_total_tokens(lte=2000)</code> validates token budget
+- [ ] All deterministic assertions execute in &lt;1ms with $0.00 cost</p>
+<p><strong>User story (US-EVL-2):</strong> <em>As an engineering team, I want to run dataset-driven evaluations against a golden set so that I can benchmark agent quality across releases.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>evalcraft.evaluate(dataset=..., task=..., scorers=[...])</code> runs full eval suite
+- [ ] Dataset supports YAML, JSON, CSV, and inline Python list formats
+- [ ] Results include per-case scores, aggregate statistics (mean, P50, pass rate)
+- [ ] Results uploadable to Evalcraft Cloud for historical tracking
+- [ ] Concurrent evaluation (configurable parallelism) for speed</p>
+<p><strong>User story (US-EVL-3):</strong> <em>As a developer, I want to create custom scorers with a simple Python interface so that I can evaluate domain-specific quality criteria.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Custom scorer requires implementing 1 method: <code>async def score(...) -&gt; EvalResult</code>
+- [ ] Scorers compose via <code>CompositeScorer</code> with weighted aggregation
+- [ ] Custom scorers work in CLI, pytest, and CI/CD without modification
+- [ ] Example scorers provided for: sentiment, toxicity, factual accuracy, format compliance</p>
+<hr />
+<h3 id="35-cicd-integration">3.5 CI/CD Integration<a class="headerlink" href="#35-cicd-integration" title="Permanent link">&para;</a></h3>
+<p><strong>What it does:</strong> Provides GitHub Actions (primary), GitLab CI, and generic CI integration that runs agent tests on every push/PR and gates deployment on pass/fail.</p>
+<p><strong>GitHub Actions integration spec:</strong></p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># .github/workflows/evalcraft.yml</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Agent Tests</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nt">on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">push</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">pull_request</span><span class="p p-Indicator">]</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nt">jobs</span><span class="p">:</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">agent-tests</span><span class="p">:</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v5</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">          </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pip install evalcraft[pytest]</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run agent tests</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">evalcraft run --ci</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">        </span><span class="nt">env</span><span class="p">:</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">          </span><span class="nt">EVALCRAFT_API_KEY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.EVALCRAFT_API_KEY }}</span><span class="w">  </span><span class="c1"># Optional: cloud upload</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upload results</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">        </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always()</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">evalcraft/action@v1</span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">          </span><span class="nt">results-path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.evalcraft/results/</span>
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">          </span><span class="nt">comment-on-pr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">     </span><span class="c1"># Post score card as PR comment</span>
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">          </span><span class="nt">fail-on-regression</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span><span class="c1"># Block merge if scores dropped</span>
+</span></code></pre></div>
+<p><strong>PR comment format (score card):</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>## Evalcraft Results — 42 tests, 41 passed, 1 failed
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>| Suite | Tests | Pass | Fail | Avg Score | Δ vs main |
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>|-------|-------|------|------|-----------|-----------|
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>| customer_support | 15 | 15 | 0 | 0.94 | +0.02 |
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>| data_extraction | 12 | 12 | 0 | 0.91 | — |
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>| code_generation | 15 | 14 | 1 | 0.87 | -0.05 ⚠️ |
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>❌ **1 regression detected** in `code_generation`:
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  - `test_python_function_generation`: ToolUseCorrectness score 0.0 → expected `write_file` tool call, got `read_file` instead
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>🔗 [View full results on Evalcraft Cloud](https://app.evalcraft.dev/runs/abc123)
+</span></code></pre></div>
+<p><strong>Blocking rules:</strong>
+1. <strong>Hard block:</strong> Any test with <code>@pytest.mark.evalcraft(blocking=True)</code> that fails = merge blocked
+2. <strong>Regression block:</strong> If any scorer's aggregate score drops by &gt;X% vs. main branch = merge blocked (configurable threshold)
+3. <strong>Budget block:</strong> If total eval cost exceeds configured budget per run = warning (not block by default)
+4. <strong>Custom rules:</strong> YAML-configurable in <code>evalcraft.toml</code>:</p>
+<div class="language-toml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[ci]</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">block_on_failure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">regression_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.05</span><span class="w">  </span><span class="c1"># Block if any score drops &gt;5%</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">max_cost_per_run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.00</span><span class="w">      </span><span class="c1"># Warn if eval cost exceeds $1</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">comment_on_pr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">upload_results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span></code></pre></div>
+<p><strong>User story (US-CI-1):</strong> <em>As an engineering team, I want agent tests to run on every pull request and block merges when quality regresses so that we never ship broken agent behavior.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>evalcraft/action@v1</code> GitHub Action auto-discovers and runs agent tests
+- [ ] PR comment posted with score card showing per-suite results
+- [ ] Merge blocked if any <code>blocking=True</code> test fails
+- [ ] Merge blocked if aggregate score drops &gt;5% vs. main (configurable)
+- [ ] Total CI time for 50 replay-mode tests &lt; 30 seconds
+- [ ] Total CI cost for 50 replay-mode tests &lt; $0.01</p>
+<p><strong>User story (US-CI-2):</strong> <em>As a developer, I want zero-config CI setup so that I can add agent testing to my pipeline in under 5 minutes.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>evalcraft init --ci github</code> generates <code>.github/workflows/evalcraft.yml</code>
+- [ ] Default config works without Evalcraft Cloud account (local results only)
+- [ ] First CI run succeeds with zero configuration beyond <code>pip install evalcraft</code>
+- [ ] Clear error messages if cassettes are missing: "No cassette found. Run <code>evalcraft record</code> locally first."</p>
+<hr />
+<h3 id="36-dashboard-saas-cloud">3.6 Dashboard (SaaS Cloud)<a class="headerlink" href="#36-dashboard-saas-cloud" title="Permanent link">&para;</a></h3>
+<p><strong>What it does:</strong> Web dashboard for visualizing eval results, tracking quality trends, managing golden sets, and team collaboration. The cloud is optional — everything works locally first.</p>
+<h4 id="key-screens">Key Screens<a class="headerlink" href="#key-screens" title="Permanent link">&para;</a></h4>
+<p><strong>Screen 1: Run History (Home)</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>┌─────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>│  EVALCRAFT CLOUD          Projects ▾   Settings   puser ▾           │
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>├─────────────────────────────────────────────────────────────────────┤
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>│                                                                     │
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>│  📊 Project: customer-support-agent                                 │
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>│  Branch: main                                                       │
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>│                                                                     │
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>│  ┌─── Quality Trend (30 days) ───────────────────────────────────┐  │
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>│  │  1.0 ┤                                          ·····•        │  │
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>│  │  0.9 ┤              ····•····•····•····•···•····             │  │
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>│  │  0.8 ┤  ····•····•··                                         │  │
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>│  │  0.7 ┤·•                                                     │  │
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>│  │      └──────────────────────────────────────────────────────  │  │
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>│  │       Feb 5      Feb 12      Feb 19     Feb 26     Mar 5     │  │
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>│  └──────────────────────────────────────────────────────────────┘  │
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>│                                                                     │
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>│  Recent Runs                                              Filter ▾  │
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>│  ┌────────┬──────────────┬───────┬───────┬────────┬────────────┐  │
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>│  │ Status │ Commit       │ Tests │ Pass% │ Score  │ Time       │  │
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>│  ├────────┼──────────────┼───────┼───────┼────────┼────────────┤  │
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>│  │ ✅     │ abc1234 main │ 42    │ 98%   │ 0.93   │ 2m ago     │  │
+</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>│  │ ❌     │ def5678 feat │ 42    │ 95%   │ 0.87   │ 15m ago    │  │
+</span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>│  │ ✅     │ ghi9012 main │ 40    │ 100%  │ 0.95   │ 1h ago     │  │
+</span><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>│  │ ✅     │ jkl3456 main │ 40    │ 100%  │ 0.94   │ 3h ago     │  │
+</span><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>│  └────────┴──────────────┴───────┴───────┴────────┴────────────┘  │
+</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>│                                                                     │
+</span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>└─────────────────────────────────────────────────────────────────────┘
+</span></code></pre></div></p>
+<p><strong>Screen 2: Run Detail (Drill-Down)</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>┌─────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>│  Run: abc1234 · main · 42 tests · 2 min ago · Cost: $0.003         │
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>├─────────────────────────────────────────────────────────────────────┤
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>│                                                                     │
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>│  Summary                          Scorers Breakdown                 │
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>│  ┌──────────────────────┐         ┌──────────────────────────────┐ │
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>│  │ Tests:  42            │         │ ToolUseCorrectness   0.98    │ │
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>│  │ Passed: 41            │         │ TrajectoryScorer     0.92    │ │
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>│  │ Failed: 1             │         │ LLMJudge             0.89    │ │
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>│  │ Score:  0.93           │         │ RegexScorer          1.00    │ │
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>│  │ Tokens: 12,450        │         └──────────────────────────────┘ │
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>│  │ Cost:   $0.003        │                                          │
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>│  └──────────────────────┘                                          │
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>│                                                                     │
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>│  Test Results                                          Filter ▾     │
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>│  ┌──────┬───────────────────────────────┬────────┬────────────┐    │
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>│  │ St.  │ Test Name                     │ Score  │ Duration   │    │
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>│  ├──────┼───────────────────────────────┼────────┼────────────┤    │
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>│  │  ✅  │ test_cancel_subscription      │ 0.97   │ 45ms       │    │
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>│  │  ✅  │ test_upgrade_plan             │ 0.95   │ 38ms       │    │
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>│  │  ❌  │ test_refund_request           │ 0.42   │ 52ms       │    │
+</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>│  │  ✅  │ test_billing_inquiry          │ 0.94   │ 41ms       │    │
+</span><span id="__span-6-23"><a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>│  │ ...  │ ...                           │ ...    │ ...        │    │
+</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>│  └──────┴───────────────────────────────┴────────┴────────────┘    │
+</span><span id="__span-6-25"><a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>│                                                                     │
+</span><span id="__span-6-26"><a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>│  ▼ test_refund_request (FAILED)                                    │
+</span><span id="__span-6-27"><a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>│  ┌─────────────────────────────────────────────────────────────┐   │
+</span><span id="__span-6-28"><a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>│  │ Scorer: ToolUseCorrectness — FAIL (0.0)                     │   │
+</span><span id="__span-6-29"><a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>│  │ Expected: call &quot;process_refund&quot; tool                         │   │
+</span><span id="__span-6-30"><a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>│  │ Actual:   called &quot;lookup_customer&quot; only, never &quot;process_     │   │
+</span><span id="__span-6-31"><a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>│  │           refund&quot;                                            │   │
+</span><span id="__span-6-32"><a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>│  │                                                              │   │
+</span><span id="__span-6-33"><a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>│  │ Trace:                                                       │   │
+</span><span id="__span-6-34"><a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a>│  │   1. [LLM] &quot;I&#39;ll look up your account...&quot;                   │   │
+</span><span id="__span-6-35"><a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a>│  │   2. [TOOL] lookup_customer(email=&quot;user@...&quot;) → {plan: pro} │   │
+</span><span id="__span-6-36"><a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a>│  │   3. [LLM] &quot;I see you&#39;re on the Pro plan...&quot;                │   │
+</span><span id="__span-6-37"><a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a>│  │   4. [END] Agent ended without calling process_refund        │   │
+</span><span id="__span-6-38"><a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a>│  └─────────────────────────────────────────────────────────────┘   │
+</span><span id="__span-6-39"><a id="__codelineno-6-39" name="__codelineno-6-39" href="#__codelineno-6-39"></a>│                                                                     │
+</span><span id="__span-6-40"><a id="__codelineno-6-40" name="__codelineno-6-40" href="#__codelineno-6-40"></a>└─────────────────────────────────────────────────────────────────────┘
+</span></code></pre></div></p>
+<p><strong>Screen 3: Golden Set Manager</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>┌─────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>│  Golden Sets                                        + New Set       │
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>├─────────────────────────────────────────────────────────────────────┤
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>│                                                                     │
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>│  ┌────────────────────────┬───────┬─────────┬────────┬───────────┐ │
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>│  │ Name                   │ Cases │ Version │ Author │ Updated    │ │
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>│  ├────────────────────────┼───────┼─────────┼────────┼───────────┤ │
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>│  │ customer_support_core  │ 25    │ v3      │ sam    │ 2h ago     │ │
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>│  │ data_extraction_v2     │ 50    │ v7      │ neon   │ 1d ago     │ │
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>│  │ edge_cases_adversarial │ 15    │ v1      │ quinn  │ 3d ago     │ │
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>│  └────────────────────────┴───────┴─────────┴────────┴───────────┘ │
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>│                                                                     │
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>│  ▼ customer_support_core (v3) — 25 cases                           │
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>│  ┌─────────────────────────────────────────────────────────────┐   │
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>│  │ Case 1: &quot;I want to cancel my subscription&quot;                  │   │
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>│  │   Expected tools: [lookup_customer, cancel_subscription]     │   │
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>│  │   Expected output contains: &quot;cancelled&quot;                      │   │
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>│  │   Tags: [cancel, happy-path]                                 │   │
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>│  │                                                    [Edit]    │   │
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>│  ├─────────────────────────────────────────────────────────────┤   │
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>│  │ Case 2: &quot;Give me a refund for last month&quot;                    │   │
+</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>│  │   Expected tools: [lookup_customer, check_refund_eligibility,│   │
+</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>│  │                     process_refund]                           │   │
+</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>│  │   Expected output contains: &quot;refund processed&quot;               │   │
+</span><span id="__span-7-25"><a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>│  │   Tags: [refund, happy-path]                                 │   │
+</span><span id="__span-7-26"><a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>│  │                                                    [Edit]    │   │
+</span><span id="__span-7-27"><a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>│  └─────────────────────────────────────────────────────────────┘   │
+</span><span id="__span-7-28"><a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a>│                                                                     │
+</span><span id="__span-7-29"><a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>│  Version History                                                    │
+</span><span id="__span-7-30"><a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a>│  v3 (current) — Added 5 edge cases (sam, 2h ago)                   │
+</span><span id="__span-7-31"><a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a>│  v2 — Updated refund expected tools (neon, 5d ago)                  │
+</span><span id="__span-7-32"><a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a>│  v1 — Initial 15 core cases (sam, 2w ago)                           │
+</span><span id="__span-7-33"><a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a>│                                                                     │
+</span><span id="__span-7-34"><a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a>└─────────────────────────────────────────────────────────────────────┘
+</span></code></pre></div></p>
+<p><strong>Screen 4: Trace Viewer (Time-Travel Debug)</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>┌─────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>│  Trace: test_cancel_subscription · Run abc1234 · 4.5s total         │
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>├─────────────────────────────────────────────────────────────────────┤
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>│                                                                     │
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>│  Timeline                                                           │
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>│  ├─ 0ms    [AGENT_START] input: &quot;Cancel my subscription&quot;           │
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>│  ├─ 50ms   [LLM_REQ]    claude-sonnet-4-6 (245 tokens in)          │
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>│  ├─ 1340ms [LLM_RES]    &quot;I&#39;ll look up your account&quot; + tool_call   │
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>│  ├─ 1350ms [TOOL_CALL]  lookup_customer(email=&quot;u@...&quot;)             │
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>│  ├─ 1890ms [TOOL_RES]   {plan: &quot;pro&quot;, status: &quot;active&quot;}           │
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>│  ├─ 1900ms [LLM_REQ]    claude-sonnet-4-6 (412 tokens in)          │
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>│  ├─ 3200ms [LLM_RES]    &quot;Processing cancellation&quot; + tool_call     │
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>│  ├─ 3210ms [TOOL_CALL]  cancel_subscription(id=&quot;cust_...&quot;)         │
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>│  ├─ 3600ms [TOOL_RES]   {success: true, effective: &quot;2026-04-01&quot;}  │
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>│  ├─ 3610ms [LLM_REQ]    claude-sonnet-4-6 (567 tokens in)          │
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>│  ├─ 4500ms [LLM_RES]    &quot;Your subscription has been cancelled.&quot;   │
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>│  └─ 4510ms [AGENT_END]  status: resolved                          │
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>│                                                                     │
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>│  ┌─── Selected: LLM_RES @1340ms ─────────────────────────────────┐ │
+</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>│  │ Model: claude-sonnet-4-6                                        │ │
+</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>│  │ Tokens: 245 in / 67 out · Cost: $0.0012                       │ │
+</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>│  │ Latency: 1290ms                                                │ │
+</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>│  │                                                                 │ │
+</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>│  │ Response:                                                       │ │
+</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>│  │ &quot;I understand you&#39;d like to cancel. Let me look up your        │ │
+</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>│  │  account to process that for you.&quot;                              │ │
+</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>│  │                                                                 │ │
+</span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>│  │ Tool Calls:                                                     │ │
+</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>│  │   lookup_customer(email=&quot;{{REDACTED_EMAIL}}&quot;)                   │ │
+</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>│  └─────────────────────────────────────────────────────────────────┘ │
+</span><span id="__span-8-31"><a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a>│                                                                     │
+</span><span id="__span-8-32"><a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a>└─────────────────────────────────────────────────────────────────────┘
+</span></code></pre></div></p>
+<p><strong>Screen 5: Regression Comparison</strong>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>┌─────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>│  Comparing: main (abc1234) ← feat/new-prompt (def5678)              │
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>├─────────────────────────────────────────────────────────────────────┤
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>│                                                                     │
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>│  Overall:  0.93 → 0.87 (▼ 0.06)                                   │
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>│                                                                     │
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>│  ┌───────────────────────┬────────┬────────┬────────┐              │
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>│  │ Scorer                │ main   │ feat   │ Delta  │              │
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>│  ├───────────────────────┼────────┼────────┼────────┤              │
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>│  │ ToolUseCorrectness    │ 0.98   │ 0.90   │ ▼ 0.08│              │
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>│  │ TrajectoryScorer      │ 0.92   │ 0.88   │ ▼ 0.04│              │
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>│  │ LLMJudge              │ 0.89   │ 0.84   │ ▼ 0.05│              │
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>│  └───────────────────────┴────────┴────────┴────────┘              │
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>│                                                                     │
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>│  Regressions (3 tests):                                             │
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>│  ┌─────────────────────────────────────────────────────────────┐   │
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>│  │ test_refund_request                                          │   │
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>│  │   main:  [lookup] → [check_refund] → [process_refund]       │   │
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>│  │   feat:  [lookup] → (ended without processing refund)        │   │
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>│  │   Cause: New prompt removed refund instruction                │   │
+</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>│  ├─────────────────────────────────────────────────────────────┤   │
+</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>│  │ test_complex_billing                                         │   │
+</span><span id="__span-9-23"><a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>│  │   main:  3 LLM calls, 1200 tokens                           │   │
+</span><span id="__span-9-24"><a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>│  │   feat:  5 LLM calls, 2800 tokens                           │   │
+</span><span id="__span-9-25"><a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>│  │   Cause: Agent looping on ambiguous billing scenario          │   │
+</span><span id="__span-9-26"><a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>│  └─────────────────────────────────────────────────────────────┘   │
+</span><span id="__span-9-27"><a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>│                                                                     │
+</span><span id="__span-9-28"><a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>│  [✅ Approve and merge]  [❌ Request changes]  [📋 Copy report]    │
+</span><span id="__span-9-29"><a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>│                                                                     │
+</span><span id="__span-9-30"><a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>└─────────────────────────────────────────────────────────────────────┘
+</span></code></pre></div></p>
+<p><strong>User story (US-DASH-1):</strong> <em>As an engineering team, I want to see agent quality trends over time so that I can track whether our agents are improving or regressing.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Quality trend chart shows aggregate score over configurable time period
+- [ ] Filter by branch, scorer, test suite
+- [ ] Drill down from run → test → trace with one click
+- [ ] Export data as CSV/JSON</p>
+<p><strong>User story (US-DASH-2):</strong> <em>As a QA engineer, I want to compare agent behavior between branches so that I can review changes before approving a merge.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Side-by-side comparison of scorer results between two runs
+- [ ] Regression list showing which tests degraded and by how much
+- [ ] Trace diff showing tool call sequence changes
+- [ ] Approve/reject actions from dashboard (posts to GitHub PR)</p>
+<hr />
+<h3 id="37-golden-sets">3.7 Golden Sets<a class="headerlink" href="#37-golden-sets" title="Permanent link">&para;</a></h3>
+<p><strong>What it does:</strong> Versioned collections of test cases (input/expected output pairs) that define correct agent behavior. Golden sets are the "ground truth" for agent evaluation.</p>
+<p><strong>Format:</strong></p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># golden_sets/customer_support.yaml</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Customer</span><span class="nv"> </span><span class="s">Support</span><span class="nv"> </span><span class="s">Core&quot;</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Core</span><span class="nv"> </span><span class="s">test</span><span class="nv"> </span><span class="s">cases</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">customer</span><span class="nv"> </span><span class="s">support</span><span class="nv"> </span><span class="s">agent&quot;</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="nt">author</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sam@company.com&quot;</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="nt">created_at</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2026-02-20&quot;</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="nt">updated_at</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2026-03-05&quot;</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="nt">cases</span><span class="p">:</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cs_001&quot;</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="nt">input</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;I</span><span class="nv"> </span><span class="s">want</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">cancel</span><span class="nv"> </span><span class="s">my</span><span class="nv"> </span><span class="s">subscription&quot;</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="nt">expected</span><span class="p">:</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">      </span><span class="nt">output_contains</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;cancelled&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;subscription&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">      </span><span class="nt">tools_called</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;lookup_customer&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;cancel_subscription&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">      </span><span class="nt">tools_not_called</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;charge_customer&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">      </span><span class="nt">max_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">      </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3000</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">    </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;cancel&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;happy-path&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">    </span><span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;critical&quot;</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cs_002&quot;</span>
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="w">    </span><span class="nt">input</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;I</span><span class="nv"> </span><span class="s">was</span><span class="nv"> </span><span class="s">charged</span><span class="nv"> </span><span class="s">twice</span><span class="nv"> </span><span class="s">this</span><span class="nv"> </span><span class="s">month&quot;</span>
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="w">    </span><span class="nt">expected</span><span class="p">:</span>
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a><span class="w">      </span><span class="nt">output_contains</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;refund&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;apologize&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a><span class="w">      </span><span class="nt">tools_called</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;lookup_customer&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;check_billing_history&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="w">      </span><span class="nt">tools_called_in_order</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-10-27"><a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a><span class="w">      </span><span class="nt">max_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+</span><span id="__span-10-28"><a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a><span class="w">    </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;billing&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;error-case&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-10-29"><a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a><span class="w">    </span><span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;high&quot;</span>
+</span></code></pre></div>
+<p><strong>Versioning:</strong>
+- Golden sets stored as YAML files in the repo (git-versioned)
+- Cloud dashboard provides visual editor + version history
+- <code>evalcraft golden diff v2 v3</code> shows what changed between versions
+- Golden sets can be shared across projects via Evalcraft Cloud</p>
+<p><strong>Collaboration:</strong>
+- Team members can propose golden set changes via PR (golden set file is code-reviewed)
+- Dashboard provides "suggest test case" from production traces
+- Export from production: observed good agent runs → golden set candidate</p>
+<p><strong>User story (US-GLD-1):</strong> <em>As a team, I want to maintain a versioned set of expected agent behaviors so that all team members agree on what "correct" means.</em></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Golden sets stored as YAML in repo, versioned by git
+- [ ] Cloud dashboard provides visual editor for non-developers
+- [ ] Version history shows who changed what and when
+- [ ] <code>evalcraft golden validate &lt;file&gt;</code> checks golden set schema
+- [ ] Golden sets support tags for filtering (<code>evalcraft run --tags critical</code>)</p>
+<hr />
+<h2 id="4-developer-experience">4. Developer Experience<a class="headerlink" href="#4-developer-experience" title="Permanent link">&para;</a></h2>
+<h3 id="41-cli-commands-and-ux">4.1 CLI Commands and UX<a class="headerlink" href="#41-cli-commands-and-ux" title="Permanent link">&para;</a></h3>
+<p><strong>Design principles</strong> (inspired by pytest + Playwright):
+- Zero-config defaults that work out of the box
+- Progressive disclosure: simple commands for simple tasks, flags for advanced use
+- Colorful, informative terminal output
+- Clear, actionable error messages</p>
+<p><strong>Command reference:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>evalcraft — The agent testing CLI
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>COMMANDS
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>  evalcraft init              Initialize evalcraft in current project
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>  evalcraft record            Record agent sessions to cassettes
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>  evalcraft replay            Replay cassettes and validate behavior
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>  evalcraft run               Run all agent tests (auto-discovers)
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>  evalcraft eval              Run dataset-driven evaluation
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>  evalcraft diff              Compare two cassettes or runs
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>  evalcraft golden            Manage golden test sets
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>  evalcraft mock              Generate mocks from cassettes
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>  evalcraft ci                CI/CD helpers (config generation)
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>  evalcraft login             Authenticate with Evalcraft Cloud
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>  evalcraft version           Show version info
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>COMMON FLAGS
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>  --verbose, -v              Verbose output
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>  --quiet, -q                Minimal output (CI-friendly)
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>  --config, -c &lt;path&gt;        Config file path (default: evalcraft.toml)
+</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>  --project &lt;name&gt;           Cloud project name
+</span><span id="__span-11-21"><a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>  --ci                       CI mode (non-interactive, exit code reflects pass/fail)
+</span><span id="__span-11-22"><a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>
+</span><span id="__span-11-23"><a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>EXAMPLES
+</span><span id="__span-11-24"><a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>  $ evalcraft init                           # Set up in current project
+</span><span id="__span-11-25"><a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>  $ evalcraft run                            # Run all agent tests
+</span><span id="__span-11-26"><a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>  $ evalcraft run -k &quot;cancel&quot;                # Filter by test name
+</span><span id="__span-11-27"><a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>  $ evalcraft run --tags critical            # Filter by tag
+</span><span id="__span-11-28"><a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>  $ evalcraft record tests/test_agent.py     # Record cassettes for specific file
+</span><span id="__span-11-29"><a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>  $ evalcraft eval --dataset golden.yaml     # Run eval against golden set
+</span><span id="__span-11-30"><a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>  $ evalcraft diff main..feat/new-prompt     # Compare branches
+</span><span id="__span-11-31"><a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a>  $ evalcraft ci github                      # Generate GitHub Actions config
+</span></code></pre></div>
+<p><strong>CLI output style</strong> (inspired by pytest's progress bar + Playwright's step output):</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>$ evalcraft run
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>  evalcraft v0.1.0 — running 42 tests across 3 suites
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>  customer_support ·························· 15/15 ✅  (0.3s)
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>  data_extraction  ························· 12/12 ✅  (0.2s)
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>  code_generation  ······················x·· 14/15 ❌  (0.4s)
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>  ────────────────────────────────────────────────────────
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>  FAILED test_python_function_generation (code_generation)
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>    ToolUseCorrectness: FAIL
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>    Expected: call &quot;write_file&quot; tool
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>    Actual:   called &quot;read_file&quot; instead
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>    Trace:
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>      1. [LLM] &quot;I&#39;ll read the existing code first...&quot;
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>      2. [TOOL] read_file(path=&quot;main.py&quot;)
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>      3. [LLM] &quot;Here&#39;s the code...&quot;  ← ended without write_file
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>      4. [END]
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>    Cassette: tests/cassettes/code_gen/python_function.yaml
+</span><span id="__span-12-24"><a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>
+</span><span id="__span-12-25"><a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>  ────────────────────────────────────────────────────────
+</span><span id="__span-12-26"><a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a>
+</span><span id="__span-12-27"><a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a>  Results: 41 passed, 1 failed, 0 skipped (0.9s)
+</span><span id="__span-12-28"><a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>  Scores:  ToolUse=0.97  Trajectory=0.95  Overall=0.93
+</span><span id="__span-12-29"><a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a>  Cost:    $0.003 (42 replays, 0 live API calls)
+</span><span id="__span-12-30"><a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a>
+</span><span id="__span-12-31"><a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a>  💡 Fix the failure or update the cassette:
+</span><span id="__span-12-32"><a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a>     evalcraft record tests/test_code_gen.py::test_python_function_generation
+</span></code></pre></div>
+<p><strong>Error message design</strong> (inspired by Rust compiler errors):</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>$ evalcraft run
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>  ERROR: Cassette not found
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>  ✗ tests/test_agent.py::test_weather_agent
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    No cassette at: tests/cassettes/weather_agent.yaml
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    This test requires a recorded cassette to replay.
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    Record one with:
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>      $ EVALCRAFT_RECORD=1 pytest tests/test_agent.py::test_weather_agent
+</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>
+</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>    Or run in live mode (requires API keys):
+</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>
+</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>      $ evalcraft run --mode live tests/test_agent.py::test_weather_agent
+</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>
+</span><span id="__span-13-18"><a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>    Docs: https://docs.evalcraft.dev/cassettes/recording
+</span></code></pre></div>
+<h3 id="42-sdk-api-surface">4.2 SDK API Surface<a class="headerlink" href="#42-sdk-api-surface" title="Permanent link">&para;</a></h3>
+<h4 id="python-sdk-evalcraft">Python SDK (<code>evalcraft</code>)<a class="headerlink" href="#python-sdk-evalcraft" title="Permanent link">&para;</a></h4>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># ── Core API ──</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">import</span> <span class="nn">evalcraft</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Decorators</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="nd">@evalcraft</span><span class="o">.</span><span class="n">capture</span><span class="p">(</span><span class="n">cassette</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;once&quot;</span><span class="p">,</span> <span class="n">sanitize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">normalize_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="nd">@evalcraft</span><span class="o">.</span><span class="n">replay</span><span class="p">(</span><span class="n">cassette</span><span class="p">,</span> <span class="n">match_on</span><span class="o">=</span><span class="s2">&quot;body_semantic&quot;</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="nd">@evalcraft</span><span class="o">.</span><span class="n">mock</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">MockLLM</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">tools</span><span class="o">=</span><span class="p">{</span><span class="o">...</span><span class="p">})</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="c1"># Context managers</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="k">with</span> <span class="n">evalcraft</span><span class="o">.</span><span class="n">recording</span><span class="p">(</span><span class="n">cassette</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span> <span class="o">...</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="k">with</span> <span class="n">evalcraft</span><span class="o">.</span><span class="n">replaying</span><span class="p">(</span><span class="n">cassette</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span> <span class="o">...</span>
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="c1"># Eval</span>
+</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">evalcraft</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">scorers</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>
+</span><span id="__span-14-16"><a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="c1"># Configuration</span>
+</span><span id="__span-14-17"><a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="n">evalcraft</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">cassette_dir</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">,</span> <span class="n">sanitize_keys</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+</span><span id="__span-14-18"><a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>
+</span><span id="__span-14-19"><a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="c1"># Session assertions</span>
+</span><span id="__span-14-20"><a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="n">session</span><span class="o">.</span><span class="n">assert_tool_called</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="__span-14-21"><a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="n">session</span><span class="o">.</span><span class="n">assert_tool_called</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">before</span><span class="p">(</span><span class="n">other_name</span><span class="p">)</span>
+</span><span id="__span-14-22"><a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="n">session</span><span class="o">.</span><span class="n">assert_no_tool_called</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</span><span id="__span-14-23"><a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="n">session</span><span class="o">.</span><span class="n">assert_llm_calls_count</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lte</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gte</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="__span-14-24"><a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="n">session</span><span class="o">.</span><span class="n">assert_total_tokens</span><span class="p">(</span><span class="n">lte</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="__span-14-25"><a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="n">session</span><span class="o">.</span><span class="n">assert_output_contains</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</span><span id="__span-14-26"><a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a><span class="n">session</span><span class="o">.</span><span class="n">assert_output_matches</span><span class="p">(</span><span class="n">regex</span><span class="p">)</span>
+</span><span id="__span-14-27"><a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a><span class="n">session</span><span class="o">.</span><span class="n">assert_output_schema</span><span class="p">(</span><span class="n">json_schema</span><span class="p">)</span>
+</span><span id="__span-14-28"><a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a>
+</span><span id="__span-14-29"><a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a><span class="c1"># Pytest plugin (auto-registered)</span>
+</span><span id="__span-14-30"><a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a><span class="c1"># Markers: @pytest.mark.evalcraft(mode=&quot;auto&quot;, blocking=True)</span>
+</span><span id="__span-14-31"><a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a><span class="c1"># Fixtures: evalcraft_session, evalcraft_cassette, mock_llm</span>
+</span><span id="__span-14-32"><a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a>
+</span><span id="__span-14-33"><a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a><span class="c1"># Framework adapters</span>
+</span><span id="__span-14-34"><a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a><span class="kn">from</span> <span class="nn">evalcraft.adapters</span> <span class="kn">import</span> <span class="n">LangGraphAdapter</span><span class="p">,</span> <span class="n">OpenAIAgentsAdapter</span><span class="p">,</span> <span class="n">ClaudeAgentAdapter</span>
+</span></code></pre></div>
+<h4 id="typescript-sdk-evalcraftsdk">TypeScript SDK (<code>@evalcraft/sdk</code>)<a class="headerlink" href="#typescript-sdk-evalcraftsdk" title="Permanent link">&para;</a></h4>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">capture</span><span class="p">,</span><span class="w"> </span><span class="nx">replay</span><span class="p">,</span><span class="w"> </span><span class="nx">evaluate</span><span class="p">,</span><span class="w"> </span><span class="nx">MockLLM</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@evalcraft/sdk&#39;</span><span class="p">;</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1">// Decorators (via wrapper functions)</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">capture</span><span class="p">(</span><span class="s1">&#39;cassette.yaml&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">myAgent</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="s2">&quot;Cancel my subscription&quot;</span><span class="p">);</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="p">});</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">replay</span><span class="p">(</span><span class="s1">&#39;cassette.yaml&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">myAgent</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="s2">&quot;Cancel my subscription&quot;</span><span class="p">);</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="p">});</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="c1">// Eval</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="kd">const</span><span class="w"> </span><span class="nx">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">evaluate</span><span class="p">({</span>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Customer Support v2.1&#39;</span><span class="p">,</span>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">  </span><span class="nx">dataset</span><span class="o">:</span><span class="w"> </span><span class="kt">await</span><span class="w"> </span><span class="nx">Dataset</span><span class="p">.</span><span class="nx">fromYAML</span><span class="p">(</span><span class="s1">&#39;golden.yaml&#39;</span><span class="p">),</span>
+</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="w">  </span><span class="nx">task</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">input</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">myAgent</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="nx">input</span><span class="p">),</span>
+</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">  </span><span class="nx">scorers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="ow">new</span><span class="w"> </span><span class="nx">ToolUseCorrectness</span><span class="p">(),</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">LLMJudge</span><span class="p">({</span><span class="w"> </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;claude-sonnet-4-6&#39;</span><span class="w"> </span><span class="p">})],</span>
+</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="p">});</span>
+</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>
+</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="c1">// Assertions (Vitest/Jest compatible)</span>
+</span><span id="__span-15-21"><a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="nx">expect</span><span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">toolCalls</span><span class="p">).</span><span class="nx">toContain</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;lookup_customer&#39;</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-15-22"><a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="nx">expect</span><span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">llmCallCount</span><span class="p">).</span><span class="nx">toBeLessThanOrEqual</span><span class="p">(</span><span class="mf">3</span><span class="p">);</span>
+</span><span id="__span-15-23"><a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="nx">expect</span><span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">totalTokens</span><span class="p">).</span><span class="nx">toBeLessThanOrEqual</span><span class="p">(</span><span class="mf">2000</span><span class="p">);</span>
+</span><span id="__span-15-24"><a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>
+</span><span id="__span-15-25"><a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="c1">// Mock</span>
+</span><span id="__span-15-26"><a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="kd">const</span><span class="w"> </span><span class="nx">mock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">MockLLM</span><span class="p">({</span><span class="w"> </span><span class="nx">responses</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;response 1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;response 2&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">});</span>
+</span></code></pre></div>
+<h3 id="43-configuration-file-format">4.3 Configuration File Format<a class="headerlink" href="#43-configuration-file-format" title="Permanent link">&para;</a></h3>
+<div class="language-toml highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># evalcraft.toml — project-level configuration</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="k">[project]</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;customer-support-agent&quot;</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">framework</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;langgraph&quot;</span><span class="w">           </span><span class="c1"># Auto-detected if not set</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="k">[capture]</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="n">cassette_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tests/cassettes&quot;</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="n">default_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;once&quot;</span><span class="w">             </span><span class="c1"># once | all | new_episodes | none</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="n">sanitize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="n">sanitize_keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">]</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="n">normalize_ids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;yaml&quot;</span><span class="w">                   </span><span class="c1"># yaml | json</span>
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="k">[replay]</span>
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="n">match_strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;body_semantic&quot;</span><span class="w">  </span><span class="c1"># exact | body_exact | body_semantic | structural</span>
+</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="n">similarity_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.95</span>
+</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="n">strict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="w">                    </span><span class="c1"># If true, fail on any unmatched request</span>
+</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>
+</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="k">[eval]</span>
+</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="n">default_scorers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ToolUseCorrectness&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;TrajectoryScorer&quot;</span><span class="p">]</span>
+</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="n">concurrency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span>
+</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="n">timeout_per_case</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span>
+</span><span id="__span-16-24"><a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a>
+</span><span id="__span-16-25"><a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a><span class="k">[ci]</span>
+</span><span id="__span-16-26"><a id="__codelineno-16-26" name="__codelineno-16-26" href="#__codelineno-16-26"></a><span class="n">block_on_failure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-16-27"><a id="__codelineno-16-27" name="__codelineno-16-27" href="#__codelineno-16-27"></a><span class="n">regression_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.05</span><span class="w">       </span><span class="c1"># Block if score drops &gt;5%</span>
+</span><span id="__span-16-28"><a id="__codelineno-16-28" name="__codelineno-16-28" href="#__codelineno-16-28"></a><span class="n">max_cost_per_run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.00</span>
+</span><span id="__span-16-29"><a id="__codelineno-16-29" name="__codelineno-16-29" href="#__codelineno-16-29"></a><span class="n">comment_on_pr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-16-30"><a id="__codelineno-16-30" name="__codelineno-16-30" href="#__codelineno-16-30"></a><span class="n">upload_results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-16-31"><a id="__codelineno-16-31" name="__codelineno-16-31" href="#__codelineno-16-31"></a>
+</span><span id="__span-16-32"><a id="__codelineno-16-32" name="__codelineno-16-32" href="#__codelineno-16-32"></a><span class="k">[cloud]</span>
+</span><span id="__span-16-33"><a id="__codelineno-16-33" name="__codelineno-16-33" href="#__codelineno-16-33"></a><span class="n">api_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://api.evalcraft.dev&quot;</span>
+</span><span id="__span-16-34"><a id="__codelineno-16-34" name="__codelineno-16-34" href="#__codelineno-16-34"></a><span class="c1"># api_key set via EVALCRAFT_API_KEY env var (never in config file)</span>
+</span></code></pre></div>
+<h3 id="44-error-messages-and-debugging">4.4 Error Messages and Debugging<a class="headerlink" href="#44-error-messages-and-debugging" title="Permanent link">&para;</a></h3>
+<p><strong>Principles:</strong>
+1. Every error message includes: what happened, why it happened, how to fix it
+2. Suggest exact commands to resolve the issue
+3. Link to relevant documentation page
+4. Use color: red for errors, yellow for warnings, blue for suggestions</p>
+<p><strong>Debug mode:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Verbose output showing every intercepted call</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>evalcraft<span class="w"> </span>run<span class="w"> </span>-v
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Extra verbose with full request/response bodies</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>evalcraft<span class="w"> </span>run<span class="w"> </span>-vv
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1"># Debug a specific test with trace output</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>evalcraft<span class="w"> </span>run<span class="w"> </span>--debug<span class="w"> </span>tests/test_agent.py::test_cancel
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="c1"># Write debug log to file</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>evalcraft<span class="w"> </span>run<span class="w"> </span>--log-file<span class="w"> </span>debug.log
+</span></code></pre></div></p>
+<h3 id="45-documentation-structure">4.5 Documentation Structure<a class="headerlink" href="#45-documentation-structure" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>docs.evalcraft.dev/
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>├── Getting Started
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>│   ├── Installation
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>│   ├── Quick Start (5 minutes)
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>│   ├── Your First Agent Test
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>│   └── Framework Guides
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>│       ├── LangGraph
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>│       ├── OpenAI Agents SDK
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>│       ├── Claude Agent SDK
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>│       ├── CrewAI
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>│       └── Generic HTTP
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>├── Core Concepts
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>│   ├── Capture &amp; Cassettes
+</span><span id="__span-18-14"><a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>│   ├── Replay &amp; Determinism
+</span><span id="__span-18-15"><a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>│   ├── Mocking
+</span><span id="__span-18-16"><a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>│   ├── Evaluators (Scorers)
+</span><span id="__span-18-17"><a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>│   ├── Golden Sets
+</span><span id="__span-18-18"><a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>│   └── Assertions
+</span><span id="__span-18-19"><a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a>├── CLI Reference
+</span><span id="__span-18-20"><a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a>│   ├── evalcraft init
+</span><span id="__span-18-21"><a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a>│   ├── evalcraft run
+</span><span id="__span-18-22"><a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a>│   ├── evalcraft record
+</span><span id="__span-18-23"><a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a>│   ├── evalcraft replay
+</span><span id="__span-18-24"><a id="__codelineno-18-24" name="__codelineno-18-24" href="#__codelineno-18-24"></a>│   ├── evalcraft eval
+</span><span id="__span-18-25"><a id="__codelineno-18-25" name="__codelineno-18-25" href="#__codelineno-18-25"></a>│   ├── evalcraft diff
+</span><span id="__span-18-26"><a id="__codelineno-18-26" name="__codelineno-18-26" href="#__codelineno-18-26"></a>│   └── evalcraft golden
+</span><span id="__span-18-27"><a id="__codelineno-18-27" name="__codelineno-18-27" href="#__codelineno-18-27"></a>├── SDK Reference
+</span><span id="__span-18-28"><a id="__codelineno-18-28" name="__codelineno-18-28" href="#__codelineno-18-28"></a>│   ├── Python API
+</span><span id="__span-18-29"><a id="__codelineno-18-29" name="__codelineno-18-29" href="#__codelineno-18-29"></a>│   ├── TypeScript API
+</span><span id="__span-18-30"><a id="__codelineno-18-30" name="__codelineno-18-30" href="#__codelineno-18-30"></a>│   └── Configuration (evalcraft.toml)
+</span><span id="__span-18-31"><a id="__codelineno-18-31" name="__codelineno-18-31" href="#__codelineno-18-31"></a>├── CI/CD
+</span><span id="__span-18-32"><a id="__codelineno-18-32" name="__codelineno-18-32" href="#__codelineno-18-32"></a>│   ├── GitHub Actions
+</span><span id="__span-18-33"><a id="__codelineno-18-33" name="__codelineno-18-33" href="#__codelineno-18-33"></a>│   ├── GitLab CI
+</span><span id="__span-18-34"><a id="__codelineno-18-34" name="__codelineno-18-34" href="#__codelineno-18-34"></a>│   ├── Generic CI
+</span><span id="__span-18-35"><a id="__codelineno-18-35" name="__codelineno-18-35" href="#__codelineno-18-35"></a>│   └── PR Comments &amp; Blocking
+</span><span id="__span-18-36"><a id="__codelineno-18-36" name="__codelineno-18-36" href="#__codelineno-18-36"></a>├── Cloud Dashboard
+</span><span id="__span-18-37"><a id="__codelineno-18-37" name="__codelineno-18-37" href="#__codelineno-18-37"></a>│   ├── Run History
+</span><span id="__span-18-38"><a id="__codelineno-18-38" name="__codelineno-18-38" href="#__codelineno-18-38"></a>│   ├── Trace Viewer
+</span><span id="__span-18-39"><a id="__codelineno-18-39" name="__codelineno-18-39" href="#__codelineno-18-39"></a>│   ├── Golden Set Manager
+</span><span id="__span-18-40"><a id="__codelineno-18-40" name="__codelineno-18-40" href="#__codelineno-18-40"></a>│   └── Team Collaboration
+</span><span id="__span-18-41"><a id="__codelineno-18-41" name="__codelineno-18-41" href="#__codelineno-18-41"></a>├── Guides
+</span><span id="__span-18-42"><a id="__codelineno-18-42" name="__codelineno-18-42" href="#__codelineno-18-42"></a>│   ├── Testing Multi-Agent Systems
+</span><span id="__span-18-43"><a id="__codelineno-18-43" name="__codelineno-18-43" href="#__codelineno-18-43"></a>│   ├── Migrating from Manual Testing
+</span><span id="__span-18-44"><a id="__codelineno-18-44" name="__codelineno-18-44" href="#__codelineno-18-44"></a>│   ├── Cost Optimization
+</span><span id="__span-18-45"><a id="__codelineno-18-45" name="__codelineno-18-45" href="#__codelineno-18-45"></a>│   ├── Custom Scorers
+</span><span id="__span-18-46"><a id="__codelineno-18-46" name="__codelineno-18-46" href="#__codelineno-18-46"></a>│   └── Security &amp; Privacy
+</span><span id="__span-18-47"><a id="__codelineno-18-47" name="__codelineno-18-47" href="#__codelineno-18-47"></a>├── Examples
+</span><span id="__span-18-48"><a id="__codelineno-18-48" name="__codelineno-18-48" href="#__codelineno-18-48"></a>│   ├── Customer Support Agent
+</span><span id="__span-18-49"><a id="__codelineno-18-49" name="__codelineno-18-49" href="#__codelineno-18-49"></a>│   ├── Code Generation Agent
+</span><span id="__span-18-50"><a id="__codelineno-18-50" name="__codelineno-18-50" href="#__codelineno-18-50"></a>│   ├── Data Extraction Agent
+</span><span id="__span-18-51"><a id="__codelineno-18-51" name="__codelineno-18-51" href="#__codelineno-18-51"></a>│   └── Multi-Agent Orchestrator
+</span><span id="__span-18-52"><a id="__codelineno-18-52" name="__codelineno-18-52" href="#__codelineno-18-52"></a>└── API Reference (auto-generated)
+</span></code></pre></div>
+<hr />
+<h2 id="5-phased-roadmap">5. Phased Roadmap<a class="headerlink" href="#5-phased-roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="phase-0-v01-mvp-weeks-1-4">Phase 0: v0.1 — MVP (Weeks 1-4)<a class="headerlink" href="#phase-0-v01-mvp-weeks-1-4" title="Permanent link">&para;</a></h3>
+<p><strong>Theme: "Record, Replay, Assert"</strong></p>
+<p><strong>Goal:</strong> A developer can <code>pip install evalcraft</code>, record an agent session, replay it, and assert on tool calls — all locally, no cloud needed.</p>
+<p><strong>IN scope:</strong>
+| Feature | Priority | Notes |
+|---------|----------|-------|
+| Python SDK core: <code>@evalcraft.capture</code>, <code>@evalcraft.replay</code> | P0 | Decorator + context manager API |
+| Cassette format v1 (YAML) | P0 | Open spec, human-readable |
+| Recording modes: <code>all</code>, <code>once</code>, <code>none</code> | P0 | VCR.py-inspired |
+| Replay with exact + body_exact matching | P0 | Deterministic replay |
+| Network firewall during replay | P0 | Block all outbound HTTP |
+| Automatic secret sanitization | P0 | API keys, Bearer tokens |
+| Deterministic assertions: <code>assert_tool_called</code>, <code>assert_no_tool_called</code>, <code>assert_llm_calls_count</code>, <code>assert_total_tokens</code> | P0 | Sub-millisecond, $0.00 cost |
+| Pytest plugin (auto-discovery, fixtures, markers) | P0 | <code>pytest-evalcraft</code> |
+| <code>MockLLM</code> and <code>MockTool</code> basics | P0 | Canned responses, sequences |
+| CLI: <code>evalcraft init</code>, <code>evalcraft run</code>, <code>evalcraft record</code> | P0 | Core commands |
+| <code>evalcraft.toml</code> config file | P0 | Project-level settings |
+| LangGraph adapter | P1 | First framework integration |
+| OpenAI Agents SDK adapter | P1 | Second framework integration |
+| Generic HTTP proxy adapter | P1 | Catch-all for any framework |
+| <code>ExactMatch</code> and <code>RegexScorer</code> evaluators | P1 | Cheapest eval tier |
+| <code>ToolUseCorrectness</code> scorer | P1 | Tool call path assertions |
+| Terminal output with colors and progress | P1 | DX polish |
+| Error messages with fix suggestions | P1 | DX polish |</p>
+<p><strong>OUT of scope for v0.1:</strong>
+- Cloud dashboard (no SaaS yet)
+- TypeScript SDK
+- LLM-as-Judge scorer
+- Semantic similarity matching
+- Golden set management UI
+- CI/CD GitHub Action
+- Team collaboration features
+- PII detection sanitizer
+- <code>new_episodes</code> recording mode
+- Cassette diffing</p>
+<p><strong>Exit criteria:</strong>
+- [ ] <code>pip install evalcraft &amp;&amp; evalcraft init &amp;&amp; evalcraft run</code> works end-to-end
+- [ ] Record + replay a 5-step LangGraph agent in &lt;500ms replay time
+- [ ] 10 passing internal tests using the framework
+- [ ] README with quick-start guide and 3-minute demo video
+- [ ] Published to PyPI</p>
+<hr />
+<h3 id="phase-1-v02-cloud-ci-weeks-5-8">Phase 1: v0.2 — Cloud + CI (Weeks 5-8)<a class="headerlink" href="#phase-1-v02-cloud-ci-weeks-5-8" title="Permanent link">&para;</a></h3>
+<p><strong>Theme: "Test in CI, See in Dashboard"</strong></p>
+<p><strong>Goal:</strong> Teams can run agent tests in CI/CD and view results in a cloud dashboard. PR comments gate merges on quality.</p>
+<p><strong>IN scope:</strong>
+| Feature | Priority | Notes |
+|---------|----------|-------|
+| Evalcraft Cloud API (result upload) | P0 | FastAPI backend |
+| Dashboard: Run History screen | P0 | Quality trend + run list |
+| Dashboard: Run Detail screen | P0 | Per-test results + trace |
+| GitHub Actions integration (<code>evalcraft/action@v1</code>) | P0 | Auto-discover + run + comment |
+| PR comment with score card | P0 | Pass/fail + per-suite breakdown |
+| Merge blocking on failure / regression | P0 | Configurable threshold |
+| <code>evalcraft ci github</code> config generator | P0 | Zero-config CI setup |
+| <code>new_episodes</code> recording mode | P1 | Incremental cassette updates |
+| <code>SemanticSimilarity</code> scorer | P1 | Embedding-based comparison |
+| <code>LLMJudge</code> scorer | P1 | LLM-as-judge with rubric |
+| <code>TrajectoryScorer</code> | P1 | Step count, token bounds |
+| PII sanitizer (email, phone, SSN) | P1 | Auto-detect and redact |
+| ID normalization | P1 | Stable placeholders for dynamic IDs |
+| Body semantic matching for replay | P1 | Embedding-based request matching |
+| Dashboard: Trace Viewer | P1 | Time-travel debug UI |
+| Free Cloud tier (5K eval runs/mo) | P1 | PLG acquisition |
+| <code>evalcraft login</code> + API key auth | P1 | Cloud authentication |
+| Claude Agent SDK adapter | P2 | Third framework |
+| <code>evalcraft diff</code> command | P2 | Cassette comparison |
+| Dashboard: Regression Comparison screen | P2 | Side-by-side branch comparison |</p>
+<p><strong>OUT of scope for v0.2:</strong>
+- TypeScript SDK
+- Golden set management UI
+- Enterprise features (SSO, RBAC, audit)
+- Self-hosted deployment
+- Paid tiers (everything is free)
+- Custom reporter plugins
+- Multi-agent testing
+- Adversarial test generation</p>
+<p><strong>Exit criteria:</strong>
+- [ ] CI pipeline runs 50 replay tests in &lt;30 seconds for &lt;$0.01
+- [ ] PR comment posted automatically on GitHub PRs
+- [ ] Dashboard shows run history, detail, and trace viewer
+- [ ] 3 design partner teams using cloud in their CI/CD
+- [ ] Free cloud tier live with signup flow</p>
+<hr />
+<h3 id="phase-2-v03-polish-ecosystem-weeks-9-12">Phase 2: v0.3 — Polish + Ecosystem (Weeks 9-12)<a class="headerlink" href="#phase-2-v03-polish-ecosystem-weeks-9-12" title="Permanent link">&para;</a></h3>
+<p><strong>Theme: "Framework Coverage + Team Features"</strong></p>
+<p><strong>Goal:</strong> Support all major agent frameworks. Golden set management. Team collaboration features. Starter paid tier.</p>
+<p><strong>IN scope:</strong>
+| Feature | Priority | Notes |
+|---------|----------|-------|
+| TypeScript SDK (<code>@evalcraft/sdk</code>) | P0 | Vitest/Jest compatible |
+| CrewAI adapter | P0 | Fourth framework |
+| AutoGen adapter | P1 | Fifth framework |
+| Golden set management (YAML + dashboard UI) | P0 | Version history, visual editor |
+| Dashboard: Golden Set Manager screen | P0 | CRUD + versioning |
+| <code>CompositeScorer</code> (weighted multi-scorer) | P0 | Tiered eval pipeline |
+| <code>ClassifierScorer</code> (ONNX local model) | P1 | Cheap ML-based eval |
+| <code>JSONSchemaValidator</code> scorer | P1 | Structured output validation |
+| <code>evalcraft golden</code> CLI commands | P1 | validate, diff, export |
+| Dataset formats: CSV, JSON, inline | P1 | Beyond YAML |
+| Concurrent evaluation | P1 | Configurable parallelism |
+| GitLab CI integration | P1 | Second CI platform |
+| Starter paid tier ($49/mo) | P1 | Monetization begins |
+| Team invitations + shared projects | P1 | Collaboration |
+| Run tagging and filtering | P2 | Organization |
+| Export results as CSV/JSON | P2 | Reporting |</p>
+<p><strong>Exit criteria:</strong>
+- [ ] All 5 major frameworks have working adapters
+- [ ] TypeScript SDK published to npm
+- [ ] Golden sets manageable via CLI and dashboard
+- [ ] First paying customers on Starter tier
+- [ ] 500+ GitHub stars</p>
+<hr />
+<h3 id="phase-3-v10-production-ready-months-4-6">Phase 3: v1.0 — Production Ready (Months 4-6)<a class="headerlink" href="#phase-3-v10-production-ready-months-4-6" title="Permanent link">&para;</a></h3>
+<p><strong>Theme: "Enterprise-Grade Agent Testing"</strong></p>
+<p><strong>Goal:</strong> Feature-complete v1.0 with enterprise features, self-hosted option, and proven reliability at scale.</p>
+<p><strong>IN scope:</strong>
+| Feature | Priority | Notes |
+|---------|----------|-------|
+| SSO (SAML/OIDC) | P0 | Enterprise requirement |
+| RBAC (admin, editor, viewer) | P0 | Enterprise requirement |
+| Audit logs | P0 | Compliance requirement |
+| Team ($199/mo) and Business ($599/mo) tiers | P0 | Revenue expansion |
+| Self-hosted deployment (Docker Compose) | P1 | Enterprise/regulated |
+| Webhook integrations (Slack, PagerDuty) | P1 | Alerting |
+| Multi-agent system testing | P1 | Mock sub-agents, test orchestrators |
+| Adversarial test generation (synthetic users) | P1 | AI-powered test case creation |
+| Custom reporter plugins | P1 | Extensibility |
+| API rate limiting and quotas | P1 | Platform stability |
+| SOC 2 Type I preparation | P1 | Compliance |
+| Production monitoring (sample + eval live traffic) | P2 | Online eval |
+| Human annotation workflow (dashboard) | P2 | QA persona support |
+| Public eval registry (shared eval suites) | P2 | Community flywheel |
+| Vercel AI SDK adapter | P2 | Sixth framework |
+| Cassette format v2 (binary MessagePack option) | P2 | Performance at scale |
+| Sharded test execution | P2 | CI speed at scale |</p>
+<p><strong>Exit criteria:</strong>
+- [ ] 10+ enterprise pilots with SSO/RBAC
+- [ ] SOC 2 Type I in progress
+- [ ] Self-hosted deployment working for 2+ customers
+- [ ] 2,000+ GitHub stars
+- [ ] $50K+ ARR
+- [ ] &lt;1% platform downtime over 30 days</p>
+<hr />
+<h2 id="6-whats-explicitly-out-of-scope-all-phases">6. What's Explicitly Out of Scope (All Phases)<a class="headerlink" href="#6-whats-explicitly-out-of-scope-all-phases" title="Permanent link">&para;</a></h2>
+<p>These are <strong>not</strong> part of the v1.0 product and represent future potential, not current commitments:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full production APM/observability</td>
+<td>Different product (compete with Datadog, not testing)</td>
+</tr>
+<tr>
+<td>Prompt management / versioning</td>
+<td>Adjacent feature, not core testing</td>
+</tr>
+<tr>
+<td>Model fine-tuning or training</td>
+<td>Out of product domain</td>
+</tr>
+<tr>
+<td>No-code agent builder</td>
+<td>We test agents, we don't build them</td>
+</tr>
+<tr>
+<td>Mobile SDKs</td>
+<td>Server-side agents only for v1</td>
+</tr>
+<tr>
+<td>Red-teaming / security scanning</td>
+<td>Promptfoo owns this; we complement, not compete</td>
+</tr>
+<tr>
+<td>Pricing optimizer (cost reduction recommendations)</td>
+<td>Nice-to-have, not core value prop</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-technical-constraints">7. Technical Constraints<a class="headerlink" href="#7-technical-constraints" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Constraint</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python 3.10+ required</td>
+<td>Async support, type hints, match statements</td>
+</tr>
+<tr>
+<td>Node 18+ for TypeScript SDK</td>
+<td>LTS version baseline</td>
+</tr>
+<tr>
+<td>Cassettes stored as YAML by default</td>
+<td>Human-readable, git-diffable, inspectable</td>
+</tr>
+<tr>
+<td>Max cassette size: 10MB</td>
+<td>Prevent storage abuse; large traces split across files</td>
+</tr>
+<tr>
+<td>Replay timeout: 30s per test (configurable)</td>
+<td>Prevent hanging tests in CI</td>
+</tr>
+<tr>
+<td>Cloud API rate limit: 100 req/s per project</td>
+<td>Platform stability</td>
+</tr>
+<tr>
+<td>Free tier: 5,000 eval runs/month</td>
+<td>Acquisition vs. cost balance</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-success-metrics">8. Success Metrics<a class="headerlink" href="#8-success-metrics" title="Permanent link">&para;</a></h2>
+<h3 id="v01-week-4">v0.1 (Week 4)<a class="headerlink" href="#v01-week-4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Time to first test</td>
+<td>&lt;5 minutes from install</td>
+</tr>
+<tr>
+<td>Replay speed (5-step agent)</td>
+<td>&lt;500ms</td>
+</tr>
+<tr>
+<td>Internal test coverage</td>
+<td>50+ tests passing</td>
+</tr>
+<tr>
+<td>PyPI package published</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>GitHub stars (launch)</td>
+<td>100+</td>
+</tr>
+</tbody>
+</table>
+<h3 id="v02-week-8">v0.2 (Week 8)<a class="headerlink" href="#v02-week-8" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CI test run time (50 replay tests)</td>
+<td>&lt;30 seconds</td>
+</tr>
+<tr>
+<td>CI test cost (50 replay tests)</td>
+<td>&lt;$0.01</td>
+</tr>
+<tr>
+<td>Design partners using cloud</td>
+<td>3+ teams</td>
+</tr>
+<tr>
+<td>Dashboard uptime</td>
+<td>99.5%+</td>
+</tr>
+<tr>
+<td>Free cloud signups</td>
+<td>50+</td>
+</tr>
+</tbody>
+</table>
+<h3 id="v03-week-12">v0.3 (Week 12)<a class="headerlink" href="#v03-week-12" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Framework adapters</td>
+<td>5+</td>
+</tr>
+<tr>
+<td>GitHub stars</td>
+<td>500+</td>
+</tr>
+<tr>
+<td>Paying customers</td>
+<td>10+</td>
+</tr>
+<tr>
+<td>Weekly active CLI users</td>
+<td>100+</td>
+</tr>
+</tbody>
+</table>
+<h3 id="v10-month-6">v1.0 (Month 6)<a class="headerlink" href="#v10-month-6" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub stars</td>
+<td>2,000+</td>
+</tr>
+<tr>
+<td>Paying customers</td>
+<td>50+</td>
+</tr>
+<tr>
+<td>ARR</td>
+<td>$50K+</td>
+</tr>
+<tr>
+<td>Enterprise pilots</td>
+<td>10+</td>
+</tr>
+<tr>
+<td>NPS</td>
+<td>40+</td>
+</tr>
+<tr>
+<td>Platform uptime</td>
+<td>99.9%+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-dependencies-and-risks">9. Dependencies and Risks<a class="headerlink" href="#9-dependencies-and-risks" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Probability</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent frameworks change APIs frequently</td>
+<td>High</td>
+<td>Medium</td>
+<td>Adapter abstraction layer; pin minimum versions; community PR contributions</td>
+</tr>
+<tr>
+<td>LLM response non-determinism breaks replay matching</td>
+<td>Medium</td>
+<td>High</td>
+<td>Semantic matching with configurable threshold; <code>body_semantic</code> strategy handles minor variations</td>
+</tr>
+<tr>
+<td>Cassette format needs breaking changes</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Version field in cassette header; migration tool (<code>evalcraft migrate</code>)</td>
+</tr>
+<tr>
+<td>Big Tech releases competing free tool</td>
+<td>Medium</td>
+<td>High</td>
+<td>Move fast; OSS community moat; framework-agnostic advantage</td>
+</tr>
+<tr>
+<td>Developers prefer manual testing ("it works on my machine")</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Show ROI with cost calculator; CI catches real regressions in beta</td>
+</tr>
+<tr>
+<td>Privacy/compliance concerns with cassette storage</td>
+<td>Low</td>
+<td>High</td>
+<td>Automatic sanitization; <code>.evalcraftignore</code>; encryption at rest; clear docs</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-competitive-positioning-summary">10. Competitive Positioning Summary<a class="headerlink" href="#10-competitive-positioning-summary" title="Permanent link">&para;</a></h2>
+<p><strong>The one-line pitch:</strong> "VCR.py meets pytest meets Braintrust — for AI agents."</p>
+<p><strong>Key differentiators vs. every competitor:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Differentiator</th>
+<th>Evalcraft</th>
+<th>Braintrust</th>
+<th>LangSmith</th>
+<th>Promptfoo</th>
+<th>DeepEval</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deterministic capture-replay</td>
+<td>✅ Core</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Sub-cent assertions ($0.00/eval)</td>
+<td>✅ Core</td>
+<td>❌ ($0.005+)</td>
+<td>❌</td>
+<td>Partial</td>
+<td>Partial</td>
+</tr>
+<tr>
+<td>Hard CI/CD block on regression</td>
+<td>✅ Core</td>
+<td>Partial</td>
+<td>Partial</td>
+<td>✅</td>
+<td>Partial</td>
+</tr>
+<tr>
+<td>Framework-agnostic</td>
+<td>✅</td>
+<td>✅</td>
+<td>Partial (LangChain-first)</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Tool call path assertions</td>
+<td>✅ Core</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>Partial</td>
+</tr>
+<tr>
+<td>Zero-config CI setup</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Open-source core</td>
+<td>✅ MIT</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The gap we fill:</strong> No competitor offers all three of: deterministic replay + cheap assertions + CI/CD gating. This is the "pytest for agents" — the testing primitive that doesn't exist today.</p>
+<hr />
+<p><em>Document version: 1.0 | Last updated: 2026-03-05 | Author: product-lead</em>
+<em>References: competitive_analysis.md, technical_architecture.md, business_model.md, market_analysis.md</em>
+<em>DX research: pytest, VCR.py, Playwright Test, Cypress patterns</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/beyhangl/evalcraft" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/evalcraft/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "toc.integrate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

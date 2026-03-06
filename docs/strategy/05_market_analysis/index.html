@@ -1,0 +1,1468 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The pytest for AI agents — capture, replay, mock, and evaluate agent behavior.">
+      
+      
+      
+        <link rel="canonical" href="https://beyhangl.github.io/evalcraft/docs/strategy/05_market_analysis/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Market Analysis: Agent Testing Platform - Evalcraft</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#market-analysis-agent-testing-platform" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Evalcraft" class="md-header__button md-logo" aria-label="Evalcraft" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Evalcraft
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Market Analysis: Agent Testing Platform
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/beyhangl/evalcraft" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    beyhangl/evalcraft
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Evalcraft" class="md-nav__button md-logo" aria-label="Evalcraft" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Evalcraft
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/beyhangl/evalcraft" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    beyhangl/evalcraft
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/five-minute-case-study/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Case Study: Catching a Regression
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/capture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capture API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/replay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replay Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/mock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mock LLM & Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/scorers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scorers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/pytest-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pytest Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_11" id="__nav_2_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapters
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Adapters
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/openai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/anthropic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anthropic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/langgraph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/adapters/crewai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CrewAI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/ci-cd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI/CD Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="market-analysis-agent-testing-platform">Market Analysis: Agent Testing Platform<a class="headerlink" href="#market-analysis-agent-testing-platform" title="Permanent link">&para;</a></h1>
+<p><em>Research conducted March 2026 | 15+ searches across market data, surveys, community signals, compliance</em></p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>The market for AI agent testing and evaluation is at an inflection point. Enterprise investment in generative AI tripled to $37B in 2025. Over 57% of companies have AI agents in production. Yet only 52% run systematic evaluations — and 32% cite quality as the top barrier to deploying agents at scale. This is not a future problem. It is a present, painful, unsolved gap.</p>
+<p><strong>Market Window</strong>: 2026-2028 is the critical land-grab period before the major observability platforms (Datadog, Sentry, New Relic) acquire or build in this space.</p>
+<hr />
+<h2 id="1-market-sizing-tam-sam-som">1. Market Sizing (TAM / SAM / SOM)<a class="headerlink" href="#1-market-sizing-tam-sam-som" title="Permanent link">&para;</a></h2>
+<h3 id="total-addressable-market-tam">Total Addressable Market (TAM)<a class="headerlink" href="#total-addressable-market-tam" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Market Segment</th>
+<th>2025 Value</th>
+<th>2030/2032 Projection</th>
+<th>CAGR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI Developer Tools</td>
+<td>$4.2–4.5B</td>
+<td>$10B (2030)</td>
+<td>17.3%</td>
+</tr>
+<tr>
+<td>AI-Enabled Testing Tools</td>
+<td>$686.7M</td>
+<td>$3.8B (2035)</td>
+<td>18.7%</td>
+</tr>
+<tr>
+<td>AI Test Automation (Broad)</td>
+<td>$8.81B</td>
+<td>$35.96B (2032)</td>
+<td>22.3%</td>
+</tr>
+<tr>
+<td>LLM Evaluation Platform</td>
+<td>$1.12B</td>
+<td>$5.44B (2033)</td>
+<td>19.8%</td>
+</tr>
+<tr>
+<td>Software Development Tools</td>
+<td>$6.41B</td>
+<td>$13.7B (2030)</td>
+<td>16.4%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>TAM Conclusion</strong>: The TAM for an agent testing platform, sitting at the intersection of AI developer tools and AI-enabled testing, is <strong>$5-8B today</strong> and growing toward <strong>$15-25B by 2030</strong>. This is confirmed by multiple independent analyst reports (MarketsandMarkets, Fortune Business Insights, DataIntelo).</p>
+<h3 id="serviceable-addressable-market-sam">Serviceable Addressable Market (SAM)<a class="headerlink" href="#serviceable-addressable-market-sam" title="Permanent link">&para;</a></h3>
+<p>The SAM is developers and engineering teams actively building or operating AI agents who need specialized testing/evaluation infrastructure:</p>
+<ul>
+<li><strong>Global AI agent developers</strong>: Estimated 2-4M active practitioners building LLM/agent applications as of 2025</li>
+<li><strong>Enterprise teams with agents in production</strong>: 57% of surveyed companies × estimated 200K enterprises with &gt;50 developers = ~114K enterprise teams</li>
+<li><strong>Relevant segments</strong>:</li>
+<li>AI/ML engineers, "agent engineers," LLM application developers</li>
+<li>Platform engineering teams responsible for agent infrastructure</li>
+<li>QA engineers upskilling for AI validation (58% of enterprises upskilling QA in AI)</li>
+</ul>
+<p><strong>SAM Estimate</strong>: <strong>$800M–$1.5B</strong> (2026), focusing specifically on LLM/agent evaluation tooling for teams in production or active pre-production development.</p>
+<h3 id="serviceable-obtainable-market-som">Serviceable Obtainable Market (SOM)<a class="headerlink" href="#serviceable-obtainable-market-som" title="Permanent link">&para;</a></h3>
+<p>Assumptions for Year 1-3 realistic market capture:</p>
+<ul>
+<li><strong>Year 1 (2026)</strong>: ~500 customers at blended $5K ARR = <strong>$2.5M ARR</strong></li>
+<li>PLG-led: free tier converts 2-3% of developers; early enterprise pilots</li>
+<li>Targets: Series A-C AI-native startups, one or two mid-market deals</li>
+<li><strong>Year 2 (2027)</strong>: ~2,500 customers at blended $8K ARR = <strong>$20M ARR</strong></li>
+<li>Word-of-mouth in developer communities; team/org plans scaling</li>
+<li>First enterprise contracts ($50K-$200K ACV)</li>
+<li><strong>Year 3 (2028)</strong>: ~8,000 customers at blended $12K ARR = <strong>$96M ARR</strong></li>
+<li>Established brand in LangChain/CrewAI/AutoGen ecosystems</li>
+<li>Land-and-expand enterprise; compliance mandates driving procurement</li>
+</ul>
+<p><strong>SOM Note</strong>: GitHub Copilot reached $400M ARR in 2025 with 248% YoY growth. Cursor reached $1B ARR. The developer tooling category rewards fast movers who become the default within a framework ecosystem. The SOM above is conservative relative to the market trajectory.</p>
+<hr />
+<h2 id="2-buyer-personas">2. Buyer Personas<a class="headerlink" href="#2-buyer-personas" title="Permanent link">&para;</a></h2>
+<h3 id="persona-1-the-agent-engineer-ic-developer-senior-engineer">Persona 1: "The Agent Engineer" (IC Developer / Senior Engineer)<a class="headerlink" href="#persona-1-the-agent-engineer-ic-developer-senior-engineer" title="Permanent link">&para;</a></h3>
+<p><strong>Who they are</strong>: Mid-to-senior software engineers building production AI agents using LangChain, LangGraph, CrewAI, AutoGen, or custom stacks. May have the title "AI Engineer," "LLM Engineer," "Platform Engineer," or "Senior Software Engineer."</p>
+<p><strong>Their world</strong>:
+- Building agents that touch real customers or business processes
+- Currently cobbling together evaluation with LangSmith traces + manual spot-checks + Python scripts
+- Frustrated by non-deterministic behavior and inability to write stable regression tests
+- Fear: deploy an update that breaks agent behavior in ways they won't catch until user complaints</p>
+<p><strong>Budget authority</strong>: $0-500/month without approval; $500-5K/month with manager approval
+<strong>Buying process</strong>: Discovers via GitHub, blog posts, Hacker News, dev.to; tries free tier; champions to manager after 2-4 weeks of use
+<strong>Key trigger</strong>: "I just deployed a bad agent update and couldn't catch it in testing"</p>
+<p><strong>Quote capturing pain</strong>: <em>"Testing agents in production feels like testing code directly in prod — unstable and slow. Debugging takes days because you can't replay the run."</em></p>
+<hr />
+<h3 id="persona-2-the-engineering-manager-ai-team-lead">Persona 2: "The Engineering Manager / AI Team Lead"<a class="headerlink" href="#persona-2-the-engineering-manager-ai-team-lead" title="Permanent link">&para;</a></h3>
+<p><strong>Who they are</strong>: Engineering manager or tech lead responsible for an AI team of 3-15 engineers. Reports to VP Engineering or CTO. Owns the team's tooling budget.</p>
+<p><strong>Their world</strong>:
+- Under pressure to ship agentic features reliably and quickly
+- Wants confidence before deploying agent updates to production
+- Deals with the 3 production killers: cost overruns from agent loops, zero observability, security gaps
+- Trying to build evaluation culture but lacks tooling infrastructure</p>
+<p><strong>Budget authority</strong>: $5K-$50K/year without VP approval
+<strong>Buying process</strong>: Evaluates 2-3 solutions; wants quick POC, clear ROI story, and existing team members to already be familiar
+<strong>Key metrics</strong>: Incident rate, deployment confidence, time-to-debug
+<strong>Key trigger</strong>: Post-incident review reveals testing gap; or board/exec asks "how do we know agents work before going live?"</p>
+<p><strong>Quote capturing pain</strong>: <em>"32% cite quality as the production killer"</em> (LangChain State of Agent Engineering, 2025)</p>
+<hr />
+<h3 id="persona-3-the-platforminfrastructure-engineer">Persona 3: "The Platform/Infrastructure Engineer"<a class="headerlink" href="#persona-3-the-platforminfrastructure-engineer" title="Permanent link">&para;</a></h3>
+<p><strong>Who they are</strong>: Senior engineer or staff engineer building the internal developer platform for AI — the "paved road" that other teams use to build and deploy agents.</p>
+<p><strong>Their world</strong>:
+- Building CI/CD pipelines, eval harnesses, observability stacks
+- Responsible for guardrails, cost control, reliability SLAs
+- Needs to serve many internal "agent teams" with a standardized toolchain
+- Currently building eval infrastructure from scratch — painful and time-consuming</p>
+<p><strong>Budget authority</strong>: Can approve $20K-$100K/year; may involve procurement for larger deals
+<strong>Buying process</strong>: Deeply technical evaluation; cares about APIs, extensibility, self-hosting options, SLAs
+<strong>Key trigger</strong>: CEO/CTO mandates evaluation before all agent releases; needs to provide a standard solution</p>
+<hr />
+<h3 id="persona-4-the-vp-engineering-cto-enterprise-economic-buyer">Persona 4: "The VP Engineering / CTO" (Enterprise Economic Buyer)<a class="headerlink" href="#persona-4-the-vp-engineering-cto-enterprise-economic-buyer" title="Permanent link">&para;</a></h3>
+<p><strong>Who they are</strong>: VP Engineering, Head of AI, or CTO at a mid-to-large company ($50M-$1B+ revenue) deploying AI agents in customer-facing or business-critical workflows.</p>
+<p><strong>Their world</strong>:
+- Accountable for AI reliability and incidents to board/CEO
+- Concerned about EU AI Act compliance, SOC 2 AI controls, brand risk from agent failures
+- Has just signed or is considering signing a contract with Anthropic/OpenAI at six-figure scale
+- Asking: "how do we govern and test the AI systems we're deploying at scale?"</p>
+<p><strong>Budget authority</strong>: $100K-$500K/year; goes through procurement
+<strong>Buying process</strong>: Vendor comparison, security review, contract negotiation; 3-6 month sales cycle
+<strong>Key trigger</strong>: EU AI Act high-risk obligations (August 2026 deadline), board audit question, or major incident</p>
+<hr />
+<h3 id="persona-5-the-ai-startup-foundercto-smb-startup-segment">Persona 5: "The AI Startup Founder/CTO" (SMB / Startup Segment)<a class="headerlink" href="#persona-5-the-ai-startup-foundercto-smb-startup-segment" title="Permanent link">&para;</a></h3>
+<p><strong>Who they are</strong>: Founder or CTO at a Series A-B AI-native startup. Building product on top of LLMs. Small team (5-30 engineers).</p>
+<p><strong>Their world</strong>:
+- Shipping fast; can't afford to build eval infrastructure from scratch
+- Has experienced agent regressions after model updates (OpenAI/Anthropic version bumps)
+- Needs CI/CD integration and automated regression tests for every deploy
+- Budget-conscious but understands tooling ROI</p>
+<p><strong>Budget authority</strong>: $500-$5K/month; founder approves
+<strong>Buying process</strong>: Tries free tier → hits limits → upgrades; or finds in "awesome LLM evals" GitHub list
+<strong>Key trigger</strong>: Model version update breaks production agent behavior</p>
+<hr />
+<h2 id="3-demand-signals-from-developer-communities">3. Demand Signals from Developer Communities<a class="headerlink" href="#3-demand-signals-from-developer-communities" title="Permanent link">&para;</a></h2>
+<h3 id="reddit-signals">Reddit Signals<a class="headerlink" href="#reddit-signals" title="Permanent link">&para;</a></h3>
+<p>From analysis of Reddit developer discussions (r/LLMDevs, r/MachineLearning, r/LocalLLaMA, r/LangChain):</p>
+<ul>
+<li><strong>Direct pain quote</strong>: <em>"Most companies are still using spreadsheets and human intuition to track accuracy and bias, but it's all completely broken at scale"</em></li>
+<li><strong>Direct ask</strong>: <em>"For people making AI agents, how are you evaluating the performance of your agent? I've come to the conclusion that evaluating AI agents goes beyond simple manual QA, and I currently lack a structured approach"</em></li>
+<li><strong>Testing anti-pattern observed</strong>: Agents when asked to write their own tests produce code that mocks everything — developers report "the agent has mocked every little thing, even the code it should test"</li>
+<li><strong>Developer confusion</strong>: Widespread reports of running agents in prod to see if they work, with no pre-prod validation environment</li>
+</ul>
+<h3 id="hacker-news-signals">Hacker News Signals<a class="headerlink" href="#hacker-news-signals" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>"AI agent benchmarks are broken"</strong> — major HN discussion (item #44531697) on the fundamental unreliability of LLM-as-judge evaluation approaches</li>
+<li><strong>Major thread on LangChain abandonment</strong>: "Why we no longer use LangChain for building our AI agents" (item #40739982) — shows that developers are actively seeking better tooling, not just building on defaults</li>
+<li><strong>Throughout 2024</strong>: "everyone was talking about agents but there were few to no examples of them working" — demand for ways to verify agent behavior before shipping is high</li>
+<li>Probabilistic output variability: attack success rates jumped from 57% to 80% when attempting 25 runs vs. 1 — showing how single-test passes don't validate agent behavior</li>
+</ul>
+<h3 id="github-signals">GitHub Signals<a class="headerlink" href="#github-signals" title="Permanent link">&para;</a></h3>
+<ul>
+<li>LangChain, CrewAI, AutoGen all lack native "agent regression test" primitives — developers must build custom harnesses</li>
+<li>CrewAI: known issues with concurrent agent API rate limiting during testing; no built-in mock/replay capability</li>
+<li>AutoGen: v0.4 rewrite with breaking changes; merged into Microsoft Agent Framework — developers seeking stable evaluation layers independent of framework churn</li>
+<li><code>promptfoo/promptfoo</code> issue #7697 requesting AI BOM for supply chain visibility — shows compliance demand bleeding into eval tooling</li>
+</ul>
+<h3 id="conference-thought-leader-signals">Conference / Thought Leader Signals<a class="headerlink" href="#conference-thought-leader-signals" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Anthropic published "Demystifying evals for AI agents" — validation that eval is a recognized pain point at the model provider level</li>
+<li>AWS blog: "Evaluating AI agents: Real-world lessons from building agentic systems at Amazon" — enterprise validation of the problem</li>
+<li>NIST published "Strengthening AI Agent Hijacking Evaluations" (Jan 2025) — regulatory signal of testing requirements</li>
+<li>GitHub Octoverse 2025: "Agentic AI, MCP, and spec-driven development" — top blog posts of 2025 involve agent reliability</li>
+</ul>
+<h3 id="job-posting-signals-demand-proxy">Job Posting Signals (Demand Proxy)<a class="headerlink" href="#job-posting-signals-demand-proxy" title="Permanent link">&para;</a></h3>
+<p>New roles emerging in 2025-2026 that signal market need:
+- <strong>"AI QA Engineer"</strong> / <strong>"LLM Evaluation Engineer"</strong> / <strong>"AI Model Validator"</strong> — multiple active postings on Indeed, ZipRecruiter
+- Capital Markets firms hiring "AI Quality Engineer (GenAI/LLM)" in NYC
+- OPPO US Research Center seeking "AI/LLM Test Engineer"
+- Contractor postings for "LLM Evaluation &amp; QA Engineer"
+- <strong>QA engineering positions grew 17%</strong> (2023-2025) vs. 9% for general dev roles
+- <strong>58% of enterprises upskilling QA teams in AI tools</strong></p>
+<p>The job market is a leading indicator: companies building eval teams need tools. Today they're hiring humans to do what a platform should automate.</p>
+<hr />
+<h2 id="4-developer-survey-data-on-ai-testing-practices">4. Developer Survey Data on AI Testing Practices<a class="headerlink" href="#4-developer-survey-data-on-ai-testing-practices" title="Permanent link">&para;</a></h2>
+<h3 id="langchain-state-of-agent-engineering-2025-n1340-nov-dec-2025">LangChain State of Agent Engineering 2025 (n=1,340, Nov-Dec 2025)<a class="headerlink" href="#langchain-state-of-agent-engineering-2025-n1340-nov-dec-2025" title="Permanent link">&para;</a></h3>
+<p>The most directly relevant survey:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Have agents in production</td>
+<td>57.3%</td>
+</tr>
+<tr>
+<td>Run offline evaluations on test sets</td>
+<td><strong>52.4%</strong></td>
+</tr>
+<tr>
+<td>Run online evaluations</td>
+<td>37.3%</td>
+</tr>
+<tr>
+<td>Have some observability</td>
+<td>~89%</td>
+</tr>
+<tr>
+<td>Have full tracing</td>
+<td>71.5%</td>
+</tr>
+<tr>
+<td>Cite quality as #1 production barrier</td>
+<td>32%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The "52% gap"</strong>: While 89% have observability, only 52% have systematic evals. The other 47% with agents in production are flying blind. This is the TAM for an eval-first product.</p>
+<h3 id="stack-overflow-developer-survey-2025-n49000-177-countries">Stack Overflow Developer Survey 2025 (n=49,000+, 177 countries)<a class="headerlink" href="#stack-overflow-developer-survey-2025-n49000-177-countries" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>84% of developers now use AI tools</strong> in their workflow</li>
+<li><strong>46% distrust AI accuracy</strong> vs. 33% who trust it</li>
+<li><strong>87% concerned about accuracy</strong> of AI systems</li>
+<li><strong>45% frustrated</strong> that debugging AI-generated code is time-consuming</li>
+<li>Developers actively seek <strong>testing, community validation, and long-term maintainability</strong> tools</li>
+</ul>
+<h3 id="google-cloud-study-sept-2025">Google Cloud Study (Sept 2025)<a class="headerlink" href="#google-cloud-study-sept-2025" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>52% of executives</strong> say their organizations have deployed AI agents</li>
+<li>Deployed across customer service, software development, security ops, marketing</li>
+</ul>
+<h3 id="g2-enterprise-ai-agents-report-aug-2025-enterprise-buyers">G2 Enterprise AI Agents Report (Aug 2025, enterprise buyers)<a class="headerlink" href="#g2-enterprise-ai-agents-report-aug-2025-enterprise-buyers" title="Permanent link">&para;</a></h3>
+<ul>
+<li>57% already have AI agents in production</li>
+<li>22% in pilot</li>
+<li>21% pre-pilot</li>
+<li><strong>Trust in fully autonomous agents fell from 43% to 27%</strong> YoY — demand for validation tools rises as trust decreases</li>
+</ul>
+<h3 id="gartner-projections">Gartner Projections<a class="headerlink" href="#gartner-projections" title="Permanent link">&para;</a></h3>
+<ul>
+<li>By 2028: <strong>33% of enterprise software will include agentic AI</strong> (from &lt;1% in 2024)</li>
+<li>By end 2026: <strong>40% of enterprise apps will embed AI agents</strong></li>
+</ul>
+<h3 id="menlo-ventures-2025-state-of-gen-ai">Menlo Ventures 2025 State of Gen AI<a class="headerlink" href="#menlo-ventures-2025-state-of-gen-ai" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Enterprise generative AI investment: <strong>$37B in 2025</strong> (3x from 2023)</li>
+<li>Infrastructure/tooling layer: <strong>$18B</strong> of that total</li>
+<li>Coding + developer tools: <strong>$7.3B</strong> (55% of departmental AI spend)</li>
+<li>These numbers confirm the enterprise budget exists for tooling</li>
+</ul>
+<hr />
+<h2 id="5-enterprise-compliance-requirements-as-market-catalyst">5. Enterprise Compliance Requirements as Market Catalyst<a class="headerlink" href="#5-enterprise-compliance-requirements-as-market-catalyst" title="Permanent link">&para;</a></h2>
+<h3 id="eu-ai-act-primary-driver">EU AI Act (Primary Driver)<a class="headerlink" href="#eu-ai-act-primary-driver" title="Permanent link">&para;</a></h3>
+<p>The EU AI Act creates mandatory testing obligations that will force enterprises to buy or build evaluation infrastructure:</p>
+<ul>
+<li><strong>August 2, 2026</strong>: Core compliance deadline for high-risk AI systems (Articles 9-49)</li>
+<li>Required: accuracy &amp; robustness testing, risk management documentation, conformity assessment, CE marking</li>
+<li>Penalties: up to <strong>€35M or 7% of global turnover</strong> for prohibited AI violations; <strong>€15M or 3%</strong> for other obligations</li>
+<li><strong>High-risk categories</strong> requiring testing: healthcare, employment, credit scoring, law enforcement, educational AI, critical infrastructure</li>
+<li><strong>Agent-specific relevance</strong>: Any agentic AI touching Annex III use cases (most enterprise deployments) requires documented testing</li>
+</ul>
+<p><strong>Market signal</strong>: Every enterprise in the EU with agents in production needs auditable evaluation evidence by August 2026. This is <strong>now</strong>, not a future consideration.</p>
+<h3 id="soc-2-ai-controls-us-market">SOC 2 AI Controls (US Market)<a class="headerlink" href="#soc-2-ai-controls-us-market" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SOC 2 CC7.1 (System Operations) and CC4.1 (Monitoring Activities) now being interpreted to include AI model behavior monitoring</li>
+<li>New specialized frameworks: ISO 42001 (AI Management System) fills the gap that SOC 2 and ISO 27001 leave open</li>
+<li>Enterprises seeking SOC 2 Type II reports are being asked about AI model testing controls by auditors</li>
+</ul>
+<h3 id="nist-ai-rmf-us-federal-regulated-industries">NIST AI RMF (US Federal / Regulated Industries)<a class="headerlink" href="#nist-ai-rmf-us-federal-regulated-industries" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The NIST AI Risk Management Framework (2023) provides voluntary but influential guidance on testing requirements</li>
+<li>Federal contractors and regulated industries (finance, healthcare) are adopting it</li>
+<li>Includes specific testing requirements for "trustworthy AI" characteristics: accuracy, reliability, resilience</li>
+</ul>
+<h3 id="impact-on-sales-motion">Impact on Sales Motion<a class="headerlink" href="#impact-on-sales-motion" title="Permanent link">&para;</a></h3>
+<p>Compliance creates a <strong>top-down pull</strong> that complements the bottom-up PLG motion:
+- Legal/compliance raises AI testing requirements to VP/C-suite level
+- Creates urgency (hard deadlines: Aug 2026 EU AI Act)
+- Unlocks enterprise procurement budgets ($100K+) that wouldn't open for pure dev tools</p>
+<hr />
+<h2 id="6-competitive-context-market-demand-validation">6. Competitive Context (Market Demand Validation)<a class="headerlink" href="#6-competitive-context-market-demand-validation" title="Permanent link">&para;</a></h2>
+<p>The fact that multiple well-funded companies exist proves demand:</p>
+<table>
+<thead>
+<tr>
+<th>Company</th>
+<th>Funding / Scale</th>
+<th>Signal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Arize AI</td>
+<td>$70M Series C (Feb 2025)</td>
+<td>Enterprise market confirmed; MLOps observability</td>
+</tr>
+<tr>
+<td>Langfuse</td>
+<td>Open-source, thousands of users</td>
+<td>Bottom-up demand proven; lacks agent-specific testing</td>
+</tr>
+<tr>
+<td>DeepEval/Confident AI</td>
+<td>3M+ monthly downloads</td>
+<td>Massive developer demand for Python-native LLM evals</td>
+</tr>
+<tr>
+<td>LangSmith (LangChain)</td>
+<td>Part of LangChain Inc. ($25M+ raised)</td>
+<td>Framework-coupled; creates opening for neutral player</td>
+</tr>
+<tr>
+<td>Braintrust</td>
+<td>VC-backed, enterprise focus</td>
+<td>Enterprise market validated</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key gap</strong>: None of these tools offer true "agent regression testing" — the ability to record agent runs, replay them, and detect behavioral diffs. They observe and score; they don't test.</p>
+<hr />
+<h2 id="7-som-bottoms-up-model">7. SOM Bottoms-Up Model<a class="headerlink" href="#7-som-bottoms-up-model" title="Permanent link">&para;</a></h2>
+<h3 id="developer-universe-sizing">Developer Universe Sizing<a class="headerlink" href="#developer-universe-sizing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Estimated LLM/agent developers globally: 2-4M (growing 40-50% YoY)</li>
+<li>Of those, estimated in production or pre-production with testing needs: ~15-20% = <strong>300K-800K</strong></li>
+<li>Paying tool users (based on 2-5% free-to-paid conversion in developer tools): <strong>6,000-40,000 potential paid customers</strong></li>
+</ul>
+<h3 id="revenue-per-customer-benchmarks">Revenue Per Customer Benchmarks<a class="headerlink" href="#revenue-per-customer-benchmarks" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>GitHub Copilot</strong>: $10-39/dev/month (enterprise)</li>
+<li><strong>Cursor</strong>: $20-40/dev/month</li>
+<li><strong>Sentry</strong>: $26+/month for teams</li>
+<li><strong>Datadog</strong>: $15-23/host/month</li>
+<li><strong>DataDog pattern</strong>: Land 1 developer at $0, expand to team at $500/mo, scale to org at $5K-50K/year</li>
+</ul>
+<h3 id="agent-testing-platform-pricing-proxy">Agent Testing Platform Pricing Proxy<a class="headerlink" href="#agent-testing-platform-pricing-proxy" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Free tier: individual devs, limited runs/month → acquisition</li>
+<li>Team tier: $29-49/seat/month (3-10 developers) → ~$5K-$15K/year/team</li>
+<li>Pro tier: $500-2K/month for mid-market teams with CI/CD integration</li>
+<li>Enterprise: $50K-$250K/year for compliance features, SSO, SLA, dedicated support</li>
+</ul>
+<h3 id="year-1-3-som-calculation">Year 1-3 SOM Calculation<a class="headerlink" href="#year-1-3-som-calculation" title="Permanent link">&para;</a></h3>
+<p><strong>Year 1 (2026)</strong>:
+- 5,000 free users → 150 paid teams (3% conversion)
+- Blended ARPU: $300/month = $3.6K ARR/customer
+- <strong>$540K ARR + 2 enterprise pilots at $50K each = ~$640K ARR</strong></p>
+<p><strong>Year 2 (2027)</strong>:
+- 30,000 free users → 1,500 paid teams (5% conversion with PLG loop)
+- Blended ARPU: $500/month
+- 10 enterprise contracts at $75K average
+- <strong>$9M ARR + $750K enterprise = ~$10M ARR</strong></p>
+<p><strong>Year 3 (2028)</strong>:
+- 100,000+ free users → 5,000+ paid teams
+- Blended ARPU: $650/month
+- 50 enterprise contracts at $120K average
+- <strong>$39M team ARR + $6M enterprise = ~$45M ARR</strong></p>
+<p><em>Note: Aggressive but consistent with PLG developer tool growth curves (PostHog, Sentry, LaunchDarkly trajectories)</em></p>
+<hr />
+<h2 id="8-go-to-market-how-comparable-tools-got-first-1000-customers">8. Go-to-Market: How Comparable Tools Got First 1,000 Customers<a class="headerlink" href="#8-go-to-market-how-comparable-tools-got-first-1000-customers" title="Permanent link">&para;</a></h2>
+<h3 id="posthog-model-most-relevant-analog">PostHog Model (Most Relevant Analog)<a class="headerlink" href="#posthog-model-most-relevant-analog" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Open-sourced the core product on Day 1 → GitHub stars as trust signal</li>
+<li>Obsessed over first 100 users: direct Slack/Discord support, same-day bug fixes</li>
+<li>Word-of-mouth became primary acquisition: developers talk to developers</li>
+<li>Never forced top-down sales motion until $1M+ ARR</li>
+<li><strong>Key lesson</strong>: The first 1,000 customers come from being genuinely better + being in the right communities at the right time</li>
+</ul>
+<h3 id="sentry-model">Sentry Model<a class="headerlink" href="#sentry-model" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Python error tracking open-sourced → massive adoption before monetization</li>
+<li>Developer discovered, developer championed to team</li>
+<li>Team plan conversion driven by collaboration features</li>
+<li><strong>Key lesson</strong>: Solve the individual pain first, monetize the team coordination layer</li>
+</ul>
+<h3 id="launchdarkly-model">LaunchDarkly Model<a class="headerlink" href="#launchdarkly-model" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Feature flags became "must have" after it prevented 2-3 incidents</li>
+<li>Engineering managers became champions after first near-miss</li>
+<li>Sold team plan after incident retroactively solved or narrowly avoided</li>
+<li><strong>Key lesson</strong>: The product sells itself after the first "saved us" moment</li>
+</ul>
+<h3 id="application-to-agent-testing">Application to Agent Testing<a class="headerlink" href="#application-to-agent-testing" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Open-source core evaluation framework</strong> on GitHub → captures organic developer discovery</li>
+<li><strong>Ship to HN and r/LangChain</strong> on launch day with a "how to write your first agent test" tutorial</li>
+<li><strong>Free tier with 1K test runs/month</strong> → removes friction for individual adoption</li>
+<li><strong>CI/CD integration</strong> as the "moment of truth" that moves individual to team purchase</li>
+<li><strong>Compliance export feature</strong> as the top-down enterprise hook</li>
+</ol>
+<hr />
+<h2 id="9-key-market-risks">9. Key Market Risks<a class="headerlink" href="#9-key-market-risks" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Severity</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LangChain/Anthropic/OpenAI builds native eval</td>
+<td>High</td>
+<td>Differentiate on neutrality, CI/CD depth, compliance exports</td>
+</tr>
+<tr>
+<td>Arize/Langfuse pivots to agent-specific testing</td>
+<td>Medium</td>
+<td>Move faster; establish community before they pivot</td>
+</tr>
+<tr>
+<td>Market too early (enterprise not ready)</td>
+<td>Low</td>
+<td>57% already in prod; compliance deadline Aug 2026 is forcing action</td>
+</tr>
+<tr>
+<td>PLG doesn't convert to revenue</td>
+<td>Medium</td>
+<td>Design upgrade triggers (CI/CD limits, team features, compliance) from Day 1</td>
+</tr>
+<tr>
+<td>Developer tool fatigue / consolidation</td>
+<td>Medium</td>
+<td>Be the "must have" eval layer, not "nice to have" observability layer</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-conclusions">10. Conclusions<a class="headerlink" href="#10-conclusions" title="Permanent link">&para;</a></h2>
+<p><strong>1. The market exists and is growing fast.</strong> $37B enterprise AI investment, 57% in production, $1.12B LLM evaluation platform market growing at 20% CAGR. Not a question of whether there's a market.</p>
+<p><strong>2. The pain is real and documented.</strong> 32% cite quality as the #1 production barrier. Only 52% have systematic evals. Developers openly describe the lack of structured agent testing on Reddit and HN. Job postings confirm companies are trying to hire their way out of a tooling gap.</p>
+<p><strong>3. Compliance is the tailwind that unlocks enterprise budgets.</strong> EU AI Act (Aug 2026 deadline) and SOC 2 AI controls create an external forcing function that converts this from "nice to have" to "must buy." The timing is near-perfect for a 2026 launch.</p>
+<p><strong>4. The PLG → Enterprise motion is proven in this category.</strong> PostHog, Sentry, LaunchDarkly, Datadog all followed the same pattern: open-source or free tier for developers, team plan for collaboration, enterprise for compliance/SLA. An agent testing platform can follow this exact playbook.</p>
+<p><strong>5. The competitive window is 2026-2028.</strong> Arize, Langfuse, and LangSmith are observability-first — they watch agents, they don't test them. The "test-first" positioning with CI/CD-native regression testing is unclaimed. First mover with strong community presence and open-source credibility can establish a durable moat before incumbents pivot.</p>
+<hr />
+<h2 id="sources">Sources<a class="headerlink" href="#sources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://dataintelo.com/report/llm-evaluation-platform-market">LLM Evaluation Platform Market Research Report 2033 — DataIntelo</a></li>
+<li><a href="https://www.marketsandmarkets.com/PressReleases/ai-test-automation.asp">AI Test Automation Market $35.96B by 2032 — MarketsandMarkets</a></li>
+<li><a href="https://www.futuremarketinsights.com/reports/ai-enabled-testing-tools-market">AI-Enabled Testing Tools Market — Future Market Insights</a></li>
+<li><a href="https://virtuemarketresearch.com/report/ai-developer-tools-market">AI Developer Tools Market $10B by 2030 — Virtue Market Research</a></li>
+<li><a href="https://menlovc.com/perspective/2025-the-state-of-generative-ai-in-the-enterprise/">2025: The State of Generative AI in the Enterprise — Menlo Ventures</a></li>
+<li><a href="https://www.langchain.com/state-of-agent-engineering">State of Agent Engineering 2025 — LangChain</a></li>
+<li><a href="https://survey.stackoverflow.co/2025/">2025 Stack Overflow Developer Survey</a></li>
+<li><a href="https://www.googlecloudpresscorner.com/2025-09-04-Google-Cloud-Study-Reveals-52-of-Executives-Say-Their-Organizations-Have-Deployed-AI-Agents,-Unlocking-a-New-Wave-of-Business-Value,1">Google Cloud: 52% of Executives Deployed AI Agents — Sept 2025</a></li>
+<li><a href="https://learn.g2.com/enterprise-ai-agents-report">G2 Enterprise AI Agents Report 2026</a></li>
+<li><a href="https://newsletter.agentbuild.ai/p/5-major-pain-points-ai-agent-developers">5 Major Pain Points AI Agent Developers Can't Stop Ranting About on Reddit</a></li>
+<li><a href="https://cobusgreyling.medium.com/developer-pain-points-in-building-ai-agents-af54b5e7d8f2">Developer Pain Points in Building AI Agents — Cobus Greyling, Medium</a></li>
+<li><a href="https://elydora.com/blog/eu-ai-act-compliance-guide">EU AI Act Compliance Guide 2026 — Elydora</a></li>
+<li><a href="https://www.dataguard.com/eu-ai-act/timeline">EU AI Act Timeline — DataGuard</a></li>
+<li><a href="https://www.schellman.com/blog/soc-examinations/how-to-incorporate-ai-into-your-soc-2-examination">How to Incorporate AI Controls into Your SOC 2 Examination — Schellman</a></li>
+<li><a href="https://getdx.com/blog/ai-coding-assistant-pricing/">AI Coding Assistant Pricing 2025 — GetDX</a></li>
+<li><a href="https://getdx.com/podcast/planning-2026-ai-tooling-budget/">Planning Your 2026 AI Tooling Budget — GetDX</a></li>
+<li><a href="https://www.plg.news/p/posthog-unconventional-growth">PostHog: Unconventional Growth Secrets — PLG News</a></li>
+<li><a href="https://arize.com/llm-evaluation-platforms-top-frameworks/">Arize AI Evaluation Platforms</a></li>
+<li><a href="https://cleanlab.ai/ai-agents-in-production-2025/">AI Agents in Production 2025 — Cleanlab</a></li>
+<li><a href="https://news.ycombinator.com/item?id=44531697">AI Agent Benchmarks Are Broken — Hacker News</a></li>
+<li><a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Demystifying Evals for AI Agents — Anthropic Engineering</a></li>
+<li><a href="https://arxiv.org/pdf/2510.25423">What Challenges Do Developers Face in AI Agent Systems? — arXiv</a></li>
+<li><a href="https://prepare.sh/articles/qa-and-sdet-is-the-safest-job-during-ai-boom-analysis-of-qa-2025-job-market-trends">QA and SDET: The Safest Job During AI Boom — Prepare.sh</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/beyhangl/evalcraft" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/evalcraft/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "toc.integrate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
