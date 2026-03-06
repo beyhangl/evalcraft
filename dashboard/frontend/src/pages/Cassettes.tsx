@@ -31,9 +31,8 @@ export default function Cassettes({ onLogout, addToast }: CassettesProps) {
     () => projectId ? api.listCassettes(projectId) : Promise.resolve({ items: [], total: 0, page: 1, page_size: 50 }),
     [projectId],
   );
-  const cassettes = paginated?.items ?? [];
-
   const filtered = useMemo(() => {
+    const cassettes = paginated?.items ?? [];
     let list = cassettes.filter(c => {
       if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
@@ -45,7 +44,7 @@ export default function Cassettes({ onLogout, addToast }: CassettesProps) {
       return sortDir === 'asc' ? cmp : -cmp;
     });
     return list;
-  }, [cassettes, search, sortKey, sortDir]);
+  }, [paginated, search, sortKey, sortDir]);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');

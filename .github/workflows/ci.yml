@@ -134,6 +134,7 @@ jobs:
       EVALCRAFT_DATABASE_URL: postgresql+asyncpg://evalcraft_test:evalcraft_test@localhost:5432/evalcraft_test
       EVALCRAFT_SECRET_KEY: test-secret-key-for-ci
       EVALCRAFT_REDIS_URL: redis://localhost:6379/0
+      PYTHONPATH: ${{ github.workspace }}/dashboard/backend
 
     steps:
       - uses: actions/checkout@v4
