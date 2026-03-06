@@ -477,7 +477,7 @@
         <a href="#pricing">Pricing</a>
         <a href="https://github.com/beyhangl/evalcraft" target="_blank" rel="noopener">GitHub</a>
         <a href="docs/">Docs</a>
-        <a href="#" class="disabled">Sign In</a>
+        <a href="#pricing" style="color:var(--accent);font-weight:600;">Apply</a>
       </nav>
       <button class="hamburger" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -520,6 +520,7 @@ def test_agent_calls_weather_tool():
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
           </span>
         </button>
+        <a href="#pricing" class="btn btn-primary">Apply as Design Partner</a>
         <a href="https://github.com/beyhangl/evalcraft" class="btn btn-secondary" target="_blank" rel="noopener">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
           View on GitHub
@@ -909,8 +910,8 @@ def test_agent_output():
     <div class="container">
       <div class="fade-in" style="text-align:center;">
         <p class="section-label">Pricing</p>
-        <h2 class="section-title">Start free. Scale when ready.</h2>
-        <p class="section-desc" style="margin:0 auto;">The core library is open source and always will be. Paid plans add team features and managed infrastructure.</p>
+        <h2 class="section-title">Start free. Partner with us.</h2>
+        <p class="section-desc" style="margin:0 auto;">The core library is open source and always will be. We're accepting 10 design partners for hands-on onboarding and the hosted product.</p>
       </div>
       <div class="pricing-grid fade-in">
         <div class="price-card">
@@ -927,30 +928,32 @@ def test_agent_output():
           <a href="https://github.com/beyhangl/evalcraft" class="btn btn-secondary" target="_blank" rel="noopener">Get started</a>
         </div>
         <div class="price-card featured">
-          <h3>Starter</h3>
-          <p class="price-desc">For solo developers</p>
-          <div class="price">$49<span>/mo</span></div>
+          <h3>Design Partner Pilot</h3>
+          <p class="price-desc">10 spots &mdash; hands-on onboarding</p>
+          <div class="price">$500<span>/mo</span></div>
+          <p style="font-size:13px;color:var(--text-3);margin:-8px 0 8px;">3-month commitment &middot; $1,200 if prepaid</p>
           <ul>
             <li>Everything in Free</li>
-            <li>Cloud cassette storage</li>
-            <li>Dashboard &amp; analytics</li>
-            <li>Regression alerts</li>
-            <li>Email support</li>
+            <li>Hosted dashboard &amp; analytics</li>
+            <li>Regression alerts &amp; Slack notifications</li>
+            <li>Direct Slack access to maintainers</li>
+            <li>Weekly check-in &amp; roadmap input</li>
+            <li>Migration &amp; setup help</li>
           </ul>
-          <button class="btn btn-primary" disabled style="opacity:0.5;cursor:default;">Coming soon</button>
+          <a href="mailto:hello@evalcraft.dev?subject=Design Partner Application&body=Hi, I'm interested in the design partner pilot.%0A%0ATeam:%0AWhat we build:%0AFramework (OpenAI/LangGraph/CrewAI/etc):%0A" class="btn btn-primary">Apply as Design Partner</a>
         </div>
         <div class="price-card">
           <h3>Team</h3>
-          <p class="price-desc">For growing teams</p>
+          <p class="price-desc">Self-serve &mdash; coming Q2 2026</p>
           <div class="price">$199<span>/mo</span></div>
           <ul>
-            <li>Everything in Starter</li>
+            <li>Everything in Pilot</li>
             <li>Up to 10 seats</li>
             <li>Shared cassette library</li>
             <li>CI/CD integrations</li>
             <li>Priority support</li>
           </ul>
-          <button class="btn btn-secondary" disabled style="opacity:0.5;cursor:default;">Coming soon</button>
+          <a href="#subscribe-form" class="btn btn-secondary">Join waitlist</a>
         </div>
         <div class="price-card">
           <h3>Enterprise</h3>
@@ -967,6 +970,13 @@ def test_agent_output():
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- ─── Pilot Banner ────────────────────────────────────── -->
+  <section style="text-align:center;padding:56px 24px;background:var(--accent-glow);border-top:1px solid rgba(37,99,235,0.12);border-bottom:1px solid rgba(37,99,235,0.12);">
+    <h3 style="font-size:22px;font-weight:700;margin-bottom:8px;">Looking for 10 design partners</h3>
+    <p style="font-size:16px;color:var(--text-2);max-width:560px;margin:0 auto 24px;line-height:1.7;">Get hands-on onboarding, direct Slack access, and shape the roadmap. Limited to teams building AI agents in production.</p>
+    <a href="mailto:hello@evalcraft.dev?subject=Design Partner Application&body=Hi, I'm interested in the design partner pilot.%0A%0ATeam:%0AWhat we build:%0AFramework (OpenAI/LangGraph/CrewAI/etc):%0A" class="btn btn-primary" style="font-size:16px;">Apply Now</a>
   </section>
 
   <!-- ─── Star CTA ──────────────────────────────────────── -->

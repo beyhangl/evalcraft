@@ -27,4 +27,6 @@ Repo: https://github.com/beyhangl/evalcraft
 PyPI: https://pypi.org/project/evalcraft/
 Docs: https://beyhangl.github.io/evalcraft/docs/
 
+We're looking for 10 design partners building agents in production — you'd get hands-on onboarding, direct Slack access, and roadmap input. Apply at https://beyhangl.github.io/evalcraft/#pricing or just DM me.
+
 Would love feedback from anyone testing agents in CI.
