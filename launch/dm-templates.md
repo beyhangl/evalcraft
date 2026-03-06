@@ -39,6 +39,7 @@ Interested? Happy to jump on a quick call or just try it:
 pip install evalcraft
 
 GitHub: https://github.com/beyhangl/evalcraft
+Apply: https://beyhangl.github.io/evalcraft/#pricing
 
 — Beyhan
 ```

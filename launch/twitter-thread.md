@@ -56,16 +56,16 @@ After evalcraft:
 
 ---
 
-## Tweet 5 (226 chars — URL counted as 23 per Twitter/X)
+## Tweet 5 (280 chars — URL counted as 23 per Twitter/X)
 
-Get started in 2 minutes:
+We're accepting 10 design partners — teams building agents in production.
+
+You get:
+- Hands-on onboarding
+- Direct Slack access
+- Roadmap input
 
 pip install evalcraft
-evalcraft init
-pytest tests/ -v
 
-555 tests. MIT licensed. Fully open source.
-
+Apply: https://beyhangl.github.io/evalcraft/#pricing
 GitHub: https://github.com/beyhangl/evalcraft
-
-Looking for early users testing agents in production — DMs open.

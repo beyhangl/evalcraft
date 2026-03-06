@@ -29,3 +29,5 @@ assert_cost_under(run, max_usd=0.01)
 Also works with OpenAI, Anthropic, CrewAI, AutoGen, and LlamaIndex. pytest-native with fixtures and markers. Golden-set management for catching regressions.
 
 `pip install evalcraft` | [GitHub](https://github.com/beyhangl/evalcraft) | [PyPI](https://pypi.org/project/evalcraft/) | [Docs](https://beyhangl.github.io/evalcraft/docs/)
+
+We're accepting 10 design partners building agents in production — hands-on onboarding, direct Slack, roadmap input. Apply at [evalcraft.dev](https://beyhangl.github.io/evalcraft/#pricing) or DM me.

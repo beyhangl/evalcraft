@@ -46,3 +46,7 @@ Python developers building AI agents or LLM-powered apps who want deterministic,
 - Quickstart: https://beyhangl.github.io/evalcraft/docs/user-guide/quickstart/
 
 555 tests, Python 3.9–3.13, MIT licensed. `pip install evalcraft`
+
+**Design Partners**
+
+We're accepting 10 design partners — teams building agents in production who want hands-on onboarding, direct Slack access, and roadmap input. If that's you, apply at https://beyhangl.github.io/evalcraft/#pricing or DM me.
