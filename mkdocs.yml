@@ -1,6 +1,6 @@
 site_name: Evalcraft
 site_description: The pytest for AI agents — capture, replay, mock, and evaluate agent behavior.
-site_url: https://evalcraft.dev
+site_url: https://beyhangl.github.io/evalcraft/docs/
 repo_url: https://github.com/beyhangl/evalcraft
 repo_name: beyhangl/evalcraft
 
