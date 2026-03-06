@@ -24,7 +24,7 @@ export default function CreateGoldenSetModal({ projectId, onClose, onCreated, on
 
   useEffect(() => {
     if (projectId) {
-      api.listCassettes(projectId).then(setCassettes).catch(() => {});
+      api.listCassettes(projectId).then(r => setCassettes(r.items)).catch(() => {});
     }
   }, [projectId]);
 
