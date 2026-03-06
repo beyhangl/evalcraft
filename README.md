@@ -17,7 +17,7 @@ evalcraft init                # scaffolds tests/cassettes/ and a sample test
 pytest --evalcraft            # run with recording
 ```
 
-That's it. Your first cassette is recorded, committed to git, and replays for free on every future run. See the [5-minute quickstart](docs/user-guide/quickstart.md) for the full walkthrough.
+That's it. Your first cassette is recorded, committed to git, and replays for free on every future run. See the [5-minute quickstart](https://beyhangl.github.io/evalcraft/docs/user-guide/quickstart/) for the full walkthrough.
 
 ---
 
