@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Evalcraft — CI/CD for AI agents</title>
   <meta name="description" content="Catch agent regressions before production. Capture, replay, mock, and evaluate agent behavior — open source." />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="Evalcraft — CI/CD for AI agents" />
+  <meta property="og:description" content="Catch agent regressions before production. Open source pytest plugin." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://beyhangl.github.io/evalcraft/" />
+  <meta property="og:image" content="https://beyhangl.github.io/evalcraft/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Evalcraft — CI/CD for AI agents" />
+  <meta name="twitter:description" content="Catch agent regressions before production." />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -965,7 +976,13 @@ def test_agent_output():
         <div class="footer-brand">
           <div class="logo" style="font-size:20px;">eval<span>craft</span></div>
           <p>The pytest for AI agents. Capture, replay, mock, and evaluate agent behavior.</p>
-          <form class="newsletter" action="https://formspree.io/f/meerqqjq" method="POST">
+          <form class="newsletter" id="subscribe-form" action="https://formspree.io/f/meerqqjq" method="POST">
+            <input type="hidden" name="_next" value="https://beyhangl.github.io/evalcraft/thank-you.html" />
+            <input type="hidden" name="_utm_source" id="utm_source" />
+            <input type="hidden" name="_utm_medium" id="utm_medium" />
+            <input type="hidden" name="_utm_campaign" id="utm_campaign" />
+            <input type="hidden" name="_scroll_depth" id="scroll_depth" />
+            <input type="hidden" name="_cta_clicks" id="cta_clicks" />
             <input type="email" name="email" placeholder="you@company.com" aria-label="Email" required />
             <button type="submit">Subscribe</button>
           </form>
@@ -1055,6 +1072,70 @@ def test_agent_output():
         }
       });
     });
+
+    // ─── UTM persistence ─────────────────────────────────
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      ['utm_source', 'utm_medium', 'utm_campaign'].forEach(function(key) {
+        var val = params.get(key);
+        if (val) sessionStorage.setItem(key, val);
+      });
+    })();
+
+    // ─── CTA click tracking ──────────────────────────────
+    (function() {
+      var clicks = JSON.parse(sessionStorage.getItem('ec_cta_clicks') || '[]');
+      document.querySelectorAll('.btn, .newsletter button').forEach(function(el) {
+        el.addEventListener('click', function() {
+          clicks.push({
+            label: el.textContent.trim(),
+            href: el.getAttribute('href') || '',
+            t: Date.now()
+          });
+          sessionStorage.setItem('ec_cta_clicks', JSON.stringify(clicks));
+        });
+      });
+    })();
+
+    // ─── Scroll depth tracking ───────────────────────────
+    (function() {
+      var marks = {25:false, 50:false, 75:false, 100:false};
+      var reached = JSON.parse(sessionStorage.getItem('ec_scroll_depth') || '[]');
+      window.addEventListener('scroll', function() {
+        var pct = Math.round(100 * (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight);
+        [25,50,75,100].forEach(function(m) {
+          if (pct >= m && !marks[m]) {
+            marks[m] = true;
+            reached.push(m);
+            sessionStorage.setItem('ec_scroll_depth', JSON.stringify(reached));
+          }
+        });
+      }, {passive:true});
+    })();
+
+    // ─── Populate hidden fields on form submit ───────────
+    (function() {
+      var form = document.getElementById('subscribe-form');
+      if (!form) return;
+      form.addEventListener('submit', function() {
+        document.getElementById('utm_source').value = sessionStorage.getItem('utm_source') || '';
+        document.getElementById('utm_medium').value = sessionStorage.getItem('utm_medium') || '';
+        document.getElementById('utm_campaign').value = sessionStorage.getItem('utm_campaign') || '';
+        document.getElementById('scroll_depth').value = (JSON.parse(sessionStorage.getItem('ec_scroll_depth') || '[]')).join(',');
+        var clicks = JSON.parse(sessionStorage.getItem('ec_cta_clicks') || '[]');
+        document.getElementById('cta_clicks').value = clicks.map(function(c){return c.label;}).join(', ');
+        // Future: POST to /api/events endpoint for server-side analytics
+      });
+    })();
+
+    // ─── Page view event ─────────────────────────────────
+    (function() {
+      var events = JSON.parse(localStorage.getItem('ec_events') || '[]');
+      events.push({type:'page_view', url:location.pathname, t:Date.now(), ref:document.referrer||''});
+      // Cap at 100 events to avoid localStorage bloat
+      if (events.length > 100) events = events.slice(-100);
+      localStorage.setItem('ec_events', JSON.stringify(events));
+    })();
   </script>
 </body>
 </html>
