@@ -1,6 +1,7 @@
-# evalcraft
-
-**The pytest for AI agents.** Capture, replay, mock, and evaluate agent behavior — without burning API credits on every test run.
+<p align="center">
+  <img src="site/logo.png" alt="Evalcraft" width="400" />
+</p>
+<p align="center"><strong>The pytest for AI agents.</strong> Capture, replay, mock, and evaluate agent behavior — without burning API credits on every test run.</p>
 
 [![CI](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg)](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/evalcraft)](https://pypi.org/project/evalcraft/)
