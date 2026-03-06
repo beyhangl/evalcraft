@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import sys
 import uuid
-from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
@@ -22,9 +20,15 @@ from app.schemas.api import (
     GoldenSetUpdateRequest,
 )
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from evalcraft.core.models import Cassette as CoreCassette
-from evalcraft.golden.manager import GoldenSet as CoreGoldenSet, Thresholds
+try:
+    from evalcraft.core.models import Cassette as CoreCassette
+    from evalcraft.golden.manager import GoldenSet as CoreGoldenSet, Thresholds
+except ImportError:
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+    from evalcraft.core.models import Cassette as CoreCassette
+    from evalcraft.golden.manager import GoldenSet as CoreGoldenSet, Thresholds
 
 router = APIRouter(prefix="/golden-sets", tags=["golden-sets"])
 
