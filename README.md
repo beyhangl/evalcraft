@@ -5,7 +5,6 @@
 
 [![CI](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg)](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/evalcraft)](https://pypi.org/project/evalcraft/)
-[![Downloads](https://img.shields.io/pypi/dm/evalcraft)](https://pypi.org/project/evalcraft/)
 [![Python](https://img.shields.io/pypi/pyversions/evalcraft)](https://pypi.org/project/evalcraft/)
 [![License](https://img.shields.io/github/license/beyhangl/evalcraft)](LICENSE)
 
