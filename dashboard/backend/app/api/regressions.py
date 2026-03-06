@@ -1,53 +1,61 @@
-"""Regressions list and trend endpoints."""
+"""Regressions list and resolve endpoints."""
 
 from __future__ import annotations
 
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.auth import get_team_id
 from app.database import get_db
 from app.models.project import Project
 from app.models.regression import RegressionEvent
-from app.schemas.api import RegressionEventResponse
+from app.schemas.api import RegressionEventResponse, RegressionPaginatedResponse
 
 router = APIRouter(prefix="/regressions", tags=["regressions"])
 
 
-@router.get("", response_model=list[RegressionEventResponse])
+@router.get("", response_model=RegressionPaginatedResponse)
 async def list_regressions(
     project_id: uuid.UUID = Query(...),
     severity: str | None = Query(None, description="Filter: INFO, WARNING, CRITICAL"),
     resolved: bool | None = Query(None),
-    limit: int = Query(50, le=200),
-    offset: int = Query(0, ge=0),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=200),
     team_id: uuid.UUID = Depends(get_team_id),
     db: AsyncSession = Depends(get_db),
 ):
-    """List regression events with optional severity and resolved filters."""
+    """List regression events with pagination and optional filters."""
     proj = await db.execute(
         select(Project).where(Project.id == project_id, Project.team_id == team_id)
     )
     if proj.scalar_one_or_none() is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
-    stmt = (
-        select(RegressionEvent)
-        .where(RegressionEvent.project_id == project_id)
-        .order_by(RegressionEvent.created_at.desc())
-    )
+    base_stmt = select(RegressionEvent).where(RegressionEvent.project_id == project_id)
 
     if severity:
-        stmt = stmt.where(RegressionEvent.severity == severity.upper())
+        base_stmt = base_stmt.where(RegressionEvent.severity == severity.upper())
     if resolved is not None:
-        stmt = stmt.where(RegressionEvent.resolved.is_(resolved))
+        base_stmt = base_stmt.where(RegressionEvent.resolved.is_(resolved))
 
-    stmt = stmt.offset(offset).limit(limit)
-    result = await db.execute(stmt)
-    return result.scalars().all()
+    # Count
+    count_stmt = select(func.count()).select_from(base_stmt.subquery())
+    total = (await db.execute(count_stmt)).scalar() or 0
+
+    # Paginate
+    offset = (page - 1) * page_size
+    items_stmt = base_stmt.order_by(RegressionEvent.created_at.desc()).offset(offset).limit(page_size)
+    result = await db.execute(items_stmt)
+
+    return RegressionPaginatedResponse(
+        items=result.scalars().all(),
+        total=total,
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.patch("/{event_id}/resolve", response_model=RegressionEventResponse)

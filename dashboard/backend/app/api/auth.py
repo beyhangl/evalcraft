@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, APIKeyHeader
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -21,13 +22,17 @@ from app.schemas.api import (
     APIKeyCreateRequest,
     APIKeyCreatedResponse,
     APIKeyResponse,
+    ForgotPasswordRequest,
     LoginRequest,
+    MessageResponse,
+    ResetPasswordRequest,
     SignupRequest,
     TokenResponse,
     UserResponse,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+logger = logging.getLogger(__name__)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -129,7 +134,7 @@ async def get_team_id(
 
 
 @router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def signup(body: SignupRequest, db: AsyncSession = Depends(get_db)):
+async def signup(body: SignupRequest, request: Request, db: AsyncSession = Depends(get_db)):
     # Check email uniqueness
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():
@@ -155,7 +160,7 @@ async def signup(body: SignupRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
+async def login(body: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
     if user is None or not _verify_password(body.password, user.hashed_password):
@@ -163,6 +168,13 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account disabled")
 
+    token = _create_access_token(user.id, user.team_id)
+    return TokenResponse(access_token=token)
+
+
+@router.post("/refresh", response_model=TokenResponse)
+async def refresh_token(user: User = Depends(get_current_user)):
+    """Re-issue a fresh access token for an authenticated user."""
     token = _create_access_token(user.id, user.team_id)
     return TokenResponse(access_token=token)
 
@@ -222,3 +234,40 @@ async def revoke_api_key(
     if db_key is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="API key not found")
     db_key.is_active = False
+
+
+@router.post("/forgot-password", response_model=MessageResponse)
+async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
+    """Generate a password reset token. In production, send via email."""
+    result = await db.execute(select(User).where(User.email == body.email))
+    user = result.scalar_one_or_none()
+
+    if user:
+        reset_token = jwt.encode(
+            {"sub": str(user.id), "type": "reset", "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
+            settings.secret_key,
+            algorithm=settings.jwt_algorithm,
+        )
+        logger.info("Password reset token for %s: %s", body.email, reset_token)
+
+    return MessageResponse(message="If the email exists, a reset link has been sent.")
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    """Reset password using a valid reset token."""
+    try:
+        payload = jwt.decode(body.token, settings.secret_key, algorithms=[settings.jwt_algorithm])
+        if payload.get("type") != "reset":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid reset token")
+        user_id = uuid.UUID(payload["sub"])
+    except (JWTError, KeyError, ValueError) as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired reset token") from exc
+
+    result = await db.execute(select(User).where(User.id == user_id, User.is_active.is_(True)))
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid reset token")
+
+    user.hashed_password = _hash_password(body.new_password)
+    return MessageResponse(message="Password has been reset successfully.")

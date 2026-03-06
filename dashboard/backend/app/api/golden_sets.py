@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.auth import get_team_id
@@ -16,6 +16,7 @@ from app.models.project import Project
 from app.schemas.api import (
     GoldenSetCreateRequest,
     GoldenSetDetailResponse,
+    GoldenSetPaginatedResponse,
     GoldenSetResponse,
     GoldenSetUpdateRequest,
 )
@@ -73,12 +74,15 @@ async def create_golden_set(
     return row
 
 
-@router.get("", response_model=list[GoldenSetResponse])
+@router.get("", response_model=GoldenSetPaginatedResponse)
 async def list_golden_sets(
     project_id: uuid.UUID = Query(...),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=200),
     team_id: uuid.UUID = Depends(get_team_id),
     db: AsyncSession = Depends(get_db),
 ):
+    """List golden sets with pagination."""
     # Verify project
     proj = await db.execute(
         select(Project).where(Project.id == project_id, Project.team_id == team_id)
@@ -86,12 +90,23 @@ async def list_golden_sets(
     if proj.scalar_one_or_none() is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
-    result = await db.execute(
-        select(StoredGoldenSet)
-        .where(StoredGoldenSet.project_id == project_id)
-        .order_by(StoredGoldenSet.updated_at.desc())
+    base_stmt = select(StoredGoldenSet).where(StoredGoldenSet.project_id == project_id)
+
+    # Count
+    count_stmt = select(func.count()).select_from(base_stmt.subquery())
+    total = (await db.execute(count_stmt)).scalar() or 0
+
+    # Paginate
+    offset = (page - 1) * page_size
+    items_stmt = base_stmt.order_by(StoredGoldenSet.updated_at.desc()).offset(offset).limit(page_size)
+    result = await db.execute(items_stmt)
+
+    return GoldenSetPaginatedResponse(
+        items=result.scalars().all(),
+        total=total,
+        page=page,
+        page_size=page_size,
     )
-    return result.scalars().all()
 
 
 @router.get("/{golden_set_id}", response_model=GoldenSetDetailResponse)

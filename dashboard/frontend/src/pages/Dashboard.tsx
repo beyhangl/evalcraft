@@ -1,13 +1,16 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Activity, DollarSign, AlertTriangle, TrendingUp, Upload, Plus } from 'lucide-react';
+import { Activity, DollarSign, AlertTriangle, TrendingUp, Upload, Plus, FolderPlus } from 'lucide-react';
 import Layout from '../components/Layout';
 import MetricCard from '../components/MetricCard';
+import UploadCassetteModal from '../components/UploadCassetteModal';
+import CreateProjectModal from '../components/CreateProjectModal';
 import { useAuth } from '../context/AuthContext';
 import { useApi } from '../hooks/useApi';
 import { api } from '../services/api';
 import type { ToastMessage } from '../components/Toast';
-import type { CassetteListItem, TrendsResponse } from '../services/api';
+import type { CassetteListItem, PaginatedResponse, TrendsResponse } from '../services/api';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -29,13 +32,16 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
 
 export default function Dashboard({ onLogout, addToast }: DashboardProps) {
   const navigate = useNavigate();
-  const { currentProject } = useAuth();
+  const { currentProject, refreshProjects } = useAuth();
   const projectId = currentProject?.id ?? '';
+  const [showUpload, setShowUpload] = useState(false);
+  const [showCreateProject, setShowCreateProject] = useState(false);
 
-  const { data: cassettes } = useApi<CassetteListItem[]>(
-    () => projectId ? api.listCassettes(projectId) : Promise.resolve([]),
+  const { data: paginated } = useApi<PaginatedResponse<CassetteListItem>>(
+    () => projectId ? api.listCassettes(projectId) : Promise.resolve({ items: [], total: 0, page: 1, page_size: 50 }),
     [projectId],
   );
+  const cassettes = paginated?.items ?? [];
 
   const { data: trends } = useApi<TrendsResponse>(
     () => projectId ? api.getTrends(projectId, 30) : Promise.resolve({ project_id: '', points: [] }),
@@ -51,7 +57,21 @@ export default function Dashboard({ onLogout, addToast }: DashboardProps) {
   const actions = (
     <>
       <button
-        onClick={() => addToast({ type: 'success', text: 'Upload modal would open here' })}
+        onClick={() => setShowCreateProject(true)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '6px 14px', background: 'var(--bg-raised)',
+          border: '1px solid var(--border)', borderRadius: 8,
+          color: 'var(--text-2)', fontSize: 13, fontWeight: 500,
+          cursor: 'pointer', fontFamily: 'var(--font-sans)', transition: 'all 0.15s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--text)'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)'; }}
+      >
+        <FolderPlus size={13} /> New Project
+      </button>
+      <button
+        onClick={() => setShowUpload(true)}
         style={{
           display: 'flex', alignItems: 'center', gap: 6,
           padding: '6px 14px', background: 'var(--bg-raised)',
@@ -65,7 +85,7 @@ export default function Dashboard({ onLogout, addToast }: DashboardProps) {
         <Upload size={13} /> Upload Cassette
       </button>
       <button
-        onClick={() => addToast({ type: 'success', text: 'Golden set created!' })}
+        onClick={() => navigate('/golden-sets')}
         style={{
           display: 'flex', alignItems: 'center', gap: 6,
           padding: '6px 14px',
@@ -81,6 +101,50 @@ export default function Dashboard({ onLogout, addToast }: DashboardProps) {
   );
 
   const fmtDuration = (ms: number) => ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${Math.round(ms)}ms`;
+
+  if (!currentProject) {
+    return (
+      <Layout title="Dashboard" actions={actions} onLogout={onLogout}>
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          padding: '80px 20px', textAlign: 'center',
+        }}>
+          <div style={{
+            width: 56, height: 56, borderRadius: 14,
+            background: 'var(--accent-glow)', border: '1px solid var(--accent)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 20,
+          }}>
+            <FolderPlus size={24} color="var(--accent)" />
+          </div>
+          <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text)', margin: '0 0 8px' }}>No projects yet</h2>
+          <p style={{ fontSize: 13, color: 'var(--text-3)', margin: '0 0 24px', maxWidth: 360, lineHeight: 1.5 }}>
+            Create your first project to start recording and evaluating agent cassettes.
+          </p>
+          <button
+            onClick={() => setShowCreateProject(true)}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '10px 24px',
+              background: 'linear-gradient(135deg, #a78bfa, #8b5cf6)',
+              border: 'none', borderRadius: 10,
+              color: 'white', fontSize: 13, fontWeight: 600,
+              cursor: 'pointer', fontFamily: 'var(--font-sans)',
+            }}
+          >
+            <FolderPlus size={14} /> Create Project
+          </button>
+        </div>
+        {showCreateProject && (
+          <CreateProjectModal
+            onClose={() => setShowCreateProject(false)}
+            onCreated={() => { refreshProjects(); addToast({ type: 'success', text: 'Project created!' }); }}
+            onError={msg => addToast({ type: 'error', text: msg })}
+          />
+        )}
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Dashboard" actions={actions} onLogout={onLogout}>
@@ -226,6 +290,22 @@ export default function Dashboard({ onLogout, addToast }: DashboardProps) {
           </table>
         </div>
       </div>
+
+      {showUpload && projectId && (
+        <UploadCassetteModal
+          projectId={projectId}
+          onClose={() => setShowUpload(false)}
+          onUploaded={() => addToast({ type: 'success', text: 'Cassette uploaded!' })}
+          onError={msg => addToast({ type: 'error', text: msg })}
+        />
+      )}
+      {showCreateProject && (
+        <CreateProjectModal
+          onClose={() => setShowCreateProject(false)}
+          onCreated={() => { refreshProjects(); addToast({ type: 'success', text: 'Project created!' }); }}
+          onError={msg => addToast({ type: 'error', text: msg })}
+        />
+      )}
     </Layout>
   );
 }

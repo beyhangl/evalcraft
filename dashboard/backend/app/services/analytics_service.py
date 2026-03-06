@@ -8,6 +8,7 @@ from datetime import date, timedelta
 from sqlalchemy import func, select, cast, Date
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.cache import cache_get, cache_set
 from app.models.cassette import StoredCassette
 from app.models.project import Project
 from app.schemas.api import TrendPoint, TrendsResponse
@@ -20,6 +21,12 @@ async def compute_trends(
     days: int = 30,
 ) -> TrendsResponse:
     """Aggregate daily metrics for a project over the last N days."""
+    # Check cache first
+    cache_key = f"trends:{project_id}:{days}"
+    cached = await cache_get(cache_key)
+    if cached:
+        return TrendsResponse(**cached)
+
     # Verify project belongs to team
     proj = await db.execute(
         select(Project).where(Project.id == project_id, Project.team_id == team_id)
@@ -59,4 +66,9 @@ async def compute_trends(
         for row in rows
     ]
 
-    return TrendsResponse(project_id=project_id, points=points)
+    response = TrendsResponse(project_id=project_id, points=points)
+
+    # Cache for 5 minutes
+    await cache_set(cache_key, response.model_dump(), ttl=300)
+
+    return response

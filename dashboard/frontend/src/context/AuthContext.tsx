@@ -12,6 +12,7 @@ interface AuthState {
   signup: (email: string, password: string, fullName: string, teamName: string) => Promise<string>;
   logout: () => void;
   setCurrentProject: (p: ProjectResponse) => void;
+  refreshProjects: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -53,6 +54,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setIsLoading(false));
   }, [logout]);
 
+  const refreshProjects = useCallback(async () => {
+    const projs = await api.listProjects();
+    setProjects(projs);
+    if (projs.length > 0 && !currentProject) setCurrentProject(projs[0]);
+  }, [currentProject]);
+
   const login = useCallback(async (email: string, password: string) => {
     const res = await api.login(email, password);
     setToken(res.access_token);
@@ -77,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, projects, currentProject, isLoading, login, signup, logout, setCurrentProject }}>
+    <AuthContext.Provider value={{ user, projects, currentProject, isLoading, login, signup, logout, setCurrentProject, refreshProjects }}>
       {children}
     </AuthContext.Provider>
   );
