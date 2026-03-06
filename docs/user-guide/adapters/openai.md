@@ -88,12 +88,16 @@ The adapter estimates USD cost using a built-in pricing table for common OpenAI 
 
 | Model | Input (per 1M tokens) | Output (per 1M tokens) |
 |-------|-----------------------|------------------------|
+| gpt-5.4 | $2.50 | $10.00 |
+| gpt-5-mini | $0.30 | $1.20 |
+| gpt-4.1 | $2.00 | $8.00 |
+| gpt-4.1-mini | $0.40 | $1.60 |
+| gpt-4.1-nano | $0.10 | $0.40 |
 | gpt-4o | $2.50 | $10.00 |
 | gpt-4o-mini | $0.15 | $0.60 |
-| gpt-4-turbo | $10.00 | $30.00 |
-| gpt-4 | $30.00 | $60.00 |
-| gpt-3.5-turbo | $0.50 | $1.50 |
-| o1 | $15.00 | $60.00 |
+| o3 | $10.00 | $40.00 |
+| o3-pro | $20.00 | $80.00 |
+| o4-mini | $1.10 | $4.40 |
 | o3-mini | $1.10 | $4.40 |
 
 For models not in the table, `cost_usd` is `None`.

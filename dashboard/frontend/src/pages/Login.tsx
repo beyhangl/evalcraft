@@ -1,42 +1,48 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Zap, Eye, EyeOff, Copy, Check } from 'lucide-react';
-import { mockUser } from '../data/mock';
+import { useAuth } from '../context/AuthContext';
 
-interface LoginProps {
-  onLogin: () => void;
-}
-
-export default function Login({ onLogin }: LoginProps) {
+export default function Login() {
+  const { login, signup } = useAuth();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [teamName, setTeamName] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
+  const [error, setError] = useState('');
+  const [apiKey, setApiKey] = useState('');
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise(r => setTimeout(r, 900));
-    setLoading(false);
-    if (mode === 'signup') {
-      setDone(true);
-    } else {
-      onLogin();
-      navigate('/');
+    setError('');
+    try {
+      if (mode === 'signup') {
+        const key = await signup(email, password, fullName, teamName);
+        setApiKey(key);
+      } else {
+        await login(email, password);
+        navigate('/');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
   };
 
   const copyKey = () => {
-    navigator.clipboard.writeText(mockUser.apiKey).catch(() => {});
+    navigator.clipboard.writeText(apiKey).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (done) {
+  if (apiKey) {
     return (
       <div style={{
         minHeight: '100vh',
@@ -83,7 +89,7 @@ export default function Login({ onLogin }: LoginProps) {
             marginBottom: 24,
           }}>
             <code style={{ flex: 1, fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--accent)', wordBreak: 'break-all' }}>
-              {mockUser.apiKey}
+              {apiKey}
             </code>
             <button
               onClick={copyKey}
@@ -104,7 +110,7 @@ export default function Login({ onLogin }: LoginProps) {
           </div>
 
           <button
-            onClick={() => { onLogin(); navigate('/'); }}
+            onClick={() => navigate('/')}
             style={{
               width: '100%',
               padding: '11px',
@@ -170,7 +176,50 @@ export default function Login({ onLogin }: LoginProps) {
             {mode === 'login' ? 'Sign in to your workspace' : 'Start catching regressions in 5 minutes'}
           </p>
 
+          {error && (
+            <div style={{
+              padding: '10px 14px', marginBottom: 16,
+              background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)',
+              borderRadius: 9, color: 'var(--red)', fontSize: 13,
+            }}>
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {mode === 'signup' && (
+              <>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-2)', marginBottom: 6 }}>Full Name</label>
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={e => setFullName(e.target.value)}
+                    placeholder="Your name"
+                    style={{
+                      width: '100%', padding: '10px 12px',
+                      background: 'var(--bg-raised)', border: '1px solid var(--border)',
+                      borderRadius: 9, color: 'var(--text)', fontSize: 14, outline: 'none',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-2)', marginBottom: 6 }}>Team Name</label>
+                  <input
+                    type="text"
+                    value={teamName}
+                    onChange={e => setTeamName(e.target.value)}
+                    placeholder="Your team"
+                    required
+                    style={{
+                      width: '100%', padding: '10px 12px',
+                      background: 'var(--bg-raised)', border: '1px solid var(--border)',
+                      borderRadius: 9, color: 'var(--text)', fontSize: 14, outline: 'none',
+                    }}
+                  />
+                </div>
+              </>
+            )}
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-2)', marginBottom: 6 }}>Email</label>
               <input
@@ -255,7 +304,7 @@ export default function Login({ onLogin }: LoginProps) {
           <div style={{ marginTop: 20, textAlign: 'center', fontSize: 13, color: 'var(--text-3)' }}>
             {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
             <button
-              onClick={() => setMode(m => m === 'login' ? 'signup' : 'login')}
+              onClick={() => { setMode(m => m === 'login' ? 'signup' : 'login'); setError(''); }}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 color: 'var(--accent)', fontWeight: 500, fontSize: 13,

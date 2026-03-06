@@ -25,15 +25,8 @@ from app.schemas.api import (
 from app.services.cassette_service import process_upload
 from app.services.regression_service import check_regressions
 
-try:
-    from evalcraft.core.models import Cassette as CoreCassette
-    from evalcraft.golden.manager import GoldenSet as CoreGoldenSet
-except ImportError:
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-    from evalcraft.core.models import Cassette as CoreCassette
-    from evalcraft.golden.manager import GoldenSet as CoreGoldenSet
+from evalcraft.core.models import Cassette as CoreCassette
+from evalcraft.golden.manager import GoldenSet as CoreGoldenSet
 
 router = APIRouter(prefix="/cassettes", tags=["cassettes"])
 

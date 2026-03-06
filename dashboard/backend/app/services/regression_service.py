@@ -7,17 +7,9 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-try:
-    from evalcraft.core.models import Cassette as CoreCassette
-    from evalcraft.golden.manager import GoldenSet as CoreGoldenSet
-    from evalcraft.regression.detector import RegressionDetector, Severity
-except ImportError:
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-    from evalcraft.core.models import Cassette as CoreCassette
-    from evalcraft.golden.manager import GoldenSet as CoreGoldenSet
-    from evalcraft.regression.detector import RegressionDetector, Severity
+from evalcraft.core.models import Cassette as CoreCassette
+from evalcraft.golden.manager import GoldenSet as CoreGoldenSet
+from evalcraft.regression.detector import RegressionDetector, Severity
 
 from app.models.golden_set import StoredGoldenSet
 from app.models.regression import RegressionEvent
