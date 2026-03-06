@@ -1,10 +1,9 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Target, Calendar, Settings } from 'lucide-react';
 import Layout from '../components/Layout';
-import { useAuth } from '../context/AuthContext';
 import { useApi } from '../hooks/useApi';
 import { api } from '../services/api';
-import { SkeletonLine, SkeletonCard } from '../components/Skeleton';
+import { SkeletonCard } from '../components/Skeleton';
 import type { ToastMessage } from '../components/Toast';
 import type { GoldenSetDetailResponse } from '../services/api';
 

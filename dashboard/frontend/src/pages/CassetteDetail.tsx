@@ -36,7 +36,7 @@ interface Span {
   parent_id?: string;
 }
 
-export default function CassetteDetail({ onLogout, addToast: _addToast }: CassetteDetailProps) {
+export default function CassetteDetail({ onLogout }: CassetteDetailProps) {
   const { id } = useParams();
   const navigate = useNavigate();
 

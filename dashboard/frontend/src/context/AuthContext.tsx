@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserResponse | null>(null);
   const [projects, setProjects] = useState<ProjectResponse[]>([]);
   const [currentProject, setCurrentProject] = useState<ProjectResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem('ec_token'));
 
   const logout = useCallback(() => {
     setToken(null);
@@ -35,10 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setOnUnauth(logout);
     const saved = localStorage.getItem('ec_token');
-    if (!saved) {
-      setIsLoading(false);
-      return;
-    }
+    if (!saved) return;
     setToken(saved);
     api.me()
       .then(async (u) => {
@@ -90,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthState {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');

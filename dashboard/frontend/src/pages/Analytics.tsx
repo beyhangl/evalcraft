@@ -25,7 +25,7 @@ const CustomTooltip = ({ active, payload, label, unit }: { active?: boolean; pay
   );
 };
 
-export default function Analytics({ onLogout, addToast: _addToast }: AnalyticsProps) {
+export default function Analytics({ onLogout }: AnalyticsProps) {
   const { currentProject } = useAuth();
   const projectId = currentProject?.id ?? '';
   const [days, setDays] = useState(30);
