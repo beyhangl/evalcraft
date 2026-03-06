@@ -157,7 +157,7 @@ Always pin evalcraft to a specific version in production workflows for reproduci
 
 ## Full Example
 
-See [`.github/workflows/example-ci-gate.yml`](../../.github/workflows/example-ci-gate.yml) for a complete workflow you can copy to your project.
+See [`examples/example-ci-gate.yml`](../../examples/example-ci-gate.yml) for a complete workflow you can copy to your project.
 
 ```yaml
 name: Agent Tests (Evalcraft CI Gate)
