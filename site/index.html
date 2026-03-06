@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Evalcraft — CI/CD for AI agents</title>
   <meta name="description" content="Catch agent regressions before production. Capture, replay, mock, and evaluate agent behavior — open source." />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="Evalcraft — CI/CD for AI agents" />
+  <meta property="og:description" content="Catch agent regressions before production. Open source pytest plugin." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://beyhangl.github.io/evalcraft/" />
+  <meta property="og:image" content="https://beyhangl.github.io/evalcraft/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Evalcraft — CI/CD for AI agents" />
+  <meta name="twitter:description" content="Catch agent regressions before production." />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -289,23 +300,35 @@
     }
     .framework-card {
       background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 28px 24px;
+      border-radius: var(--radius); padding: 24px 20px;
       text-align: center; transition: all 0.3s;
     }
     .framework-card:hover {
       border-color: var(--accent); transform: translateY(-2px);
     }
     .framework-card .fw-icon {
-      font-size: 36px; margin-bottom: 14px; display: block;
+      font-size: 36px; margin-bottom: 12px; display: block;
     }
-    .framework-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
-    .framework-card p { font-size: 13px; color: var(--text-3); }
+    .framework-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+    .framework-card .fw-latest {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+      background: var(--accent-glow); color: var(--accent);
+      border: 1px solid rgba(167,139,250,0.2); margin-bottom: 8px;
+    }
+    .framework-card p { font-size: 12px; color: var(--text-3); line-height: 1.5; }
     .framework-card code {
-      display: inline-block; margin-top: 12px; padding: 4px 10px;
+      display: inline-block; margin-top: 10px; padding: 4px 10px;
       background: var(--bg-code); border-radius: 6px;
-      font-family: var(--font-mono); font-size: 12px; color: var(--text-2);
+      font-family: var(--font-mono); font-size: 11px; color: var(--text-2);
       border: 1px solid var(--border-subtle);
     }
+    .framework-row-label {
+      grid-column: 1 / -1; font-size: 11px; font-weight: 600;
+      color: var(--text-3); letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 24px 0 4px; border-top: 1px solid var(--border-subtle);
+    }
+    .framework-row-label:first-child { border-top: none; padding-top: 0; }
 
     /* ─── Comparison Table ─────────────────────────────── */
     .comparison { background: var(--bg); }
@@ -711,37 +734,90 @@ def test_agent_output():
         <p class="section-desc" style="margin:0 auto;">Drop-in adapters that auto-record LLM calls. Zero code changes to your agent logic.</p>
       </div>
       <div class="framework-grid fade-in">
+        <!-- ── LLM Providers ── -->
+        <div class="framework-row-label">LLM Providers</div>
+
         <div class="framework-card">
           <span class="fw-icon">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M22.282 9.821a5.985 5.985 0 00-.516-4.91 6.046 6.046 0 00-6.51-2.9A6.065 6.065 0 0011.708.0a6.047 6.047 0 00-5.77 4.226 6.028 6.028 0 00-4.024 2.924 6.05 6.05 0 00.748 7.09 5.98 5.98 0 00.51 4.911 6.051 6.051 0 006.516 2.9A6.056 6.056 0 0013.21 24a6.046 6.046 0 005.77-4.225 6.023 6.023 0 004.029-2.929 6.044 6.044 0 00-.727-7.025z" fill="#10a37f"/></svg>
           </span>
           <h3>OpenAI</h3>
-          <p>GPT-4o, GPT-4, o1</p>
+          <span class="fw-latest">GPT-5.4 / o3</span>
+          <p>GPT-5.4, GPT-5-mini, o3, o4-mini, GPT-4.1</p>
           <code>evalcraft[openai]</code>
         </div>
+
         <div class="framework-card">
           <span class="fw-icon">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>
           <h3>Anthropic</h3>
-          <p>Claude 4, Sonnet, Haiku</p>
-          <code>AnthropicAdapter</code>
+          <span class="fw-latest">Opus 4.6 / Sonnet 4.6</span>
+          <p>claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5</p>
+          <code>evalcraft[anthropic]</code>
         </div>
+
+        <div class="framework-card">
+          <span class="fw-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#4285f4"/><path d="M12 6l1.5 3.5L17 11l-3.5 1.5L12 16l-1.5-3.5L7 11l3.5-1.5z" fill="white"/></svg>
+          </span>
+          <h3>Google Gemini</h3>
+          <span class="fw-latest">Gemini 3.1 / 2.5</span>
+          <p>gemini-3.1-pro, gemini-2.5-pro, gemini-2.5-flash</p>
+          <code>evalcraft[google]</code>
+        </div>
+
+        <div class="framework-card">
+          <span class="fw-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#0467df"/><path d="M8 8h8v8H8z" fill="white" rx="1"/></svg>
+          </span>
+          <h3>Meta Llama</h3>
+          <span class="fw-latest">Llama 4</span>
+          <p>Llama 4 Scout, Llama 4 Maverick (MoE, 10M ctx)</p>
+          <code>evalcraft[openai]</code>
+        </div>
+
+        <!-- ── Agent Frameworks ── -->
+        <div class="framework-row-label">Agent Frameworks</div>
+
         <div class="framework-card">
           <span class="fw-icon">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#1a73e8"/></svg>
           </span>
           <h3>LangGraph</h3>
-          <p>Chains, graphs, agents</p>
+          <span class="fw-latest">v1.0 GA</span>
+          <p>Graphs, chains, ReAct agents, streaming</p>
           <code>evalcraft[langchain]</code>
         </div>
+
         <div class="framework-card">
           <span class="fw-icon">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#f472b6" stroke-width="2"/><circle cx="9" cy="7" r="4" stroke="#f472b6" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#f472b6" stroke-width="2"/></svg>
           </span>
           <h3>CrewAI</h3>
-          <p>Multi-agent crews</p>
-          <code>CrewAIAdapter</code>
+          <span class="fw-latest">v1.10</span>
+          <p>Multi-agent crews, delegation, task callbacks</p>
+          <code>evalcraft[crewai]</code>
+        </div>
+
+        <div class="framework-card">
+          <span class="fw-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M22.282 9.821a5.985 5.985 0 00-.516-4.91 6.046 6.046 0 00-6.51-2.9A6.065 6.065 0 0011.708.0a6.047 6.047 0 00-5.77 4.226 6.028 6.028 0 00-4.024 2.924 6.05 6.05 0 00.748 7.09 5.98 5.98 0 00.51 4.911 6.051 6.051 0 006.516 2.9A6.056 6.056 0 0013.21 24a6.046 6.046 0 005.77-4.225 6.023 6.023 0 004.029-2.929 6.044 6.044 0 00-.727-7.025z" fill="#10a37f"/></svg>
+          </span>
+          <h3>OpenAI Agents SDK</h3>
+          <span class="fw-latest">v0.10</span>
+          <p>Responses API, tool use, realtime agents</p>
+          <code>evalcraft[openai]</code>
+        </div>
+
+        <div class="framework-card">
+          <span class="fw-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="#0ea5e9"/><path d="M2 17l10 5 10-5" stroke="#0ea5e9" stroke-width="2"/><path d="M2 12l10 5 10-5" stroke="#0ea5e9" stroke-width="2"/></svg>
+          </span>
+          <h3>Any LLM</h3>
+          <span class="fw-latest">Mistral, Cohere, +</span>
+          <p>Mistral Large 3, Command A, or any OpenAI-compatible API</p>
+          <code>evalcraft[openai]</code>
         </div>
       </div>
     </div>
@@ -900,10 +976,16 @@ def test_agent_output():
         <div class="footer-brand">
           <div class="logo" style="font-size:20px;">eval<span>craft</span></div>
           <p>The pytest for AI agents. Capture, replay, mock, and evaluate agent behavior.</p>
-          <div class="newsletter">
-            <input type="email" placeholder="you@company.com" aria-label="Email" />
-            <button type="button">Subscribe</button>
-          </div>
+          <form class="newsletter" id="subscribe-form" action="https://formspree.io/f/meerqqjq" method="POST">
+            <input type="hidden" name="_next" value="https://beyhangl.github.io/evalcraft/thank-you.html" />
+            <input type="hidden" name="_utm_source" id="utm_source" />
+            <input type="hidden" name="_utm_medium" id="utm_medium" />
+            <input type="hidden" name="_utm_campaign" id="utm_campaign" />
+            <input type="hidden" name="_scroll_depth" id="scroll_depth" />
+            <input type="hidden" name="_cta_clicks" id="cta_clicks" />
+            <input type="email" name="email" placeholder="you@company.com" aria-label="Email" required />
+            <button type="submit">Subscribe</button>
+          </form>
         </div>
         <div class="footer-links">
           <div class="footer-col">
@@ -990,6 +1072,70 @@ def test_agent_output():
         }
       });
     });
+
+    // ─── UTM persistence ─────────────────────────────────
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      ['utm_source', 'utm_medium', 'utm_campaign'].forEach(function(key) {
+        var val = params.get(key);
+        if (val) sessionStorage.setItem(key, val);
+      });
+    })();
+
+    // ─── CTA click tracking ──────────────────────────────
+    (function() {
+      var clicks = JSON.parse(sessionStorage.getItem('ec_cta_clicks') || '[]');
+      document.querySelectorAll('.btn, .newsletter button').forEach(function(el) {
+        el.addEventListener('click', function() {
+          clicks.push({
+            label: el.textContent.trim(),
+            href: el.getAttribute('href') || '',
+            t: Date.now()
+          });
+          sessionStorage.setItem('ec_cta_clicks', JSON.stringify(clicks));
+        });
+      });
+    })();
+
+    // ─── Scroll depth tracking ───────────────────────────
+    (function() {
+      var marks = {25:false, 50:false, 75:false, 100:false};
+      var reached = JSON.parse(sessionStorage.getItem('ec_scroll_depth') || '[]');
+      window.addEventListener('scroll', function() {
+        var pct = Math.round(100 * (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight);
+        [25,50,75,100].forEach(function(m) {
+          if (pct >= m && !marks[m]) {
+            marks[m] = true;
+            reached.push(m);
+            sessionStorage.setItem('ec_scroll_depth', JSON.stringify(reached));
+          }
+        });
+      }, {passive:true});
+    })();
+
+    // ─── Populate hidden fields on form submit ───────────
+    (function() {
+      var form = document.getElementById('subscribe-form');
+      if (!form) return;
+      form.addEventListener('submit', function() {
+        document.getElementById('utm_source').value = sessionStorage.getItem('utm_source') || '';
+        document.getElementById('utm_medium').value = sessionStorage.getItem('utm_medium') || '';
+        document.getElementById('utm_campaign').value = sessionStorage.getItem('utm_campaign') || '';
+        document.getElementById('scroll_depth').value = (JSON.parse(sessionStorage.getItem('ec_scroll_depth') || '[]')).join(',');
+        var clicks = JSON.parse(sessionStorage.getItem('ec_cta_clicks') || '[]');
+        document.getElementById('cta_clicks').value = clicks.map(function(c){return c.label;}).join(', ');
+        // Future: POST to /api/events endpoint for server-side analytics
+      });
+    })();
+
+    // ─── Page view event ─────────────────────────────────
+    (function() {
+      var events = JSON.parse(localStorage.getItem('ec_events') || '[]');
+      events.push({type:'page_view', url:location.pathname, t:Date.now(), ref:document.referrer||''});
+      // Cap at 100 events to avoid localStorage bloat
+      if (events.length > 100) events = events.slice(-100);
+      localStorage.setItem('ec_events', JSON.stringify(events));
+    })();
   </script>
 </body>
 </html>

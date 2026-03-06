@@ -3,17 +3,10 @@
 from __future__ import annotations
 
 import uuid
-from pathlib import Path
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-try:
-    from evalcraft.core.models import Cassette as CoreCassette
-except ImportError:
-    import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-    from evalcraft.core.models import Cassette as CoreCassette
+from evalcraft.core.models import Cassette as CoreCassette
 
 from app.models.cassette import StoredCassette
 

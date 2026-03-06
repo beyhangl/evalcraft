@@ -1,36 +1,52 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Activity, DollarSign, AlertTriangle, TrendingUp, Upload, Plus } from 'lucide-react';
 import Layout from '../components/Layout';
 import MetricCard from '../components/MetricCard';
-import StatusBadge from '../components/StatusBadge';
-import { mockRuns, mockPassRateSeries } from '../data/mock';
+import { useAuth } from '../context/AuthContext';
+import { useApi } from '../hooks/useApi';
+import { api } from '../services/api';
 import type { ToastMessage } from '../components/Toast';
+import type { CassetteListItem, TrendsResponse } from '../services/api';
 
 interface DashboardProps {
   onLogout: () => void;
   addToast: (msg: Omit<ToastMessage, 'id'>) => void;
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
       background: 'var(--bg-card)', border: '1px solid var(--border)',
       borderRadius: 8, padding: '8px 12px', fontSize: 12,
     }}>
-      <div style={{ color: 'var(--text-3)', marginBottom: 4 }}>Day {label}</div>
-      <div style={{ color: 'var(--accent)', fontWeight: 600 }}>{payload[0].value}% pass rate</div>
+      <div style={{ color: 'var(--text-3)', marginBottom: 4 }}>{label}</div>
+      <div style={{ color: 'var(--accent)', fontWeight: 600 }}>{payload[0].value.toLocaleString()} tokens</div>
     </div>
   );
 };
 
 export default function Dashboard({ onLogout, addToast }: DashboardProps) {
   const navigate = useNavigate();
-  const [showSkeleton] = useState(false);
+  const { currentProject } = useAuth();
+  const projectId = currentProject?.id ?? '';
 
-  const avgPass = Math.round(mockPassRateSeries.reduce((a, b) => a + b.rate, 0) / mockPassRateSeries.length);
+  const { data: cassettes } = useApi<CassetteListItem[]>(
+    () => projectId ? api.listCassettes(projectId) : Promise.resolve([]),
+    [projectId],
+  );
+
+  const { data: trends } = useApi<TrendsResponse>(
+    () => projectId ? api.getTrends(projectId, 30) : Promise.resolve({ project_id: '', points: [] }),
+    [projectId],
+  );
+
+  const points = trends?.points ?? [];
+  const totalTokens = points.reduce((s, p) => s + p.total_tokens, 0);
+  const totalCost = points.reduce((s, p) => s + p.total_cost_usd, 0);
+  const totalRuns = points.reduce((s, p) => s + p.cassette_count, 0);
+  const recentCassettes = cassettes?.slice(0, 8) ?? [];
 
   const actions = (
     <>
@@ -64,87 +80,77 @@ export default function Dashboard({ onLogout, addToast }: DashboardProps) {
     </>
   );
 
+  const fmtDuration = (ms: number) => ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${Math.round(ms)}ms`;
+
   return (
     <Layout title="Dashboard" actions={actions} onLogout={onLogout}>
       {/* Metrics */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
         <MetricCard
           label="Total Runs"
-          value="4,821"
-          sub="↑ 18% vs last week"
-          subColor="var(--green)"
+          value={totalRuns.toLocaleString()}
+          sub={`${points.length} day trend`}
           icon={<Activity size={16} />}
           accentColor="var(--accent)"
         />
         <MetricCard
-          label="Pass Rate"
-          value={`${avgPass}%`}
-          sub="↓ 2.4% vs yesterday"
-          subColor="var(--red)"
+          label="Total Tokens"
+          value={totalTokens.toLocaleString()}
+          sub="last 30 days"
           icon={<TrendingUp size={16} />}
           accentColor="var(--green)"
         />
         <MetricCard
           label="Cost This Month"
-          value="$48.31"
-          sub="$1.74 today · 62% of budget"
+          value={`$${totalCost.toFixed(2)}`}
+          sub={`${totalRuns} runs`}
           subColor="var(--text-3)"
           icon={<DollarSign size={16} />}
           accentColor="var(--cyan)"
         />
         <MetricCard
-          label="Active Regressions"
-          value="7"
-          sub="2 critical · 3 high"
-          subColor="var(--red)"
+          label="Cassettes"
+          value={String(cassettes?.length ?? 0)}
+          sub="in project"
           icon={<AlertTriangle size={16} />}
-          accentColor="var(--red)"
+          accentColor="var(--orange)"
         />
       </div>
 
-      {/* Chart + Table row */}
+      {/* Chart + Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16, marginBottom: 28 }}>
-        {/* Pass rate chart */}
         <div style={{
           background: 'var(--bg-card)', border: '1px solid var(--border)',
           borderRadius: 'var(--radius)', padding: 24,
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Pass Rate Trend</div>
-              <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>30-day rolling average</div>
-            </div>
-            <div style={{
-              fontSize: 11, padding: '3px 10px',
-              background: 'var(--accent-glow)', borderRadius: 100,
-              color: 'var(--accent)', fontWeight: 500,
-            }}>
-              {avgPass}% avg
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Token Usage Trend</div>
+              <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>Daily total tokens</div>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={160}>
-            <LineChart data={mockPassRateSeries} margin={{ top: 4, right: 4, bottom: 4, left: -24 }}>
-              <XAxis dataKey="day" tick={{ fill: 'var(--text-3)', fontSize: 11 }} tickLine={false} axisLine={false} interval={4} />
-              <YAxis tick={{ fill: 'var(--text-3)', fontSize: 11 }} tickLine={false} axisLine={false} domain={[60, 100]} />
+            <LineChart data={points} margin={{ top: 4, right: 4, bottom: 4, left: -24 }}>
+              <XAxis dataKey="date" tick={{ fill: 'var(--text-3)', fontSize: 11 }} tickLine={false} axisLine={false} interval={4} />
+              <YAxis tick={{ fill: 'var(--text-3)', fontSize: 11 }} tickLine={false} axisLine={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="rate" stroke="var(--accent)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="total_tokens" stroke="var(--accent)" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Quick stats */}
         <div style={{
           background: 'var(--bg-card)', border: '1px solid var(--border)',
           borderRadius: 'var(--radius)', padding: 24,
           display: 'flex', flexDirection: 'column', gap: 20,
         }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Today at a glance</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Summary</div>
           {[
-            { label: 'Runs today', value: '142', color: 'var(--accent)' },
-            { label: 'Tokens used', value: '892K', color: 'var(--cyan)' },
-            { label: 'Avg latency', value: '1.4s', color: 'var(--blue)' },
-            { label: 'Models used', value: '3', color: 'var(--orange)' },
-            { label: 'Cassettes active', value: '24', color: 'var(--green)' },
+            { label: 'Total runs', value: totalRuns.toLocaleString(), color: 'var(--accent)' },
+            { label: 'Total tokens', value: totalTokens.toLocaleString(), color: 'var(--cyan)' },
+            { label: 'Total cost', value: `$${totalCost.toFixed(2)}`, color: 'var(--blue)' },
+            { label: 'Avg latency', value: points.length > 0 ? fmtDuration(points.reduce((s, p) => s + p.total_duration_ms, 0) / points.length) : '—', color: 'var(--orange)' },
+            { label: 'Cassettes', value: String(cassettes?.length ?? 0), color: 'var(--green)' },
           ].map(({ label, value, color }) => (
             <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 13, color: 'var(--text-2)' }}>{label}</span>
@@ -154,13 +160,13 @@ export default function Dashboard({ onLogout, addToast }: DashboardProps) {
         </div>
       </div>
 
-      {/* Recent Runs */}
+      {/* Recent Cassettes */}
       <div style={{
         background: 'var(--bg-card)', border: '1px solid var(--border)',
         borderRadius: 'var(--radius)', overflow: 'hidden',
       }}>
         <div style={{ padding: '18px 24px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Recent Runs</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Recent Cassettes</div>
           <button
             onClick={() => navigate('/cassettes')}
             style={{
@@ -176,7 +182,7 @@ export default function Dashboard({ onLogout, addToast }: DashboardProps) {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                {['Cassette', 'Status', 'Duration', 'Tokens', 'Cost', 'Model', 'Time'].map(h => (
+                {['Cassette', 'Agent', 'Duration', 'Tokens', 'Cost', 'Framework', 'Time'].map(h => (
                   <th key={h} style={{
                     padding: '10px 24px', textAlign: 'left',
                     fontSize: 11, fontWeight: 600, color: 'var(--text-3)',
@@ -187,47 +193,39 @@ export default function Dashboard({ onLogout, addToast }: DashboardProps) {
               </tr>
             </thead>
             <tbody>
-              {(showSkeleton ? Array(6).fill(null) : mockRuns).map((run, i) => (
-                showSkeleton ? (
-                  <tr key={i}>
-                    {Array(7).fill(null).map((_, j) => (
-                      <td key={j} style={{ padding: '12px 24px' }}>
-                        <div style={{
-                          height: 14, background: 'var(--border)',
-                          borderRadius: 4, width: j === 0 ? '60%' : '40%',
-                          animation: 'pulse 1.5s ease-in-out infinite',
-                        }} />
-                      </td>
-                    ))}
-                  </tr>
-                ) : (
-                  <tr
-                    key={run.id}
-                    onClick={() => navigate(`/cassettes/${run.id}`)}
-                    style={{
-                      borderBottom: i < mockRuns.length - 1 ? '1px solid var(--border-subtle)' : 'none',
-                      cursor: 'pointer', transition: 'background 0.1s',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-raised)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                  >
-                    <td style={{ padding: '12px 24px', fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-mono)', fontWeight: 500 }}>
-                      {run.cassette}
-                    </td>
-                    <td style={{ padding: '12px 24px' }}><StatusBadge status={run.status} size="sm" /></td>
-                    <td style={{ padding: '12px 24px', fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-mono)' }}>{run.duration}</td>
-                    <td style={{ padding: '12px 24px', fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-mono)' }}>{run.tokens.toLocaleString()}</td>
-                    <td style={{ padding: '12px 24px', fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-mono)' }}>${run.cost.toFixed(3)}</td>
-                    <td style={{ padding: '12px 24px', fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-mono)' }}>{run.model}</td>
-                    <td style={{ padding: '12px 24px', fontSize: 12, color: 'var(--text-3)' }}>{run.ts}</td>
-                  </tr>
-                )
+              {recentCassettes.map((c, i) => (
+                <tr
+                  key={c.id}
+                  onClick={() => navigate(`/cassettes/${c.id}`)}
+                  style={{
+                    borderBottom: i < recentCassettes.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+                    cursor: 'pointer', transition: 'background 0.1s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-raised)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <td style={{ padding: '12px 24px', fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-mono)', fontWeight: 500 }}>
+                    {c.name}
+                  </td>
+                  <td style={{ padding: '12px 24px', fontSize: 12, color: 'var(--text-2)' }}>{c.agent_name}</td>
+                  <td style={{ padding: '12px 24px', fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-mono)' }}>{fmtDuration(c.total_duration_ms)}</td>
+                  <td style={{ padding: '12px 24px', fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-mono)' }}>{c.total_tokens.toLocaleString()}</td>
+                  <td style={{ padding: '12px 24px', fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-mono)' }}>${c.total_cost_usd.toFixed(3)}</td>
+                  <td style={{ padding: '12px 24px', fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-mono)' }}>{c.framework}</td>
+                  <td style={{ padding: '12px 24px', fontSize: 12, color: 'var(--text-3)' }}>{new Date(c.created_at).toLocaleDateString()}</td>
+                </tr>
               ))}
+              {recentCassettes.length === 0 && (
+                <tr>
+                  <td colSpan={7} style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-3)', fontSize: 14 }}>
+                    No cassettes yet
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
-      <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }`}</style>
     </Layout>
   );
 }

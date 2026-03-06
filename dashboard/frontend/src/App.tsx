@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Cassettes from './pages/Cassettes';
@@ -11,8 +12,8 @@ import Settings from './pages/Settings';
 import Toast from './components/Toast';
 import type { ToastMessage } from './components/Toast';
 
-export default function App() {
-  const [authed, setAuthed] = useState(false);
+function AppRoutes() {
+  const { user, isLoading, logout } = useAuth();
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const addToast = useCallback((msg: Omit<ToastMessage, 'id'>) => {
@@ -23,29 +24,47 @@ export default function App() {
     setToasts(prev => prev.filter(t => t.id !== id));
   }, []);
 
-  const onLogin = () => setAuthed(true);
-  const onLogout = () => setAuthed(false);
+  if (isLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh', background: 'var(--bg)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{ color: 'var(--text-3)', fontSize: 14 }}>Loading…</div>
+      </div>
+    );
+  }
 
   return (
-    <BrowserRouter>
+    <>
       <Routes>
-        <Route path="/login" element={authed ? <Navigate to="/" /> : <Login onLogin={onLogin} />} />
-        {!authed ? (
+        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+        {!user ? (
           <Route path="*" element={<Navigate to="/login" />} />
         ) : (
           <>
-            <Route path="/" element={<Dashboard onLogout={onLogout} addToast={addToast} />} />
-            <Route path="/cassettes" element={<Cassettes onLogout={onLogout} addToast={addToast} />} />
-            <Route path="/cassettes/:id" element={<CassetteDetail onLogout={onLogout} addToast={addToast} />} />
-            <Route path="/golden-sets" element={<GoldenSets onLogout={onLogout} addToast={addToast} />} />
-            <Route path="/regressions" element={<Regressions onLogout={onLogout} addToast={addToast} />} />
-            <Route path="/analytics" element={<Analytics onLogout={onLogout} addToast={addToast} />} />
-            <Route path="/settings" element={<Settings onLogout={onLogout} addToast={addToast} />} />
+            <Route path="/" element={<Dashboard onLogout={logout} addToast={addToast} />} />
+            <Route path="/cassettes" element={<Cassettes onLogout={logout} addToast={addToast} />} />
+            <Route path="/cassettes/:id" element={<CassetteDetail onLogout={logout} addToast={addToast} />} />
+            <Route path="/golden-sets" element={<GoldenSets onLogout={logout} addToast={addToast} />} />
+            <Route path="/regressions" element={<Regressions onLogout={logout} addToast={addToast} />} />
+            <Route path="/analytics" element={<Analytics onLogout={logout} addToast={addToast} />} />
+            <Route path="/settings" element={<Settings onLogout={logout} addToast={addToast} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </>
         )}
       </Routes>
       <Toast messages={toasts} onRemove={removeToast} />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

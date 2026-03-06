@@ -5,7 +5,7 @@ import {
   Menu, X,
 } from 'lucide-react';
 import { useState } from 'react';
-import { mockUser } from '../data/mock';
+import { useAuth } from '../context/AuthContext';
 
 const navItems = [
   { to: '/',             label: 'Dashboard',   icon: LayoutDashboard },
@@ -23,6 +23,7 @@ interface SidebarProps {
 export default function Sidebar({ onLogout }: SidebarProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleLogout = () => {
     onLogout();
@@ -144,14 +145,14 @@ export default function Sidebar({ onLogout }: SidebarProps) {
             color: 'var(--accent)',
             flexShrink: 0,
           }}>
-            {mockUser.avatar}
+            {user ? user.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : '??'}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {mockUser.name}
+              {user?.full_name || user?.email || 'User'}
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {mockUser.plan} plan
+              {user?.email || ''}
             </div>
           </div>
         </div>

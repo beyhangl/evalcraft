@@ -20,15 +20,8 @@ from app.schemas.api import (
     GoldenSetUpdateRequest,
 )
 
-try:
-    from evalcraft.core.models import Cassette as CoreCassette
-    from evalcraft.golden.manager import GoldenSet as CoreGoldenSet, Thresholds
-except ImportError:
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-    from evalcraft.core.models import Cassette as CoreCassette
-    from evalcraft.golden.manager import GoldenSet as CoreGoldenSet, Thresholds
+from evalcraft.core.models import Cassette as CoreCassette
+from evalcraft.golden.manager import GoldenSet as CoreGoldenSet, Thresholds
 
 router = APIRouter(prefix="/golden-sets", tags=["golden-sets"])
 

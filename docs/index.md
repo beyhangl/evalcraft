@@ -99,6 +99,7 @@ assert assert_cost_under(run, max_usd=0.01).passed
 | Section | Description |
 |---------|-------------|
 | [Quickstart](user-guide/quickstart.md) | Get running in 5 minutes |
+| [Case Study](user-guide/five-minute-case-study.md) | How a team caught a $50/day regression |
 | [Concepts](user-guide/concepts.md) | Cassettes, spans, capture, replay explained |
 | [Capture API](user-guide/capture.md) | Full capture API reference |
 | [Replay Engine](user-guide/replay.md) | Replay and diff cassettes |

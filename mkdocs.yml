@@ -61,6 +61,7 @@ nav:
   - User Guide:
     - Overview: user-guide/index.md
     - Quickstart: user-guide/quickstart.md
+    - "Case Study: Catching a Regression": user-guide/five-minute-case-study.md
     - Concepts: user-guide/concepts.md
     - Capture API: user-guide/capture.md
     - Replay Engine: user-guide/replay.md

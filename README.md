@@ -3,9 +3,21 @@
 **The pytest for AI agents.** Capture, replay, mock, and evaluate agent behavior — without burning API credits on every test run.
 
 [![CI](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg)](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/evalcraft)](https://pypi.org/project/evalcraft/)
-[![Python](https://img.shields.io/pypi/pyversions/evalcraft)](https://pypi.org/project/evalcraft/)
+[![Version](https://img.shields.io/github/v/release/beyhangl/evalcraft?label=version)](https://github.com/beyhangl/evalcraft/releases)
+[![Python](https://img.shields.io/badge/python-3.9%E2%80%933.13-blue)](https://github.com/beyhangl/evalcraft)
 [![License](https://img.shields.io/github/license/beyhangl/evalcraft)](LICENSE)
+
+---
+
+## Get Started in 60 Seconds
+
+```bash
+pip install evalcraft
+evalcraft init                # scaffolds tests/cassettes/ and a sample test
+pytest --evalcraft            # run with recording
+```
+
+That's it. Your first cassette is recorded, committed to git, and replays for free on every future run. See the [5-minute quickstart](https://beyhangl.github.io/evalcraft/user-guide/quickstart/) for the full walkthrough.
 
 ---
 
@@ -361,6 +373,18 @@ pytest
 - Type check: `mypy evalcraft/`
 
 PRs welcome. Please open an issue first for significant changes. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+---
+
+## Design Partners
+
+We're working with 10 early teams to shape evalcraft. Design partners get:
+
+- **Hands-on setup help** — we'll pair with you to get evalcraft into your CI pipeline
+- **Direct Slack access** — talk to the maintainers, not a support queue
+- **Influence the roadmap** — your use cases drive what we build next
+
+Interested? [Sign up here](https://beyhangl.github.io/evalcraft/#frameworks) or email us directly.
 
 ---
 

@@ -10,3 +10,4 @@ passlib[bcrypt]>=1.7.4,<2.0
 python-multipart>=0.0.6
 redis>=5.0.0,<6.0
 httpx>=0.26.0,<1.0
+evalcraft>=0.1.0

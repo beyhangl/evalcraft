@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thanks for signing up — Evalcraft</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #09090b;
+      --bg-raised: #111114;
+      --bg-card:   #16161a;
+      --border:    #27272a;
+      --text:      #fafafa;
+      --text-2:    #a1a1aa;
+      --text-3:    #71717a;
+      --accent:    #a78bfa;
+      --accent-2:  #8b5cf6;
+      --accent-glow: rgba(167, 139, 250, 0.15);
+      --green:     #34d399;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --radius:    12px;
+      --radius-sm: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3rem 2.5rem;
+      max-width: 520px;
+      width: 100%;
+    }
+
+    .checkmark {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 32px;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .subtitle {
+      color: var(--text-2);
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .links a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.25rem;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.925rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .links a:hover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .links .icon {
+      flex-shrink: 0;
+      width: 20px;
+      text-align: center;
+      color: var(--accent);
+    }
+
+    .install-cmd {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      background: var(--bg);
+      padding: 0.625rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      color: var(--green);
+      margin-bottom: 2rem;
+      user-select: all;
+    }
+
+    .redirect-note {
+      color: var(--text-3);
+      font-size: 0.8rem;
+    }
+
+    .redirect-note a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .redirect-note a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="checkmark">&#10003;</div>
+    <h1>Thanks for signing <span>up!</span></h1>
+    <p class="subtitle">We'll be in touch shortly. In the meantime:</p>
+
+    <div class="links">
+      <a href="https://github.com/beyhangl/evalcraft" target="_blank" rel="noopener">
+        <span class="icon">&#9733;</span> Star the repo on GitHub
+      </a>
+      <a href="https://beyhangl.github.io/evalcraft/" target="_blank" rel="noopener">
+        <span class="icon">&#9776;</span> Read the docs
+      </a>
+    </div>
+
+    <div class="install-cmd">pip install evalcraft</div>
+
+    <p class="redirect-note">
+      Redirecting in <span id="countdown">10</span>s&hellip;
+      <a href="https://beyhangl.github.io/evalcraft/">Go back now</a>
+    </p>
+  </div>
+
+  <script>
+    (function() {
+      var seconds = 10;
+      var el = document.getElementById('countdown');
+      var timer = setInterval(function() {
+        seconds--;
+        el.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          window.location.href = 'https://beyhangl.github.io/evalcraft/';
+        }
+      }, 1000);
+    })();
+  </script>
+</body>
+</html>
