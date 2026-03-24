@@ -612,6 +612,42 @@ def mock(cassette: str, output: str | None, var: str) -> None:
         click.echo(code)
 
 
+# ─── generate-tests ──────────────────────────────────────────────────────────
+
+@cli.command("generate-tests")
+@click.argument("cassette", type=click.Path(exists=True, dir_okay=False))
+@click.option("--output", "-o", default=None, help="Output Python file path (default: stdout)")
+def generate_tests(cassette: str, output: str | None) -> None:
+    """Auto-generate a pytest test file from CASSETTE.
+
+    Reads the cassette and emits a complete, runnable test file with
+    assertions for tool calls, output content, cost, tokens, and latency.
+
+    Examples:
+
+        evalcraft generate-tests tests/cassettes/weather.json
+
+        evalcraft generate-tests tests/cassettes/weather.json -o tests/test_weather.py
+    """
+    from evalcraft.cli.generate_cmd import generate_test_code
+
+    c = _load_cassette(cassette)
+    code = generate_test_code(c, cassette)
+
+    if output:
+        out_path = Path(output)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(code)
+        click.echo(
+            click.style("  generated", fg="green", bold=True)
+            + f"  {out_path}"
+        )
+        c.compute_metrics()
+        click.echo(f"  tests: tool calls ({len(c.get_tool_calls())}), output, cost, tokens, latency")
+    else:
+        click.echo(code)
+
+
 # ─── golden ──────────────────────────────────────────────────────────────────
 
 @cli.group()
