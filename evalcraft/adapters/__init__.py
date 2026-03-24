@@ -22,6 +22,9 @@ Available adapters:
 - :class:`LlamaIndexAdapter` — hooks into LlamaIndex's callback system to
   capture queries, retrieval, LLM synthesis, and function calls.
 
+- :class:`GeminiAdapter` — patches the Google Gemini SDK to record every
+  ``GenerativeModel.generate_content()`` call (sync and async).
+
 Usage::
 
     from evalcraft.adapters import (
@@ -36,6 +39,7 @@ from evalcraft.adapters.crewai_adapter import CrewAIAdapter
 from evalcraft.adapters.langgraph_adapter import LangGraphAdapter
 from evalcraft.adapters.llamaindex_adapter import LlamaIndexAdapter
 from evalcraft.adapters.openai_adapter import OpenAIAdapter
+from evalcraft.adapters.gemini_adapter import GeminiAdapter
 
 __all__ = [
     "OpenAIAdapter",
@@ -44,4 +48,5 @@ __all__ = [
     "CrewAIAdapter",
     "AutoGenAdapter",
     "LlamaIndexAdapter",
+    "GeminiAdapter",
 ]

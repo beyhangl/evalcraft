@@ -19,6 +19,12 @@ from evalcraft.eval.scorers import (
     assert_latency_under,
     assert_token_count_under,
 )
+from evalcraft.eval.llm_judge import (
+    assert_output_semantic,
+    assert_factual_consistency,
+    assert_tone,
+    assert_custom_criteria,
+)
 from evalcraft.core.models import Span, Cassette, AgentRun, EvalResult
 from evalcraft.golden.manager import GoldenSet
 from evalcraft.regression.detector import RegressionDetector, RegressionReport
@@ -39,6 +45,10 @@ __all__ = [
     "assert_cost_under",
     "assert_latency_under",
     "assert_token_count_under",
+    "assert_output_semantic",
+    "assert_factual_consistency",
+    "assert_tone",
+    "assert_custom_criteria",
     "Span",
     "Cassette",
     "AgentRun",
