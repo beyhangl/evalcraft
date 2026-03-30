@@ -26,7 +26,7 @@ That's it. Your first cassette is recorded, committed to git, and replays for fr
 
 Agent testing is broken:
 
-- **Expensive.** Running 200 tests against GPT-4 costs real money. Every commit.
+- **Expensive.** Running 200 tests against GPT-4.1 costs real money. Every commit.
 - **Non-deterministic.** Tests fail randomly because LLMs aren't functions.
 - **No CI/CD story.** You can't gate deploys on eval results if evals take 10 minutes and cost $5.
 
@@ -38,20 +38,20 @@ Evalcraft fixes this by recording agent runs as **cassettes** (like VCR for HTTP
 
 ```
   Your Agent
-      │
-      ▼
-┌─────────────┐    record     ┌──────────────┐
-│  CaptureCtx │ ────────────► │   Cassette   │  (plain JSON, git-friendly)
-│             │               │  (spans[])   │
-└─────────────┘               └──────┬───────┘
-                                     │
-                    ┌────────────────┼────────────────┐
-                    ▼                ▼                ▼
+      |
+      v
++-------------+    record     +--------------+
+|  CaptureCtx | ------------> |   Cassette   |  (plain JSON, git-friendly)
+|             |               |  (spans[])   |
++-------------+               +------+-------+
+                                     |
+                    +----------------+----------------+
+                    v                v                v
               replay()          MockLLM /        assert_*()
            (zero API calls)    MockTool()       (scorers)
-                    │                                 │
-                    └──────────────┬──────────────────┘
-                                   ▼
+                    |                                 |
+                    +----------------+----------------+
+                                     v
                             pytest / CI gate
                            (200ms, $0.00)
 ```
@@ -67,8 +67,11 @@ pip install evalcraft
 pip install "evalcraft[pytest]"
 
 # With framework adapters
-pip install "evalcraft[openai]"     # OpenAI SDK adapter
-pip install "evalcraft[langchain]"  # LangChain/LangGraph adapter
+pip install "evalcraft[openai]"       # OpenAI SDK adapter
+pip install "evalcraft[anthropic]"    # Anthropic SDK adapter
+pip install "evalcraft[gemini]"       # Google Gemini adapter
+pip install "evalcraft[pydantic-ai]"  # Pydantic AI adapter
+pip install "evalcraft[langchain]"    # LangChain/LangGraph adapter
 
 # Everything
 pip install "evalcraft[all]"
@@ -93,19 +96,19 @@ with CaptureContext(
     # Run your agent — wrap tool/LLM calls with record_* methods
     ctx.record_tool_call("get_weather", args={"city": "Paris"}, result={"temp": 18, "condition": "cloudy"})
     ctx.record_llm_call(
-        model="gpt-4o",
-        input="User asked about weather. Tool returned: cloudy 18°C",
-        output="It's 18°C and cloudy in Paris right now.",
+        model="gpt-4.1-mini",
+        input="User asked about weather. Tool returned: cloudy 18C",
+        output="It's 18C and cloudy in Paris right now.",
         prompt_tokens=120,
         completion_tokens=15,
-        cost_usd=0.0008,
+        cost_usd=0.0003,
     )
 
-    ctx.record_output("It's 18°C and cloudy in Paris right now.")
+    ctx.record_output("It's 18C and cloudy in Paris right now.")
 
 cassette = ctx.cassette
 print(f"Captured {cassette.tool_call_count} tool calls, ${cassette.total_cost_usd:.4f}")
-# Captured 1 tool calls, $0.0008
+# Captured 1 tool calls, $0.0003
 ```
 
 ### 2. Replay without API calls
@@ -117,13 +120,13 @@ from evalcraft import replay
 run = replay("tests/cassettes/weather.json")
 
 assert run.replayed is True
-assert run.cassette.output_text == "It's 18°C and cloudy in Paris right now."
+assert run.cassette.output_text == "It's 18C and cloudy in Paris right now."
 ```
 
 ### 3. Assert tool behavior
 
 ```python
-from evalcraft import replay, assert_tool_called, assert_tool_order, assert_cost_under
+from evalcraft import replay, assert_tool_called, assert_cost_under
 
 run = replay("tests/cassettes/weather.json")
 
@@ -132,59 +135,64 @@ assert assert_tool_called(run, "get_weather", with_args={"city": "Paris"}).passe
 assert assert_cost_under(run, max_usd=0.05).passed
 ```
 
-### 4. Mock LLM responses
+### 4. LLM-as-Judge evaluation
 
 ```python
-from evalcraft import MockLLM, MockTool, CaptureContext
+from evalcraft import replay, assert_output_semantic, assert_factual_consistency
 
-llm = MockLLM()
-llm.add_response("*", "It's sunny and 22°C.")  # wildcard match
+run = replay("tests/cassettes/weather.json")
 
-search = MockTool("web_search")
-search.returns({"results": [{"title": "Weather Paris", "snippet": "Sunny, 22°C"}]})
+# Semantic evaluation — uses an LLM to judge output quality
+result = assert_output_semantic(run, criteria="Mentions temperature and city name")
+assert result.passed
 
-with CaptureContext(name="mocked_run", save_path="tests/cassettes/mocked.json") as ctx:
-    ctx.record_input("Weather in Paris?")
-
-    search_result = search.call(query="Paris weather today")
-    response = llm.complete(f"Search result: {search_result}")
-
-    ctx.record_output(response.content)
-
-search.assert_called(times=1)
-search.assert_called_with(query="Paris weather today")
-llm.assert_called(times=1)
+# Factual consistency check
+result = assert_factual_consistency(run, ground_truth="Paris is 18C and cloudy")
+assert result.passed
 ```
 
-### 5. Use with pytest
+### 5. RAG evaluation metrics
+
+```python
+from evalcraft import replay, assert_faithfulness, assert_answer_relevance
+
+run = replay("tests/cassettes/rag_agent.json")
+contexts = ["Paris has a population of 2.1 million...", "The Eiffel Tower..."]
+
+# Does the output stay faithful to retrieved context?
+assert assert_faithfulness(run, contexts=contexts).passed
+
+# Does the answer address the original question?
+assert assert_answer_relevance(run, query="Tell me about Paris").passed
+```
+
+### 6. Use with pytest
 
 ```python
 # tests/test_weather_agent.py
-from evalcraft import replay, assert_tool_called, assert_tool_order, assert_cost_under
+from evalcraft import replay, assert_tool_called, assert_cost_under
 
 def test_agent_calls_weather_tool():
     run = replay("tests/cassettes/weather.json")
     result = assert_tool_called(run, "get_weather")
     assert result.passed, result.message
 
-def test_agent_tool_sequence():
-    run = replay("tests/cassettes/weather.json")
-    result = assert_tool_order(run, ["get_weather"])
-    assert result.passed, result.message
-
 def test_agent_cost_budget():
     run = replay("tests/cassettes/weather.json")
     result = assert_cost_under(run, max_usd=0.01)
     assert result.passed, result.message
-
-def test_agent_output():
-    run = replay("tests/cassettes/weather.json")
-    assert "Paris" in run.cassette.output_text or "cloudy" in run.cassette.output_text
 ```
 
 ```bash
 pytest tests/ -v
 # 200ms, $0.00
+```
+
+### 7. Auto-generate tests from cassettes
+
+```bash
+evalcraft generate-tests tests/cassettes/weather.json -o tests/test_weather.py
+# Generates a complete pytest file with tool, output, cost, token, and latency assertions
 ```
 
 ---
@@ -219,13 +227,15 @@ them deterministically — no API key, no network calls, no cost.
 
 | | Evalcraft | Braintrust | LangSmith | Promptfoo |
 |---|---|---|---|---|
-| Cassette-based replay | ✅ | ❌ | ❌ | ❌ |
-| Zero-cost CI testing | ✅ | ❌ | ❌ | Partial |
-| pytest-native | ✅ | ❌ | ❌ | ❌ |
-| Mock LLM / Tools | ✅ | ❌ | ❌ | ❌ |
-| Framework agnostic | ✅ | ✅ | ✅ | ✅ |
-| Self-hostable | ✅ | ❌ | Partial | ✅ |
-| Observability dashboard | ❌ | ✅ | ✅ | ❌ |
+| Cassette-based replay | **Yes** | No | No | No |
+| Zero-cost CI testing | **Yes** | No | No | Partial |
+| pytest-native | **Yes** | No | No | No |
+| Mock LLM / Tools | **Yes** | No | No | No |
+| LLM-as-Judge scoring | **Yes** | Yes | Yes | Yes |
+| RAG evaluation metrics | **Yes** | No | No | No |
+| Auto-test generation | **Yes** | No | No | No |
+| Framework agnostic | **Yes** | Yes | Yes | Yes |
+| Self-hostable | **Yes** | No | Partial | Yes |
 | Pricing | Free / OSS | Paid SaaS | Paid SaaS | Free / OSS |
 
 > Evalcraft is a **testing** tool, not an observability platform. Use Braintrust or LangSmith for production tracing; use Evalcraft to keep your test suite fast and free.
@@ -240,61 +250,105 @@ them deterministically — no API key, no network calls, no cost.
 | **Replay** | Re-run cassettes deterministically — no API calls, zero cost |
 | **Mock LLM** | Substitute real LLMs with deterministic mocks (exact / pattern / wildcard) |
 | **Mock Tools** | Mock any tool with static, dynamic, sequential, or error-simulating responses |
-| **Scorers** | Built-in assertions for tool calls, output content, cost, latency, tokens |
+| **Scorers** | 16 built-in assertions: tool calls, output, cost, latency, tokens, LLM-as-Judge, RAG metrics |
+| **LLM-as-Judge** | Semantic evaluation, factual consistency, tone, custom criteria — via OpenAI or Anthropic |
+| **RAG Metrics** | Faithfulness, context relevance, answer relevance, context recall |
 | **Diff** | Compare two cassette runs to detect regressions |
-| **CLI** | `evalcraft replay`, `evalcraft diff`, `evalcraft inspect` from your terminal |
+| **Golden Sets** | Version baselines and detect regressions automatically |
+| **Auto-generate** | `evalcraft generate-tests` creates pytest files from cassettes |
+| **CLI** | `evalcraft replay`, `evalcraft diff`, `evalcraft eval`, `evalcraft generate-tests` |
 | **pytest plugin** | Native fixtures and markers — `cassette`, `mock_llm`, `@pytest.mark.evalcraft` |
+| **CI Gate** | GitHub Action with PR comments, score thresholds, regression detection |
+| **JS/TS SDK** | Full TypeScript SDK with feature parity — scorers, mocks, adapters |
 
 ---
 
 ## Supported frameworks
 
-| Framework | Integration |
-|-----------|-------------|
-| **OpenAI SDK** | `evalcraft.adapters.openai` — auto-records all `chat.completions.create` calls |
-| **LangGraph** | `evalcraft.adapters.langgraph` — callback handler for graphs and chains |
-| **Any agent** | Manual `record_tool_call` / `record_llm_call` works with any framework |
+| Framework | Adapter | Install |
+|-----------|---------|---------|
+| **OpenAI SDK** | `OpenAIAdapter` — auto-records `chat.completions.create` (sync + async) | `evalcraft[openai]` |
+| **Anthropic SDK** | `AnthropicAdapter` — auto-records `messages.create` (sync + async) | `evalcraft[anthropic]` |
+| **Google Gemini** | `GeminiAdapter` — auto-records `generate_content` (sync + async) | `evalcraft[gemini]` |
+| **Pydantic AI** | `PydanticAIAdapter` — auto-records `agent.run` / `agent.run_sync` | `evalcraft[pydantic-ai]` |
+| **LangGraph** | `LangGraphAdapter` — callback handler for graphs and chains | `evalcraft[langchain]` |
+| **CrewAI** | `CrewAIAdapter` — instruments `Crew.kickoff()` | `evalcraft[crewai]` |
+| **AutoGen** | `AutoGenAdapter` — captures multi-agent conversations | `evalcraft[autogen]` |
+| **LlamaIndex** | `LlamaIndexAdapter` — hooks into query/retrieval pipeline | `evalcraft[llamaindex]` |
+| **Any agent** | Manual `record_tool_call` / `record_llm_call` works with any framework | — |
 
 ### OpenAI
 
 ```python
-from evalcraft.adapters.openai import patch_openai
+from evalcraft.adapters import OpenAIAdapter
 from evalcraft import CaptureContext
 import openai
 
-patch_openai(openai)  # all subsequent calls are auto-recorded
+client = openai.OpenAI()
 
 with CaptureContext(name="openai_run", save_path="tests/cassettes/openai_run.json") as ctx:
-    ctx.record_input("Summarize the French Revolution")
+    with OpenAIAdapter():  # auto-records all LLM + tool calls
+        ctx.record_input("Summarize the French Revolution")
 
-    client = openai.OpenAI()
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": "Summarize the French Revolution"}],
-    )
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[{"role": "user", "content": "Summarize the French Revolution"}],
+        )
 
-    ctx.record_output(response.choices[0].message.content)
+        ctx.record_output(response.choices[0].message.content)
 ```
 
-### LangGraph
+### Gemini
 
 ```python
-from evalcraft.adapters.langgraph import EvalcraftCallbackHandler
+from evalcraft.adapters import GeminiAdapter
 from evalcraft import CaptureContext
+import google.generativeai as genai
 
-handler = EvalcraftCallbackHandler()
+genai.configure(api_key="...")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
-with CaptureContext(name="langgraph_run", save_path="tests/cassettes/lg_run.json") as ctx:
-    ctx.record_input("Plan a trip to Tokyo")
-
-    graph = build_travel_agent()
-    result = graph.invoke(
-        {"messages": [{"role": "user", "content": "Plan a trip to Tokyo"}]},
-        config={"callbacks": [handler]},
-    )
-
-    ctx.record_output(result["messages"][-1].content)
+with CaptureContext(name="gemini_run", save_path="tests/cassettes/gemini_run.json") as ctx:
+    with GeminiAdapter():
+        ctx.record_input("What is quantum computing?")
+        response = model.generate_content("What is quantum computing?")
+        ctx.record_output(response.text)
 ```
+
+### Pydantic AI
+
+```python
+from evalcraft.adapters import PydanticAIAdapter
+from evalcraft import CaptureContext
+from pydantic_ai import Agent
+
+agent = Agent("openai:gpt-4.1-mini", system_prompt="You are helpful.")
+
+with CaptureContext(name="pydantic_run", save_path="tests/cassettes/pydantic_run.json") as ctx:
+    with PydanticAIAdapter():
+        ctx.record_input("What's the weather?")
+        result = agent.run_sync("What's the weather?")
+        ctx.record_output(result.data)
+```
+
+---
+
+## CI/CD integration
+
+### GitHub Action
+
+```yaml
+# .github/workflows/evalcraft.yml
+- uses: beyhangl/evalcraft@v1
+  with:
+    test-path: tests/
+    cassette-dir: tests/cassettes
+    max-cost: '0.50'
+    max-regression: '10'
+    post-comment: 'true'
+```
+
+The action runs your agent tests, checks cost/regression thresholds, and posts a results table as a PR comment. See [examples/ci-pipeline/](examples/ci-pipeline/) for a complete workflow.
 
 ---
 
@@ -304,37 +358,20 @@ with CaptureContext(name="langgraph_run", save_path="tests/cassettes/lg_run.json
 evalcraft [command] [options]
 ```
 
-### `evalcraft replay`
-
-```bash
-evalcraft replay tests/cassettes/weather.json
-evalcraft replay tests/cassettes/weather.json --override get_weather='{"temp": 5, "condition": "snow"}'
-```
-
-### `evalcraft diff`
-
-```bash
-evalcraft diff tests/cassettes/weather_v1.json tests/cassettes/weather_v2.json
-# Tool sequence: ['get_weather'] → ['get_weather', 'send_alert']
-# Output text changed
-# Tokens: 135 → 210
-```
-
-### `evalcraft inspect`
-
-```bash
-evalcraft inspect tests/cassettes/weather.json
-evalcraft inspect tests/cassettes/weather.json --kind tool_call
-```
-
-### `evalcraft run`
-
-```bash
-evalcraft run tests/cassettes/
-# ✓ weather.json   (3 spans, $0.0008, 450ms)
-# ✓ search.json    (7 spans, $0.0021, 1200ms)
-# 2/2 passed
-```
+| Command | Description |
+|---------|-------------|
+| `evalcraft init` | Scaffold a test project for your framework |
+| `evalcraft capture <script>` | Run a script with capture enabled |
+| `evalcraft replay <cassette>` | Replay a cassette (zero API calls) |
+| `evalcraft diff <old> <new>` | Compare two cassettes |
+| `evalcraft eval <cassette>` | Run assertions with thresholds |
+| `evalcraft info <cassette>` | Inspect cassette metadata |
+| `evalcraft generate-tests <cassette>` | Auto-generate a pytest file |
+| `evalcraft mock <cassette>` | Generate MockLLM fixtures from a cassette |
+| `evalcraft golden save <cassette>` | Save a golden-set baseline |
+| `evalcraft golden compare <cassette>` | Compare against a baseline |
+| `evalcraft regression <cassette>` | Detect regressions |
+| `evalcraft sanitize <cassette>` | Redact PII and secrets |
 
 ---
 
@@ -342,21 +379,38 @@ evalcraft run tests/cassettes/
 
 ```
 Cassette
-├── id, name, agent_name, framework
-├── input_text, output_text
-├── total_tokens, total_cost_usd, total_duration_ms
-├── llm_call_count, tool_call_count
-├── fingerprint  (SHA-256 of span content — detects regressions)
-└── spans[]
-    ├── Span (llm_request / llm_response)
-    │   ├── model, token_usage, cost_usd
-    │   └── input, output
-    └── Span (tool_call)
-        ├── tool_name, tool_args, tool_result
-        └── duration_ms, error
++-- id, name, agent_name, framework
++-- input_text, output_text
++-- total_tokens, total_cost_usd, total_duration_ms
++-- llm_call_count, tool_call_count
++-- fingerprint  (SHA-256 of span content -- detects regressions)
++-- spans[]
+    +-- Span (llm_request / llm_response)
+    |   +-- model, token_usage, cost_usd
+    |   +-- input, output
+    +-- Span (tool_call)
+        +-- tool_name, tool_args, tool_result
+        +-- duration_ms, error
 ```
 
 Cassettes are plain JSON — check them into git, diff them in PRs.
+
+---
+
+## TypeScript / JavaScript SDK
+
+```bash
+npm install evalcraft
+```
+
+```typescript
+import { CaptureContext, replay, assertToolCalled, assertCostUnder } from 'evalcraft';
+import { assertOutputSemantic, assertFaithfulness } from 'evalcraft';
+import { wrapOpenAI } from 'evalcraft/adapters/openai';
+import { wrapGemini } from 'evalcraft/adapters/gemini';
+```
+
+Full feature parity with the Python SDK — scorers, mocks, LLM-as-Judge, RAG metrics, and framework adapters.
 
 ---
 
@@ -391,4 +445,4 @@ Interested? [Sign up here](https://beyhangl.github.io/evalcraft/#frameworks) or 
 
 ## License
 
-MIT © 2026 Beyhan Gül. See [LICENSE](LICENSE).
+MIT © 2026 Beyhan Gul. See [LICENSE](LICENSE).
