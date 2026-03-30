@@ -13,7 +13,7 @@ Usage::
     from evalcraft import CaptureContext
     from pydantic_ai import Agent
 
-    agent = Agent("openai:gpt-4o-mini", system_prompt="You are helpful.")
+    agent = Agent("openai:gpt-4.1-mini", system_prompt="You are helpful.")
 
     with CaptureContext(name="pydantic_ai_test") as ctx:
         with PydanticAIAdapter():
@@ -107,7 +107,7 @@ def _estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> fl
 def _normalize_model_name(model_str: str) -> str:
     """Strip provider prefix from Pydantic AI model strings.
 
-    Pydantic AI uses "openai:gpt-4o-mini" or "anthropic:claude-sonnet-4-6".
+    Pydantic AI uses "openai:gpt-4.1-mini" or "anthropic:claude-sonnet-4-6".
     We strip the provider prefix to match our pricing table.
     """
     if ":" in model_str:

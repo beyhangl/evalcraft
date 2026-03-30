@@ -9,7 +9,7 @@ Usage:
     python scripts/validate_with_openai.py
 
 What it does:
-    1. Records a real agent run with live gpt-4o-mini calls (tool calling)
+    1. Records a real agent run with live gpt-4.1-mini calls (tool calling)
     2. Saves the cassette to disk
     3. Replays the cassette (zero API calls)
     4. Runs all assertion types against the replay
