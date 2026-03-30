@@ -1,0 +1,61 @@
+# Example GitHub Actions workflow using the evalcraft CI gate action.
+#
+# Copy this file to .github/workflows/evalcraft-ci.yml in your repo.
+#
+# What it does:
+#   1. On every PR, runs your agent tests with cassette replay (zero API calls)
+#   2. Checks cost and regression thresholds
+#   3. Posts a results table as a PR comment
+#   4. Blocks merge if thresholds are breached
+#
+# Prerequisites:
+#   - Agent tests in tests/ using evalcraft's pytest plugin
+#   - Pre-recorded cassettes committed to tests/cassettes/
+
+name: Evalcraft CI Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write  # Required for posting PR comments
+
+jobs:
+  agent-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run evalcraft agent tests
+        uses: beyhangl/evalcraft@v1
+        with:
+          # Path to your test files
+          test-path: tests/
+
+          # Directory where cassettes are stored
+          cassette-dir: tests/cassettes
+
+          # Cassette recording mode:
+          #   none — replay only (default, zero API calls)
+          #   new  — record cassettes that don't exist yet
+          #   all  — re-record all cassettes (requires API keys)
+          record-mode: none
+
+          # Cost threshold — fail if total cost exceeds this
+          max-cost: '0.50'
+
+          # Regression threshold — fail if any metric increases by more than 10%
+          max-regression: '10'
+
+          # Post results as a PR comment (updates existing comment on re-push)
+          post-comment: 'true'
+
+          # Python version
+          python-version: '3.11'
+
+          # Additional pytest arguments (optional)
+          # extra-pytest-args: '-x --timeout=60'

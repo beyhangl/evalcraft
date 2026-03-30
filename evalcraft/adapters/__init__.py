@@ -25,6 +25,9 @@ Available adapters:
 - :class:`GeminiAdapter` — patches the Google Gemini SDK to record every
   ``GenerativeModel.generate_content()`` call (sync and async).
 
+- :class:`PydanticAIAdapter` — patches the Pydantic AI ``Agent`` class to
+  record every ``run()`` and ``run_sync()`` call, including tool calls.
+
 Usage::
 
     from evalcraft.adapters import (
@@ -40,6 +43,7 @@ from evalcraft.adapters.langgraph_adapter import LangGraphAdapter
 from evalcraft.adapters.llamaindex_adapter import LlamaIndexAdapter
 from evalcraft.adapters.openai_adapter import OpenAIAdapter
 from evalcraft.adapters.gemini_adapter import GeminiAdapter
+from evalcraft.adapters.pydantic_ai_adapter import PydanticAIAdapter
 
 __all__ = [
     "OpenAIAdapter",
@@ -49,4 +53,5 @@ __all__ = [
     "AutoGenAdapter",
     "LlamaIndexAdapter",
     "GeminiAdapter",
+    "PydanticAIAdapter",
 ]

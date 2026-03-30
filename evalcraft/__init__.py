@@ -25,6 +25,12 @@ from evalcraft.eval.llm_judge import (
     assert_tone,
     assert_custom_criteria,
 )
+from evalcraft.eval.rag_scorers import (
+    assert_faithfulness,
+    assert_context_relevance,
+    assert_answer_relevance,
+    assert_context_recall,
+)
 from evalcraft.core.models import Span, Cassette, AgentRun, EvalResult
 from evalcraft.golden.manager import GoldenSet
 from evalcraft.regression.detector import RegressionDetector, RegressionReport
@@ -49,6 +55,10 @@ __all__ = [
     "assert_factual_consistency",
     "assert_tone",
     "assert_custom_criteria",
+    "assert_faithfulness",
+    "assert_context_relevance",
+    "assert_answer_relevance",
+    "assert_context_recall",
     "Span",
     "Cassette",
     "AgentRun",
