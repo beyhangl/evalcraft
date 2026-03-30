@@ -105,12 +105,23 @@ def _estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> fl
     return (prompt_tokens * input_usd + completion_tokens * output_usd) / 1_000_000
 
 
-def _messages_to_str(messages: list[dict[str, Any]]) -> str:
-    """Flatten an OpenAI ``messages`` list into a single readable string."""
+def _messages_to_str(messages: list[Any]) -> str:
+    """Flatten an OpenAI ``messages`` list into a single readable string.
+
+    Handles both plain dicts and Pydantic model objects (e.g.
+    ``ChatCompletionMessage``) that the SDK returns and agents append
+    back to the conversation.
+    """
     parts: list[str] = []
     for msg in messages:
-        role = msg.get("role", "unknown")
-        content = msg.get("content", "")
+        # Extract role and content — works for both dicts and Pydantic objects
+        if isinstance(msg, dict):
+            role = msg.get("role", "unknown")
+            content = msg.get("content", "")
+        else:
+            role = getattr(msg, "role", "unknown") or "unknown"
+            content = getattr(msg, "content", "") or ""
+
         if isinstance(content, list):
             # Multi-modal content blocks — extract text parts only.
             text_parts = [
@@ -119,6 +130,9 @@ def _messages_to_str(messages: list[dict[str, Any]]) -> str:
                 if isinstance(block, dict) and block.get("type") == "text"
             ]
             content = " ".join(text_parts)
+        elif not isinstance(content, str):
+            content = str(content) if content else ""
+
         parts.append(f"{role}: {content}")
     return "\n".join(parts)
 
@@ -286,6 +300,23 @@ class OpenAIAdapter:
             pass
 
         cost_usd = _estimate_cost(model, prompt_tokens, completion_tokens)
+
+        # Record tool call spans when the LLM requests tool use
+        try:
+            msg = response.choices[0].message
+            if msg.tool_calls:
+                import json as _json
+                for tc in msg.tool_calls:
+                    try:
+                        args = _json.loads(tc.function.arguments) if tc.function.arguments else {}
+                    except (ValueError, AttributeError):
+                        args = {"raw": str(getattr(tc.function, "arguments", ""))}
+                    ctx.record_tool_call(
+                        tool_name=tc.function.name,
+                        args=args,
+                    )
+        except (AttributeError, IndexError):
+            pass
 
         ctx.record_llm_call(
             model=model,
