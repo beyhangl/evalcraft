@@ -88,7 +88,16 @@ def main():
 
     # ── Step 1: Record a REAL agent run ──────────────────────────────────
     print("📹 Step 1: Recording real agent run with OpenAI...")
+    print("   Using gpt-4.1-mini (recommended) with fallback to gpt-4o-mini")
     client = openai.OpenAI()
+
+    # Detect best available model
+    model = "gpt-4.1-mini"
+    try:
+        client.chat.completions.create(model=model, messages=[{"role": "user", "content": "hi"}], max_tokens=1)
+    except Exception:
+        model = "gpt-4o-mini"
+        print(f"   gpt-4.1-mini not available, falling back to {model}")
 
     with CaptureContext(
         name="order_tracking",
