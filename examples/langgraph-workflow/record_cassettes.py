@@ -75,7 +75,7 @@ def main() -> None:
     if not api_key:
         sys.exit("Set OPENAI_API_KEY before recording.")
 
-    llm = ChatOpenAI(model="gpt-4o-mini", api_key=api_key, temperature=0)
+    llm = ChatOpenAI(model="gpt-4.1-mini", api_key=api_key, temperature=0)
 
     scenarios = [
         ("remote_work_policy", "How many days a week can I work from home?"),

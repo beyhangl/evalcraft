@@ -17,7 +17,7 @@ Usage::
     result = assert_output_semantic(run, criteria="Mentions temperature and city name")
     assert result.passed
 
-By default the judge uses ``gpt-4o-mini`` via the OpenAI SDK.  You can
+By default the judge uses ``gpt-4.1-nano`` via the OpenAI SDK.  You can
 switch to any OpenAI-compatible endpoint or the Anthropic SDK by passing
 ``provider="anthropic"`` and ``model="claude-haiku-4-5-20251001"``.
 """
@@ -68,7 +68,7 @@ def _call_judge(
                 "Install it with: pip install 'evalcraft[openai]'"
             ) from exc
 
-        resolved_model = resolved_model or "gpt-4o-mini"
+        resolved_model = resolved_model or "gpt-4.1-nano"
         kwargs: dict[str, Any] = {}
         if api_key:
             kwargs["api_key"] = api_key
@@ -159,7 +159,7 @@ def assert_output_semantic(
         criteria: Natural-language description of what the output should contain
                   or how it should behave (e.g. "Mentions temperature and city name").
         provider: LLM provider — ``"openai"`` (default) or ``"anthropic"``.
-        model: Override the judge model (default ``gpt-4o-mini`` / ``claude-haiku-4-5-20251001``).
+        model: Override the judge model (default ``gpt-4.1-nano`` / ``claude-haiku-4-5-20251001``).
         api_key: Optional API key override.
 
     Returns:

@@ -15,7 +15,7 @@ Usage::
     with CaptureContext(name="weather_test") as ctx:
         with OpenAIAdapter():
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-4.1-mini",
                 messages=[{"role": "user", "content": "What's the weather?"}],
             )
 

@@ -46,7 +46,7 @@ def simulate_weather_agent(user_query: str, ctx: CaptureContext) -> str:
     )
     answer = "It's 18°C and partly cloudy in Paris today. Tomorrow looks sunny with a high of 22°C."
     ctx.record_llm_call(
-        model="gpt-4o-mini",
+        model="gpt-4.1-mini",
         input=prompt,
         output=answer,
         duration_ms=750.0,

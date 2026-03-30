@@ -67,7 +67,7 @@ def _call_rag_judge(
                 "Install it with: pip install 'evalcraft[openai]'"
             ) from exc
 
-        resolved_model = resolved_model or "gpt-4o-mini"
+        resolved_model = resolved_model or "gpt-4.1-nano"
         kwargs: dict[str, Any] = {}
         if api_key:
             kwargs["api_key"] = api_key
