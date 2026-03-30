@@ -42,5 +42,23 @@ export {
   Evaluator,
 } from './eval/scorers.js';
 
+// LLM-as-Judge scorers
+export {
+  assertOutputSemantic,
+  assertFactualConsistency,
+  assertTone,
+  assertCustomCriteria,
+} from './eval/llm-judge.js';
+export type { JudgeOptions } from './eval/llm-judge.js';
+
+// RAG scorers
+export {
+  assertFaithfulness,
+  assertContextRelevance,
+  assertAnswerRelevance,
+  assertContextRecall,
+} from './eval/rag-scorers.js';
+export type { RagJudgeOptions } from './eval/rag-scorers.js';
+
 // Adapters
 export { wrapOpenAI } from './adapters/openai.js';
