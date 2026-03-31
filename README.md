@@ -188,11 +188,56 @@ pytest tests/ -v
 # 200ms, $0.00
 ```
 
-### 7. Auto-generate tests from cassettes
+### 7. Pairwise A/B comparison
+
+```python
+from evalcraft import pairwise_compare, pairwise_rank
+
+# Compare two agent outputs — LLM judge picks the winner
+result = pairwise_compare(cassette_a, cassette_b, criteria="Which is more helpful?")
+print(result.winner)      # "A", "B", or "tie"
+print(result.confidence)  # 0.0-1.0
+
+# Rank multiple agents via round-robin tournament
+rankings = pairwise_rank([agent_a, agent_b, agent_c], criteria="Accuracy and helpfulness")
+for entry in rankings:
+    print(f"{entry.name}: {entry.wins}W/{entry.losses}L (score {entry.score:.2f})")
+```
+
+Position bias is mitigated by randomizing presentation order.
+
+### 8. Statistical evaluation with confidence intervals
+
+```python
+from evalcraft import eval_n, assert_output_semantic
+
+# Run a scorer 5 times — LLM outputs are non-deterministic, one run means nothing
+result = eval_n(run, assert_output_semantic, n=5, criteria="Mentions the city name")
+assert result.pass_rate >= 0.8
+
+print(f"Pass rate: {result.pass_rate:.0%} ({result.passes}/{result.n})")
+print(f"95% CI: [{result.ci_lower:.2f}, {result.ci_upper:.2f}]")
+```
+
+### 9. Auto-generate tests from cassettes
 
 ```bash
 evalcraft generate-tests tests/cassettes/weather.json -o tests/test_weather.py
 # Generates a complete pytest file with tool, output, cost, token, and latency assertions
+```
+
+### 10. Diagnose your setup
+
+```bash
+evalcraft doctor
+#   ✓ Python 3.11.5
+#   ✓ evalcraft 0.1.0
+#   ✓ openai 2.30.0
+#   ! anthropic not installed
+#   ✓ OPENAI_API_KEY configured
+#   ✓ Cassette directory: tests/cassettes/ (3 cassettes)
+#   ! 1 stale cassette (>30 days old)
+#   ✓ pytest plugin registered
 ```
 
 ---
@@ -233,6 +278,8 @@ them deterministically — no API key, no network calls, no cost.
 | Mock LLM / Tools | **Yes** | No | No | No |
 | LLM-as-Judge scoring | **Yes** | Yes | Yes | Yes |
 | RAG evaluation metrics | **Yes** | No | No | No |
+| Pairwise A/B comparison | **Yes** | No | No | Yes |
+| Statistical eval (CI) | **Yes** | Partial | No | No |
 | Auto-test generation | **Yes** | No | No | No |
 | Framework agnostic | **Yes** | Yes | Yes | Yes |
 | Self-hostable | **Yes** | No | Partial | Yes |
@@ -250,13 +297,15 @@ them deterministically — no API key, no network calls, no cost.
 | **Replay** | Re-run cassettes deterministically — no API calls, zero cost |
 | **Mock LLM** | Substitute real LLMs with deterministic mocks (exact / pattern / wildcard) |
 | **Mock Tools** | Mock any tool with static, dynamic, sequential, or error-simulating responses |
-| **Scorers** | 16 built-in assertions: tool calls, output, cost, latency, tokens, LLM-as-Judge, RAG metrics |
+| **Scorers** | 19 built-in assertions: tool calls, output, cost, latency, tokens, LLM-as-Judge, RAG metrics |
 | **LLM-as-Judge** | Semantic evaluation, factual consistency, tone, custom criteria — via OpenAI or Anthropic |
 | **RAG Metrics** | Faithfulness, context relevance, answer relevance, context recall |
+| **Pairwise A/B** | Arena-style comparison — LLM judge picks winner with position-bias mitigation |
+| **Statistical Eval** | Run scorers N times, get pass rate with Wilson score confidence intervals |
 | **Diff** | Compare two cassette runs to detect regressions |
 | **Golden Sets** | Version baselines and detect regressions automatically |
 | **Auto-generate** | `evalcraft generate-tests` creates pytest files from cassettes |
-| **CLI** | `evalcraft replay`, `evalcraft diff`, `evalcraft eval`, `evalcraft generate-tests` |
+| **CLI** | 14 commands: replay, diff, eval, generate-tests, doctor, golden, regression, sanitize, ... |
 | **pytest plugin** | Native fixtures and markers — `cassette`, `mock_llm`, `@pytest.mark.evalcraft` |
 | **CI Gate** | GitHub Action with PR comments, score thresholds, regression detection |
 | **JS/TS SDK** | Full TypeScript SDK with feature parity — scorers, mocks, adapters |
@@ -372,6 +421,7 @@ evalcraft [command] [options]
 | `evalcraft golden compare <cassette>` | Compare against a baseline |
 | `evalcraft regression <cassette>` | Detect regressions |
 | `evalcraft sanitize <cassette>` | Redact PII and secrets |
+| `evalcraft doctor` | Diagnose setup issues (deps, API keys, cassettes) |
 
 ---
 
@@ -404,13 +454,16 @@ npm install evalcraft
 ```
 
 ```typescript
-import { CaptureContext, replay, assertToolCalled, assertCostUnder } from 'evalcraft';
-import { assertOutputSemantic, assertFaithfulness } from 'evalcraft';
+import {
+  CaptureContext, replay, assertToolCalled, assertCostUnder,  // Core
+  assertOutputSemantic, assertTone, assertCustomCriteria,     // LLM-as-Judge
+  assertFaithfulness, assertContextRelevance,                 // RAG metrics
+} from 'evalcraft';
 import { wrapOpenAI } from 'evalcraft/adapters/openai';
 import { wrapGemini } from 'evalcraft/adapters/gemini';
 ```
 
-Full feature parity with the Python SDK — scorers, mocks, LLM-as-Judge, RAG metrics, and framework adapters.
+Full feature parity with the Python SDK — 19 scorers, mocks, LLM-as-Judge, RAG metrics, and framework adapters (OpenAI, Gemini, Vercel AI).
 
 ---
 
