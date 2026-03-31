@@ -6,5 +6,18 @@ from evalcraft.regression.detector import (
     RegressionReport,
     Severity,
 )
+from evalcraft.regression.trend import (
+    TrendDetector,
+    TrendRegression,
+    TrendReport,
+)
 
-__all__ = ["RegressionDetector", "Regression", "RegressionReport", "Severity"]
+__all__ = [
+    "RegressionDetector",
+    "Regression",
+    "RegressionReport",
+    "Severity",
+    "TrendDetector",
+    "TrendRegression",
+    "TrendReport",
+]
