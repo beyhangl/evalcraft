@@ -612,6 +612,30 @@ def mock(cassette: str, output: str | None, var: str) -> None:
         click.echo(code)
 
 
+# ─── doctor ──────────────────────────────────────────────────────────────────
+
+@cli.command("doctor")
+@click.option("--cassette-dir", "-c", default="tests/cassettes",
+              show_default=True, help="Cassette directory to check")
+@click.option("--golden-dir", "-g", default=None,
+              help="Golden set directory to check")
+def doctor(cassette_dir: str, golden_dir: str | None) -> None:
+    """Diagnose evalcraft setup issues.
+
+    Checks Python version, installed dependencies, API keys, cassette
+    directories, golden sets, and pytest plugin registration.
+
+    Example:
+
+        evalcraft doctor
+    """
+    from evalcraft.cli.doctor_cmd import run_doctor
+
+    all_ok = run_doctor(cassette_dir=cassette_dir, golden_dir=golden_dir)
+    if not all_ok:
+        sys.exit(1)
+
+
 # ─── generate-tests ──────────────────────────────────────────────────────────
 
 @cli.command("generate-tests")
