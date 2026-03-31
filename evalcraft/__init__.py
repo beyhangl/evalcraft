@@ -31,6 +31,8 @@ from evalcraft.eval.rag_scorers import (
     assert_answer_relevance,
     assert_context_recall,
 )
+from evalcraft.eval.pairwise import pairwise_compare, pairwise_rank
+from evalcraft.eval.statistical import eval_n
 from evalcraft.core.models import Span, Cassette, AgentRun, EvalResult
 from evalcraft.golden.manager import GoldenSet
 from evalcraft.regression.detector import RegressionDetector, RegressionReport
@@ -59,6 +61,9 @@ __all__ = [
     "assert_context_relevance",
     "assert_answer_relevance",
     "assert_context_recall",
+    "pairwise_compare",
+    "pairwise_rank",
+    "eval_n",
     "Span",
     "Cassette",
     "AgentRun",
