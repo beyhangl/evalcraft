@@ -33,7 +33,7 @@ def _make_cassette(
     # Inject error spans if requested
     for i in range(error_count):
         span = Span(
-            span_id=f"err-{name}-{i}",
+            id=f"err-{name}-{i}",
             kind=SpanKind.AGENT_STEP,
             error=f"simulated error {i}",
         )
