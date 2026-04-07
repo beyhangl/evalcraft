@@ -27,7 +27,6 @@ Usage::
 
 from __future__ import annotations
 
-import json
 from typing import Any
 
 from evalcraft.core.models import (
@@ -35,16 +34,15 @@ from evalcraft.core.models import (
     AssertionResult,
     Cassette,
 )
+from evalcraft.eval._utils import get_cassette, call_llm_judge, normalize_pass_key
 
 
-# ---------------------------------------------------------------------------
-# Internal helpers
-# ---------------------------------------------------------------------------
-
-def _get_cassette(obj: Cassette | AgentRun) -> Cassette:
-    if isinstance(obj, AgentRun):
-        return obj.cassette
-    return obj
+_RAG_SYSTEM_PROMPT = (
+    "You are a RAG evaluation judge. You evaluate retrieval-augmented "
+    "generation quality. Respond ONLY with a JSON object: "
+    '{"pass": true/false, "score": 0.0-1.0, "reason": "brief explanation", '
+    '"claims": [{"claim": "...", "supported": true/false}]}'
+)
 
 
 def _call_rag_judge(
@@ -56,86 +54,15 @@ def _call_rag_judge(
     temperature: float = 0.0,
 ) -> dict[str, Any]:
     """Call an LLM judge for RAG evaluation and parse the structured response."""
-    resolved_model = model
-
-    if provider == "openai":
-        try:
-            import openai  # type: ignore[import]
-        except ImportError as exc:
-            raise ImportError(
-                "The 'openai' package is required for RAG scorers with OpenAI. "
-                "Install it with: pip install 'evalcraft[openai]'"
-            ) from exc
-
-        resolved_model = resolved_model or "gpt-4.1-nano"
-        kwargs: dict[str, Any] = {}
-        if api_key:
-            kwargs["api_key"] = api_key
-        client = openai.OpenAI(**kwargs)
-        response = client.chat.completions.create(
-            model=resolved_model,
-            temperature=temperature,
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are a RAG evaluation judge. You evaluate retrieval-augmented "
-                        "generation quality. Respond ONLY with a JSON object: "
-                        '{"pass": true/false, "score": 0.0-1.0, "reason": "brief explanation", '
-                        '"claims": [{"claim": "...", "supported": true/false}]}'
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
-            response_format={"type": "json_object"},
-        )
-        raw = response.choices[0].message.content or "{}"
-
-    elif provider == "anthropic":
-        try:
-            import anthropic  # type: ignore[import]
-        except ImportError as exc:
-            raise ImportError(
-                "The 'anthropic' package is required for RAG scorers with Anthropic. "
-                "Install it with: pip install 'evalcraft[anthropic]'"
-            ) from exc
-
-        resolved_model = resolved_model or "claude-haiku-4-5-20251001"
-        kwargs = {}
-        if api_key:
-            kwargs["api_key"] = api_key
-        client = anthropic.Anthropic(**kwargs)
-        response = client.messages.create(
-            model=resolved_model,
-            max_tokens=1024,
-            temperature=temperature,
-            system=(
-                "You are a RAG evaluation judge. You evaluate retrieval-augmented "
-                "generation quality. Respond ONLY with a JSON object: "
-                '{"pass": true/false, "score": 0.0-1.0, "reason": "brief explanation", '
-                '"claims": [{"claim": "...", "supported": true/false}]}'
-            ),
-            messages=[{"role": "user", "content": prompt}],
-        )
-        raw = response.content[0].text if response.content else "{}"
-    else:
-        raise ValueError(f"Unsupported provider: {provider!r} (use 'openai' or 'anthropic')")
-
-    try:
-        result = json.loads(raw)
-    except json.JSONDecodeError:
-        result = {"pass": False, "score": 0.0, "reason": f"Judge returned invalid JSON: {raw[:200]}"}
-
-    if "pass" not in result:
-        for alt_key in ("passed", "result", "verdict"):
-            if alt_key in result:
-                result["pass"] = bool(result[alt_key])
-                break
-        else:
-            result["pass"] = False
-
-    result.setdefault("reason", "")
-    result.setdefault("score", 1.0 if result["pass"] else 0.0)
+    result = call_llm_judge(
+        prompt,
+        system_prompt=_RAG_SYSTEM_PROMPT,
+        provider=provider,
+        model=model,
+        api_key=api_key,
+        temperature=temperature,
+    )
+    result = normalize_pass_key(result)
     result.setdefault("claims", [])
     return result
 
@@ -167,7 +94,7 @@ def assert_faithfulness(
         model: Override the judge model.
         api_key: Optional API key override.
     """
-    c = _get_cassette(cassette)
+    c = get_cassette(cassette)
     output = c.output_text
 
     if not output:
@@ -248,7 +175,7 @@ def assert_context_relevance(
         model: Override the judge model.
         api_key: Optional API key override.
     """
-    _get_cassette(cassette)  # Validate input type
+    get_cassette(cassette)  # Validate input type
 
     if not contexts:
         return AssertionResult(
@@ -317,7 +244,7 @@ def assert_answer_relevance(
         model: Override the judge model.
         api_key: Optional API key override.
     """
-    c = _get_cassette(cassette)
+    c = get_cassette(cassette)
     output = c.output_text
 
     if not output:
@@ -379,7 +306,7 @@ def assert_context_recall(
         model: Override the judge model.
         api_key: Optional API key override.
     """
-    _get_cassette(cassette)  # Validate input type
+    get_cassette(cassette)  # Validate input type
 
     if not contexts:
         return AssertionResult(

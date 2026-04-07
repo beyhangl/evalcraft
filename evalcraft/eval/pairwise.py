@@ -27,22 +27,20 @@ Usage::
 
 from __future__ import annotations
 
-import json
 import random
 from dataclasses import dataclass, field
 from typing import Any
 
 from evalcraft.core.models import AgentRun, Cassette
+from evalcraft.eval._utils import get_cassette, call_llm_judge
 
 
-# ---------------------------------------------------------------------------
-# Internal helpers
-# ---------------------------------------------------------------------------
-
-def _get_cassette(obj: Cassette | AgentRun) -> Cassette:
-    if isinstance(obj, AgentRun):
-        return obj.cassette
-    return obj
+_PAIRWISE_SYSTEM_PROMPT = (
+    "You are a fair evaluation judge comparing two agent outputs. "
+    "You MUST respond ONLY with a JSON object: "
+    '{"winner": "A" or "B" or "tie", "reason": "brief explanation", '
+    '"confidence": 0.0-1.0}'
+)
 
 
 def _call_pairwise_judge(
@@ -54,75 +52,14 @@ def _call_pairwise_judge(
     temperature: float = 0.0,
 ) -> dict[str, Any]:
     """Call an LLM to compare two outputs."""
-    resolved_model = model
-
-    if provider == "openai":
-        try:
-            import openai  # type: ignore[import]
-        except ImportError as exc:
-            raise ImportError(
-                "The 'openai' package is required for pairwise comparison. "
-                "Install it with: pip install 'evalcraft[openai]'"
-            ) from exc
-
-        resolved_model = resolved_model or "gpt-4.1-nano"
-        kwargs: dict[str, Any] = {}
-        if api_key:
-            kwargs["api_key"] = api_key
-        client = openai.OpenAI(**kwargs)
-        response = client.chat.completions.create(
-            model=resolved_model,
-            temperature=temperature,
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are a fair evaluation judge comparing two agent outputs. "
-                        "You MUST respond ONLY with a JSON object: "
-                        '{"winner": "A" or "B" or "tie", "reason": "brief explanation", '
-                        '"confidence": 0.0-1.0}'
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
-            response_format={"type": "json_object"},
-        )
-        raw = response.choices[0].message.content or "{}"
-
-    elif provider == "anthropic":
-        try:
-            import anthropic  # type: ignore[import]
-        except ImportError as exc:
-            raise ImportError(
-                "The 'anthropic' package is required for pairwise comparison. "
-                "Install it with: pip install 'evalcraft[anthropic]'"
-            ) from exc
-
-        resolved_model = resolved_model or "claude-haiku-4-5-20251001"
-        kwargs = {}
-        if api_key:
-            kwargs["api_key"] = api_key
-        client = anthropic.Anthropic(**kwargs)
-        response = client.messages.create(
-            model=resolved_model,
-            max_tokens=512,
-            temperature=temperature,
-            system=(
-                "You are a fair evaluation judge comparing two agent outputs. "
-                "You MUST respond ONLY with a JSON object: "
-                '{"winner": "A" or "B" or "tie", "reason": "brief explanation", '
-                '"confidence": 0.0-1.0}'
-            ),
-            messages=[{"role": "user", "content": prompt}],
-        )
-        raw = response.content[0].text if response.content else "{}"
-    else:
-        raise ValueError(f"Unsupported provider: {provider!r}")
-
-    try:
-        result = json.loads(raw)
-    except json.JSONDecodeError:
-        result = {"winner": "tie", "reason": f"Judge returned invalid JSON: {raw[:200]}", "confidence": 0.0}
+    result = call_llm_judge(
+        prompt,
+        system_prompt=_PAIRWISE_SYSTEM_PROMPT,
+        provider=provider,
+        model=model,
+        api_key=api_key,
+        temperature=temperature,
+    )
 
     result.setdefault("winner", "tie")
     result.setdefault("reason", "")
@@ -210,8 +147,8 @@ def pairwise_compare(
         model: Override the judge model.
         api_key: Optional API key override.
     """
-    ca = _get_cassette(cassette_a)
-    cb = _get_cassette(cassette_b)
+    ca = get_cassette(cassette_a)
+    cb = get_cassette(cassette_b)
     output_a = ca.output_text
     output_b = cb.output_text
 
@@ -276,14 +213,14 @@ def pairwise_rank(
     if len(cassettes) < 2:
         entries = []
         for c in cassettes:
-            name = _get_cassette(c).name or "unnamed"
+            name = get_cassette(c).name or "unnamed"
             entries.append(RankingEntry(name=name, score=1.0))
         return entries
 
     # Build entries
     entries: dict[int, RankingEntry] = {}
     for i, c in enumerate(cassettes):
-        name = _get_cassette(c).name or f"cassette_{i}"
+        name = get_cassette(c).name or f"cassette_{i}"
         entries[i] = RankingEntry(name=name)
 
     # Round-robin tournament

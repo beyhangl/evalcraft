@@ -285,7 +285,7 @@ class TestAssertContextRecall:
 
 class TestCallRagJudge:
     def test_unsupported_provider_raises(self):
-        with pytest.raises(ValueError, match="Unsupported provider"):
+        with pytest.raises(ValueError, match="Unsupported.*provider"):
             _call_rag_judge("test", provider="unsupported")
 
     def test_openai_provider(self):

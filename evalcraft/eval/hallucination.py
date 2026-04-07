@@ -26,17 +26,11 @@ Usage::
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field
 from typing import Any
 
 from evalcraft.core.models import AgentRun, AssertionResult, Cassette
-
-
-def _get_cassette(obj: Cassette | AgentRun) -> Cassette:
-    if isinstance(obj, AgentRun):
-        return obj.cassette
-    return obj
+from evalcraft.eval._utils import get_cassette, call_llm_judge
 
 
 # ---------------------------------------------------------------------------
@@ -89,6 +83,15 @@ class HallucinationResult:
 # LLM judge call
 # ---------------------------------------------------------------------------
 
+_HALLUCINATION_SYSTEM_PROMPT = (
+    "You are a hallucination detection system. You extract atomic "
+    "factual claims from text and verify each against provided context. "
+    "Respond ONLY with a JSON object:\n"
+    '{"claims": [{"text": "claim text", "supported": true/false, '
+    '"reason": "why", "category": "supported|unsupported|contradicted"}]}'
+)
+
+
 def _call_hallucination_judge(
     prompt: str,
     *,
@@ -97,78 +100,13 @@ def _call_hallucination_judge(
     api_key: str | None = None,
 ) -> dict[str, Any]:
     """Call an LLM to extract and verify claims."""
-    resolved_model = model
-
-    if provider == "openai":
-        try:
-            import openai  # type: ignore[import]
-        except ImportError as exc:
-            raise ImportError(
-                "The 'openai' package is required for hallucination detection. "
-                "Install it with: pip install 'evalcraft[openai]'"
-            ) from exc
-
-        resolved_model = resolved_model or "gpt-4.1-nano"
-        kwargs: dict[str, Any] = {}
-        if api_key:
-            kwargs["api_key"] = api_key
-        client = openai.OpenAI(**kwargs)
-        response = client.chat.completions.create(
-            model=resolved_model,
-            temperature=0,
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are a hallucination detection system. You extract atomic "
-                        "factual claims from text and verify each against provided context. "
-                        "Respond ONLY with a JSON object:\n"
-                        '{"claims": [{"text": "claim text", "supported": true/false, '
-                        '"reason": "why", "category": "supported|unsupported|contradicted"}]}'
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
-            response_format={"type": "json_object"},
-        )
-        raw = response.choices[0].message.content or "{}"
-
-    elif provider == "anthropic":
-        try:
-            import anthropic  # type: ignore[import]
-        except ImportError as exc:
-            raise ImportError(
-                "The 'anthropic' package is required for hallucination detection. "
-                "Install it with: pip install 'evalcraft[anthropic]'"
-            ) from exc
-
-        resolved_model = resolved_model or "claude-haiku-4-5-20251001"
-        kwargs = {}
-        if api_key:
-            kwargs["api_key"] = api_key
-        client = anthropic.Anthropic(**kwargs)
-        response = client.messages.create(
-            model=resolved_model,
-            max_tokens=1024,
-            temperature=0,
-            system=(
-                "You are a hallucination detection system. You extract atomic "
-                "factual claims from text and verify each against provided context. "
-                "Respond ONLY with a JSON object:\n"
-                '{"claims": [{"text": "claim text", "supported": true/false, '
-                '"reason": "why", "category": "supported|unsupported|contradicted"}]}'
-            ),
-            messages=[{"role": "user", "content": prompt}],
-        )
-        raw = response.content[0].text if response.content else "{}"
-    else:
-        raise ValueError(f"Unsupported provider: {provider!r}")
-
-    try:
-        result = json.loads(raw)
-    except json.JSONDecodeError:
-        result = {"claims": []}
-
+    result = call_llm_judge(
+        prompt,
+        system_prompt=_HALLUCINATION_SYSTEM_PROMPT,
+        provider=provider,
+        model=model,
+        api_key=api_key,
+    )
     result.setdefault("claims", [])
     return result
 
@@ -206,7 +144,7 @@ def detect_hallucinations(
     Returns:
         HallucinationResult with per-claim breakdown.
     """
-    c = _get_cassette(cassette)
+    c = get_cassette(cassette)
     output = c.output_text
 
     if not output:
