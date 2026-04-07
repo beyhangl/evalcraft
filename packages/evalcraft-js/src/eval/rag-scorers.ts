@@ -46,7 +46,7 @@ async function callRagJudge(
 
   if (provider === 'openai') {
     const { default: OpenAI } = await import('openai');
-    const model = options.model ?? 'gpt-4.1-nano';
+    const model = options.model ?? 'gpt-5.4-nano';
     const clientOpts: Record<string, unknown> = {};
     if (options.apiKey) clientOpts['apiKey'] = options.apiKey;
     const client = new OpenAI(clientOpts);
