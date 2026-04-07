@@ -34,6 +34,7 @@ from evalcraft.eval.rag_scorers import (
 from evalcraft.eval.pairwise import pairwise_compare, pairwise_rank
 from evalcraft.eval.statistical import eval_n
 from evalcraft.eval.jury import JuryScorer
+from evalcraft.eval.hallucination import assert_no_hallucination, detect_hallucinations
 from evalcraft.core.models import Span, Cassette, AgentRun, EvalResult
 from evalcraft.golden.manager import GoldenSet
 from evalcraft.regression.detector import RegressionDetector, RegressionReport
@@ -66,6 +67,8 @@ __all__ = [
     "pairwise_rank",
     "eval_n",
     "JuryScorer",
+    "assert_no_hallucination",
+    "detect_hallucinations",
     "Span",
     "Cassette",
     "AgentRun",
