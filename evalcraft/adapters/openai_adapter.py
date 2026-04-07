@@ -15,7 +15,7 @@ Usage::
     with CaptureContext(name="weather_test") as ctx:
         with OpenAIAdapter():
             response = client.chat.completions.create(
-                model="gpt-4.1-mini",
+                model="gpt-5.4-nano",
                 messages=[{"role": "user", "content": "What's the weather?"}],
             )
 
@@ -45,41 +45,46 @@ from evalcraft.core.models import Span, SpanKind, TokenUsage
 # Prices reflect OpenAI's public rates as of early 2026; update as needed.
 # ---------------------------------------------------------------------------
 _MODEL_PRICING: dict[str, tuple[float, float]] = {
-    # GPT-5.x
+    # GPT-5.4 (latest flagship, April 2026)
     "gpt-5.4": (2.50, 15.00),
-    "gpt-5.4-mini": (0.25, 2.00),
-    "gpt-5.4-nano": (0.05, 0.20),
+    "gpt-5.4-mini": (0.75, 4.50),
+    "gpt-5.4-nano": (0.20, 1.25),
+    "gpt-5.4-pro": (30.00, 180.00),
+    # GPT-5.3
+    "gpt-5.3-codex": (1.75, 14.00),
+    # GPT-5.2
+    "gpt-5.2": (1.75, 14.00),
+    "gpt-5.2-pro": (10.50, 84.00),
+    # GPT-5.1
+    "gpt-5.1-codex-mini": (0.25, 2.00),
+    "gpt-5.1": (1.25, 10.00),
+    # GPT-5
+    "gpt-5": (1.25, 10.00),
+    "gpt-5-mini": (0.25, 2.00),
+    "gpt-5-nano": (0.05, 0.40),
     # GPT-4.1
     "gpt-4.1": (2.00, 8.00),
-    "gpt-4.1-mini": (0.40, 1.60),
+    "gpt-4.1-mini": (0.20, 0.80),
     "gpt-4.1-nano": (0.10, 0.40),
-    # GPT-4o
+    # GPT-4o (legacy)
     "gpt-4o": (2.50, 10.00),
-    "gpt-4o-2024-11-20": (2.50, 10.00),
-    "gpt-4o-2024-08-06": (2.50, 10.00),
-    "gpt-4o-2024-05-13": (5.00, 15.00),
     "gpt-4o-mini": (0.15, 0.60),
-    "gpt-4o-mini-2024-07-18": (0.15, 0.60),
-    # GPT-4
+    # GPT-4 (legacy)
     "gpt-4-turbo": (10.00, 30.00),
-    "gpt-4-turbo-2024-04-09": (10.00, 30.00),
-    "gpt-4-turbo-preview": (10.00, 30.00),
     "gpt-4": (30.00, 60.00),
-    "gpt-4-0613": (30.00, 60.00),
-    # GPT-3.5
+    # GPT-3.5 (legacy)
     "gpt-3.5-turbo": (0.50, 1.50),
-    "gpt-3.5-turbo-0125": (0.50, 1.50),
-    "gpt-3.5-turbo-1106": (1.00, 2.00),
     # Reasoning (o-series)
     "o3": (2.00, 8.00),
-    "o3-pro": (20.00, 80.00),
     "o3-mini": (1.10, 4.40),
-    "o4-mini": (1.10, 4.40),
+    "o4-mini": (0.55, 2.20),
+    "o4-mini-high": (1.10, 4.40),
     "o1": (15.00, 60.00),
-    "o1-2024-12-17": (15.00, 60.00),
-    "o1-preview": (15.00, 60.00),
-    "o1-mini": (3.00, 12.00),
-    "o1-mini-2024-09-12": (3.00, 12.00),
+    "o1-mini": (0.55, 2.20),
+    "o1-pro": (150.00, 600.00),
+    # GPT-OSS (open source)
+    "gpt-oss-20b": (0.03, 0.10),
+    "gpt-oss-120b": (0.039, 0.10),
 }
 
 # Names of internal LangChain/generic models to skip cost estimation for.

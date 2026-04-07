@@ -17,7 +17,7 @@ Usage::
     result = assert_output_semantic(run, criteria="Mentions temperature and city name")
     assert result.passed
 
-By default the judge uses ``gpt-4.1-nano`` via the OpenAI SDK.  You can
+By default the judge uses ``gpt-5.4-nano`` via the OpenAI SDK.  You can
 switch to any OpenAI-compatible endpoint or the Anthropic SDK by passing
 ``provider="anthropic"`` and ``model="claude-haiku-4-5-20251001"``.
 """
@@ -80,7 +80,7 @@ def assert_output_semantic(
         criteria: Natural-language description of what the output should contain
                   or how it should behave (e.g. "Mentions temperature and city name").
         provider: LLM provider — ``"openai"`` (default) or ``"anthropic"``.
-        model: Override the judge model (default ``gpt-4.1-nano`` / ``claude-haiku-4-5-20251001``).
+        model: Override the judge model (default ``gpt-5.4-nano`` / ``claude-haiku-4-5-20251001``).
         api_key: Optional API key override.
 
     Returns:

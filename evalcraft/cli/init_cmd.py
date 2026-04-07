@@ -24,8 +24,8 @@ import click
 FRAMEWORKS: list[str] = ["openai", "anthropic", "langgraph", "crewai", "generic"]
 
 _FRAMEWORK_LABELS: dict[str, str] = {
-    "openai": "OpenAI (gpt-4.1, gpt-4.1-mini, o3, o4-mini, …)",
-    "anthropic": "Anthropic (Claude 3.5/3, claude-opus-4, …)",
+    "openai": "OpenAI (gpt-5.4, gpt-5.4-nano, o3, o4-mini, …)",
+    "anthropic": "Anthropic (Claude Opus 4.6, Sonnet 4.6, Mythos, …)",
     "langgraph": "LangGraph (stateful agent graphs via LangChain)",
     "crewai": "CrewAI (multi-agent crews)",
     "generic": "Generic (framework-agnostic, raw evalcraft primitives)",

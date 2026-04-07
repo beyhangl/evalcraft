@@ -44,3 +44,4 @@ tests/cassettes/*.json
 docs/strategy/
 docs/launch/
 docs/blog/
+.claude/settings.local.json

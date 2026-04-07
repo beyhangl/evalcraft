@@ -161,7 +161,7 @@ def run_support_agent(client: Any, user_message: str) -> str:
     # Agentic loop — keep calling until no more tool calls
     for _iteration in range(5):  # safety cap
         response = client.chat.completions.create(
-            model="gpt-4.1-mini",
+            model="gpt-5.4-nano",
             messages=messages,
             tools=TOOLS,
             tool_choice="auto",
