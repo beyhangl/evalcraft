@@ -10,12 +10,12 @@ import pytest
 from evalcraft.core.models import AgentRun, Cassette, Span, SpanKind
 from evalcraft.eval.llm_judge import (
     _call_judge,
-    _get_cassette,
     assert_custom_criteria,
     assert_factual_consistency,
     assert_output_semantic,
     assert_tone,
 )
+from evalcraft.eval._utils import get_cassette as _get_cassette
 
 
 # ──────────────────────────────────────────────

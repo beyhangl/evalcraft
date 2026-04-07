@@ -28,13 +28,8 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from evalcraft.core.models import AgentRun, AssertionResult, Cassette
+from evalcraft.eval._utils import get_cassette
 from evalcraft.eval.llm_judge import _call_judge
-
-
-def _get_cassette(obj: Cassette | AgentRun) -> Cassette:
-    if isinstance(obj, AgentRun):
-        return obj.cassette
-    return obj
 
 
 # ---------------------------------------------------------------------------
@@ -130,7 +125,7 @@ class JuryScorer:
         Returns:
             JuryResult with aggregated verdict, votes, and agreement score.
         """
-        c = _get_cassette(cassette)
+        c = get_cassette(cassette)
         output = c.output_text
 
         if not output:

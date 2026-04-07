@@ -9,7 +9,8 @@ from evalcraft.capture.recorder import capture, CaptureContext
 from evalcraft.replay.engine import replay, ReplayEngine
 from evalcraft.mock.llm import MockLLM
 from evalcraft.mock.tool import MockTool
-from evalcraft.eval.scorers import (
+from evalcraft.eval import (
+    # Core scorers
     assert_tool_called,
     assert_tool_order,
     assert_no_tool_called,
@@ -18,23 +19,27 @@ from evalcraft.eval.scorers import (
     assert_cost_under,
     assert_latency_under,
     assert_token_count_under,
-)
-from evalcraft.eval.llm_judge import (
+    # LLM-as-Judge
     assert_output_semantic,
     assert_factual_consistency,
     assert_tone,
     assert_custom_criteria,
-)
-from evalcraft.eval.rag_scorers import (
+    # RAG
     assert_faithfulness,
     assert_context_relevance,
     assert_answer_relevance,
     assert_context_recall,
+    # Pairwise
+    pairwise_compare,
+    pairwise_rank,
+    # Statistical
+    eval_n,
+    # Jury
+    JuryScorer,
+    # Hallucination
+    assert_no_hallucination,
+    detect_hallucinations,
 )
-from evalcraft.eval.pairwise import pairwise_compare, pairwise_rank
-from evalcraft.eval.statistical import eval_n
-from evalcraft.eval.jury import JuryScorer
-from evalcraft.eval.hallucination import assert_no_hallucination, detect_hallucinations
 from evalcraft.core.models import Span, Cassette, AgentRun, EvalResult
 from evalcraft.golden.manager import GoldenSet
 from evalcraft.regression.detector import RegressionDetector, RegressionReport

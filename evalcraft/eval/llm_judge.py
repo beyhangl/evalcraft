@@ -24,25 +24,17 @@ switch to any OpenAI-compatible endpoint or the Anthropic SDK by passing
 
 from __future__ import annotations
 
-import json
 from typing import Any
 
-from evalcraft.core.models import (
-    AssertionResult,
-    AgentRun,
-    Cassette,
+from evalcraft.core.models import AssertionResult, AgentRun, Cassette
+from evalcraft.eval._utils import get_cassette, call_llm_judge, normalize_pass_key
+
+
+_JUDGE_SYSTEM_PROMPT = (
+    "You are an evaluation judge.  You receive an agent output and "
+    "a set of criteria.  Respond ONLY with a JSON object: "
+    '{"pass": true/false, "reason": "brief explanation", "score": 0.0-1.0}'
 )
-
-
-# ---------------------------------------------------------------------------
-# Internal helpers
-# ---------------------------------------------------------------------------
-
-def _get_cassette(obj: Cassette | AgentRun) -> Cassette:
-    """Extract cassette from either a Cassette or AgentRun."""
-    if isinstance(obj, AgentRun):
-        return obj.cassette
-    return obj
 
 
 def _call_judge(
@@ -55,89 +47,18 @@ def _call_judge(
 ) -> dict[str, Any]:
     """Call an LLM judge and parse the structured JSON response.
 
-    Returns a dict with at minimum ``{"pass": bool, "reason": str}``.
+    Thin wrapper around :func:`evalcraft.eval._utils.call_llm_judge`
+    kept for backward compatibility (tests mock this function).
     """
-    resolved_model = model
-
-    if provider == "openai":
-        try:
-            import openai  # type: ignore[import]
-        except ImportError as exc:
-            raise ImportError(
-                "The 'openai' package is required for LLM-as-Judge with OpenAI. "
-                "Install it with: pip install 'evalcraft[openai]'"
-            ) from exc
-
-        resolved_model = resolved_model or "gpt-4.1-nano"
-        kwargs: dict[str, Any] = {}
-        if api_key:
-            kwargs["api_key"] = api_key
-        client = openai.OpenAI(**kwargs)
-        response = client.chat.completions.create(
-            model=resolved_model,
-            temperature=temperature,
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are an evaluation judge.  You receive an agent output and "
-                        "a set of criteria.  Respond ONLY with a JSON object: "
-                        '{"pass": true/false, "reason": "brief explanation", "score": 0.0-1.0}'
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
-            response_format={"type": "json_object"},
-        )
-        raw = response.choices[0].message.content or "{}"
-
-    elif provider == "anthropic":
-        try:
-            import anthropic  # type: ignore[import]
-        except ImportError as exc:
-            raise ImportError(
-                "The 'anthropic' package is required for LLM-as-Judge with Anthropic. "
-                "Install it with: pip install 'evalcraft[anthropic]'"
-            ) from exc
-
-        resolved_model = resolved_model or "claude-haiku-4-5-20251001"
-        kwargs = {}
-        if api_key:
-            kwargs["api_key"] = api_key
-        client = anthropic.Anthropic(**kwargs)
-        response = client.messages.create(
-            model=resolved_model,
-            max_tokens=512,
-            temperature=temperature,
-            system=(
-                "You are an evaluation judge.  You receive an agent output and "
-                "a set of criteria.  Respond ONLY with a JSON object: "
-                '{"pass": true/false, "reason": "brief explanation", "score": 0.0-1.0}'
-            ),
-            messages=[{"role": "user", "content": prompt}],
-        )
-        raw = response.content[0].text if response.content else "{}"
-
-    else:
-        raise ValueError(f"Unsupported judge provider: {provider!r} (use 'openai' or 'anthropic')")
-
-    try:
-        result = json.loads(raw)
-    except json.JSONDecodeError:
-        result = {"pass": False, "reason": f"Judge returned invalid JSON: {raw[:200]}"}
-
-    # Normalise the "pass" key — some models return "passed" or "result"
-    if "pass" not in result:
-        for alt_key in ("passed", "result", "verdict"):
-            if alt_key in result:
-                result["pass"] = bool(result[alt_key])
-                break
-        else:
-            result["pass"] = False
-
-    result.setdefault("reason", "")
-    result.setdefault("score", 1.0 if result["pass"] else 0.0)
-    return result
+    result = call_llm_judge(
+        prompt,
+        system_prompt=_JUDGE_SYSTEM_PROMPT,
+        provider=provider,
+        model=model,
+        api_key=api_key,
+        temperature=temperature,
+    )
+    return normalize_pass_key(result)
 
 
 # ---------------------------------------------------------------------------
@@ -165,7 +86,7 @@ def assert_output_semantic(
     Returns:
         AssertionResult with ``passed=True`` if the judge says the criteria are met.
     """
-    c = _get_cassette(cassette)
+    c = get_cassette(cassette)
     output = c.output_text
 
     if not output:
@@ -202,20 +123,8 @@ def assert_factual_consistency(
     model: str | None = None,
     api_key: str | None = None,
 ) -> AssertionResult:
-    """Assert that the agent output is factually consistent with *ground_truth*.
-
-    The judge checks whether the output contradicts or fabricates information
-    not present in the ground truth.  Minor rephrasings and extra detail that
-    don't contradict the truth are allowed.
-
-    Args:
-        cassette: The cassette or agent run to evaluate.
-        ground_truth: The known-correct facts to compare against.
-        provider: LLM provider — ``"openai"`` (default) or ``"anthropic"``.
-        model: Override the judge model.
-        api_key: Optional API key override.
-    """
-    c = _get_cassette(cassette)
+    """Assert that the agent output is factually consistent with *ground_truth*."""
+    c = get_cassette(cassette)
     output = c.output_text
 
     if not output:
@@ -254,17 +163,8 @@ def assert_tone(
     model: str | None = None,
     api_key: str | None = None,
 ) -> AssertionResult:
-    """Assert that the agent output has the *expected* tone.
-
-    Args:
-        cassette: The cassette or agent run to evaluate.
-        expected: Description of the expected tone (e.g. "professional and concise",
-                  "friendly and casual", "formal with no contractions").
-        provider: LLM provider — ``"openai"`` (default) or ``"anthropic"``.
-        model: Override the judge model.
-        api_key: Optional API key override.
-    """
-    c = _get_cassette(cassette)
+    """Assert that the agent output has the *expected* tone."""
+    c = get_cassette(cassette)
     output = c.output_text
 
     if not output:
@@ -302,21 +202,8 @@ def assert_custom_criteria(
     model: str | None = None,
     api_key: str | None = None,
 ) -> AssertionResult:
-    """Assert that the agent output meets a list of custom evaluation criteria.
-
-    This is the most flexible judge scorer — pass any list of natural-language
-    criteria and the LLM evaluates each one.
-
-    Args:
-        cassette: The cassette or agent run to evaluate.
-        criteria: List of criteria strings, each evaluated independently.
-        require_all: If True (default), ALL criteria must pass. If False, at
-                     least one must pass.
-        provider: LLM provider.
-        model: Override the judge model.
-        api_key: Optional API key override.
-    """
-    c = _get_cassette(cassette)
+    """Assert that the agent output meets a list of custom evaluation criteria."""
+    c = get_cassette(cassette)
     output = c.output_text
 
     if not output:
