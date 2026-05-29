@@ -75,7 +75,7 @@ evalcraft = "evalcraft.pytest_plugin.plugin"
 [project.urls]
 Homepage = "https://github.com/beyhangl/evalcraft"
 Repository = "https://github.com/beyhangl/evalcraft"
-Documentation = "https://evalcraft.dev"
+Documentation = "https://beyhangl.github.io/evalcraft/"
 Issues = "https://github.com/beyhangl/evalcraft/issues"
 
 [tool.ruff]
