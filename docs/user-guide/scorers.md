@@ -51,7 +51,10 @@ cost + latency, require an API key, and are **not** deterministic. Run them with
 - **Hallucination:** `assert_no_hallucination`, `detect_hallucinations`
 
 > The judge model is configurable (`provider=`, `model=`). A judge call cannot run
-> inside replay's `NetworkGuard` — it needs the network.
+> inside replay's `NetworkGuard` — it needs the network. For deterministic, $0 CI
+> you can **opt in** to record/replay of judge responses with
+> `evalcraft.eval.judge_cache.use_judge_cache(...)` (or the `EVALCRAFT_JUDGE_CACHE`
+> env var) — at the cost of a frozen judgment that only updates when you re-record.
 
 ---
 
