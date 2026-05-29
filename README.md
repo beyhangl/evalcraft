@@ -449,8 +449,13 @@ Cassettes are plain JSON — check them into git, diff them in PRs.
 
 ## TypeScript / JavaScript SDK
 
+> **Status: pre-release (source-only).** The JS/TS SDK is **not yet published to npm.**
+> Until it is, build it from source from this repo:
+
 ```bash
-npm install evalcraft
+git clone https://github.com/beyhangl/evalcraft
+cd evalcraft/packages/evalcraft-js
+npm install && npm run build   # emits dist/ (CJS + ESM + type defs)
 ```
 
 ```typescript
