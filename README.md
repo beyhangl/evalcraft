@@ -137,6 +137,11 @@ assert assert_cost_under(run, max_usd=0.05).passed
 
 ### 4. LLM-as-Judge evaluation
 
+> ⚠️ **These are live scorers.** Unlike replay + the structural scorers (which are
+> offline, deterministic, and $0), the LLM-as-Judge / RAG / pairwise scorers call a
+> real model at test time — they cost money, need an API key, and are non-deterministic
+> (use `eval_n` + confidence intervals). See [Offline vs. live scorers](https://beyhangl.github.io/evalcraft/user-guide/scorers/).
+
 ```python
 from evalcraft import replay, assert_output_semantic, assert_factual_consistency
 
