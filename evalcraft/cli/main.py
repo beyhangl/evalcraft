@@ -1200,3 +1200,42 @@ def cloud_flush() -> None:
         click.echo(click.style("  partial", fg="yellow", bold=True)
                    + f"  {succeeded} uploaded, {failed} still pending.")
         sys.exit(1)
+
+
+@cli.command("live-eval")
+@click.argument("current", type=click.Path(exists=True, dir_okay=False))
+@click.option(
+    "--baseline", "baseline", type=click.Path(exists=True, dir_okay=False), required=True,
+    help="Baseline live-eval result JSON to compare against.",
+)
+@click.option(
+    "--max-drop", "max_drop", type=float, default=0.0, show_default=True,
+    help="Max allowed per-case score drop before a case counts as a regression.",
+)
+def live_eval_cmd(current: str, baseline: str, max_drop: float) -> None:
+    """Gate a live-eval CURRENT result against a BASELINE.
+
+    Live-eval runs your agent against the *real* model over a golden input set
+    (Python API: ``evalcraft.eval.live.run_live_eval``) — this is the layer that
+    catches model/prompt/retrieval drift that replay cannot. Save the result,
+    then use this command in CI to fail the build when quality regresses:
+
+        evalcraft live-eval current.json --baseline baseline.json --max-drop 0.1
+    """
+    from evalcraft.eval.live import LiveEvalResult, compare_to_baseline
+
+    current_result = LiveEvalResult.load(current)
+    baseline_result = LiveEvalResult.load(baseline)
+    comparison = compare_to_baseline(
+        current_result, baseline_result, max_score_drop=max_drop
+    )
+
+    click.echo(comparison.summary())
+    if comparison.passed:
+        click.echo(click.style("  pass", fg="green", bold=True) + "  no live-eval regressions.")
+    else:
+        click.echo(
+            click.style("  fail", fg="red", bold=True)
+            + f"  {len(comparison.regressions)} case(s) regressed."
+        )
+        sys.exit(1)

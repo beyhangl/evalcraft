@@ -39,6 +39,13 @@ from evalcraft.eval import (
     # Hallucination
     assert_no_hallucination,
     detect_hallucinations,
+    # Live eval
+    LiveEvalCase,
+    LiveCaseResult,
+    LiveEvalResult,
+    LiveEvalComparison,
+    run_live_eval,
+    compare_to_baseline,
 )
 from evalcraft.core.models import Span, Cassette, AgentRun, EvalResult
 from evalcraft.golden.manager import GoldenSet
@@ -74,6 +81,12 @@ __all__ = [
     "JuryScorer",
     "assert_no_hallucination",
     "detect_hallucinations",
+    "LiveEvalCase",
+    "LiveCaseResult",
+    "LiveEvalResult",
+    "LiveEvalComparison",
+    "run_live_eval",
+    "compare_to_baseline",
     "Span",
     "Cassette",
     "AgentRun",

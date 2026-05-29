@@ -418,6 +418,34 @@ The action runs your agent tests, checks cost/regression thresholds, and posts a
 
 ---
 
+## Catching drift: live-eval
+
+Replay is deterministic and free because it **doesn't run your model** — which is
+exactly why it can't catch model/prompt/retrieval **drift**. Live-eval is the
+complementary layer: it runs your *real* agent over a golden set of **inputs**,
+scores the live output, and gates CI when quality regresses against a baseline.
+
+```python
+from evalcraft.eval.live import LiveEvalCase, LiveEvalResult, run_live_eval, compare_to_baseline
+from evalcraft import assert_output_contains
+
+cases = [LiveEvalCase(name="paris", input="Weather in Paris?",
+                      scorers=[lambda c: assert_output_contains(c, "Paris")])]
+
+def runner(case):
+    return my_agent.run(case.input)   # your REAL agent — paid, non-deterministic
+
+result = run_live_eval(cases, runner)
+comparison = compare_to_baseline(
+    result, LiveEvalResult.load("live-baseline.json"), max_score_drop=0.1
+)
+assert comparison.passed, comparison.summary()
+```
+
+Run it nightly or as a release gate (not on every commit). See [Live Eval](https://beyhangl.github.io/evalcraft/user-guide/live-eval/).
+
+---
+
 ## CLI reference
 
 ```
@@ -439,6 +467,7 @@ evalcraft [command] [options]
 | `evalcraft regression <cassette>` | Detect regressions |
 | `evalcraft sanitize <cassette>` | Redact PII and secrets |
 | `evalcraft doctor` | Diagnose setup issues (deps, API keys, cassettes) |
+| `evalcraft live-eval <current> --baseline <b>` | Gate a live-eval run vs a baseline (catch drift) |
 
 ---
 
