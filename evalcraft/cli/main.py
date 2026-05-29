@@ -458,6 +458,20 @@ def info(cassette: str, as_json: bool, spans: bool) -> None:
     click.echo(f"  created      {created}")
     click.echo(f"  fingerprint  {c.fingerprint or '—'}")
 
+    if c.provenance:
+        p = c.provenance
+        rec = (
+            datetime.datetime.fromtimestamp(p.recorded_at).strftime("%Y-%m-%d %H:%M:%S")
+            if p.recorded_at
+            else "—"
+        )
+        click.echo()
+        click.echo(click.style("  provenance", bold=True))
+        click.echo(f"  recorded     {rec}")
+        click.echo(f"  models       {', '.join(p.models) or '—'}")
+        click.echo(f"  prompt hash  {p.prompt_hash or '—'}")
+        click.echo(f"  sdk / py     {p.sdk_version or '—'} / {p.python_version or '—'}")
+
     click.echo()
     click.echo(click.style("  metrics", bold=True))
     click.echo(f"  spans        {len(c.spans)}")
