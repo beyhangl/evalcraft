@@ -308,7 +308,7 @@ them deterministically — no API key, no network calls, no cost.
 | **CLI** | 14 commands: replay, diff, eval, generate-tests, doctor, golden, regression, sanitize, ... |
 | **pytest plugin** | Native fixtures and markers — `cassette`, `mock_llm`, `@pytest.mark.evalcraft` |
 | **CI Gate** | GitHub Action with PR comments, score thresholds, regression detection |
-| **JS/TS SDK** | Full TypeScript SDK with feature parity — scorers, mocks, adapters |
+| **JS/TS SDK** | TypeScript SDK (pre-release, source-only): capture/replay, mocks, 16 scorers, OpenAI/Gemini/Vercel AI adapters |
 
 ---
 
@@ -468,7 +468,24 @@ import { wrapOpenAI } from 'evalcraft/adapters/openai';
 import { wrapGemini } from 'evalcraft/adapters/gemini';
 ```
 
-Full feature parity with the Python SDK — 19 scorers, mocks, LLM-as-Judge, RAG metrics, and framework adapters (OpenAI, Gemini, Vercel AI).
+The JS/TS SDK covers the core workflow — capture, replay, `MockLLM`/`MockTool`, and **16 scorers** (8 core + 4 LLM-as-Judge + 4 RAG) — with OpenAI, Gemini, and Vercel AI adapters. It is **not yet at full parity** with the Python SDK.
+
+### Python vs JS/TS parity
+
+| Capability | Python | JS/TS |
+|---|---|---|
+| Capture / replay / cassettes | ✅ | ✅ |
+| `MockLLM` / `MockTool` | ✅ | ✅ |
+| Core scorers (tool / output / cost / latency / tokens) | ✅ (8) | ✅ (8) |
+| LLM-as-Judge scorers | ✅ (4) | ✅ (4) |
+| RAG metrics | ✅ (4) | ✅ (4) |
+| Pairwise A/B | ✅ | ❌ |
+| Statistical eval (`eval_n`) | ✅ | ❌ |
+| Multi-judge jury / consensus | ✅ | ❌ |
+| Hallucination detection | ✅ | ❌ |
+| Golden sets / regression / trend | ✅ | ❌ |
+| CLI + pytest plugin | ✅ | ❌ |
+| Framework adapters | 8 (OpenAI, Anthropic, Gemini, Pydantic AI, LangGraph, CrewAI, AutoGen, LlamaIndex) | 3 (OpenAI, Gemini, Vercel AI) |
 
 ---
 
