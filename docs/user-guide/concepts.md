@@ -56,7 +56,7 @@ Cassettes are stored as plain JSON. This means:
 
 - **Diff them in PRs** — review exactly which tools were called, what tokens were used
 - **Version them** — each cassette represents a specific agent behavior
-- **Detect regressions** — the `fingerprint` field changes if any span changes
+- **Spot changed recordings** — the `fingerprint` changes when the recorded spans change (i.e. when you re-record or edit a cassette), so a changed fingerprint in a PR flags that the *captured* behavior moved (not that the live agent drifted — see [Fingerprint](#fingerprint))
 
 ---
 
@@ -150,11 +150,20 @@ During replay:
 
 ## Fingerprint
 
-The **fingerprint** is a 16-character hex digest (SHA-256) of the cassette's span content. It changes if any span's input, output, tool name, or model changes.
+The **fingerprint** is a 16-character hex digest (SHA-256) of the cassette's span content. It changes whenever a span's input, output, tool name, or model changes.
+
+> **What the fingerprint does — and does not — catch.** Replaying the *same*
+> cassette always produces the *same* fingerprint, so a fingerprint check does
+> **not** detect live model/prompt/retrieval drift on its own. The fingerprint
+> changes only when the **recording** changes — i.e. when you **re-record**
+> against the live model/prompt/tools, or edit the cassette by hand. It tells you
+> *"the captured behavior moved"*, not *"the live agent is still correct."* To
+> catch drift in the live system you must re-record (which updates the
+> fingerprint) or run a live eval — see [Replay](replay.md).
 
 Use fingerprints to:
-- **Detect regressions** — if your agent's behavior changes between runs, the fingerprint changes
-- **CI gates** — fail a build if the fingerprint changes unexpectedly
+- **Spot changed recordings in review** — a changed fingerprint in a PR means a re-record changed the captured behavior; review the cassette diff
+- **CI gates on the recording** — fail a build if a committed cassette's fingerprint changes unexpectedly (e.g. an accidental re-record)
 - **Diff** — compare two cassettes with `evalcraft diff`
 
 ```python

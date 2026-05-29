@@ -450,7 +450,7 @@ Cassette
 +-- input_text, output_text
 +-- total_tokens, total_cost_usd, total_duration_ms
 +-- llm_call_count, tool_call_count
-+-- fingerprint  (SHA-256 of span content -- detects regressions)
++-- fingerprint  (SHA-256 of span content -- changes when the recording changes)
 +-- spans[]
     +-- Span (llm_request / llm_response)
     |   +-- model, token_usage, cost_usd

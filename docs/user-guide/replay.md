@@ -274,6 +274,14 @@ def test_no_regression():
     assert run.cassette.fingerprint == "a3f1c2d4e5b6a7c8"
 ```
 
+> **Scope of this check.** Because `replay()` re-emits the recorded spans
+> verbatim, this fingerprint equals the recorded one by construction — so the
+> assertion verifies that **the committed cassette hasn't been edited or
+> re-recorded**, not that the live agent still behaves the same. It's useful for
+> catching an accidental/unexpected re-record landing in a PR. To detect real
+> model / prompt / retrieval drift you must re-record against the live model
+> (which updates the fingerprint) or run a live eval.
+
 ### Testing different tool responses
 
 ```python
