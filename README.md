@@ -268,24 +268,36 @@ them deterministically — no API key, no network calls, no cost.
 
 ---
 
-## Why Evalcraft?
+## How Evalcraft compares
 
-| | Evalcraft | Braintrust | LangSmith | Promptfoo |
-|---|---|---|---|---|
-| Cassette-based replay | **Yes** | No | No | No |
-| Zero-cost CI testing | **Yes** | No | No | Partial |
-| pytest-native | **Yes** | No | No | No |
-| Mock LLM / Tools | **Yes** | No | No | No |
-| LLM-as-Judge scoring | **Yes** | Yes | Yes | Yes |
-| RAG evaluation metrics | **Yes** | No | No | No |
-| Pairwise A/B comparison | **Yes** | No | No | Yes |
-| Statistical eval (CI) | **Yes** | Partial | No | No |
-| Auto-test generation | **Yes** | No | No | No |
-| Framework agnostic | **Yes** | Yes | Yes | Yes |
-| Self-hostable | **Yes** | No | Partial | Yes |
-| Pricing | Free / OSS | Paid SaaS | Paid SaaS | Free / OSS |
+An honest comparison against the closest tools. ✅ first-class · ⚠️ partial / via integration · ❌ no · — not applicable.
 
-> Evalcraft is a **testing** tool, not an observability platform. Use Braintrust or LangSmith for production tracing; use Evalcraft to keep your test suite fast and free.
+| | Evalcraft | DeepEval | Promptfoo | LangSmith | Braintrust | Ragas |
+|---|---|---|---|---|---|---|
+| Git-committed cassette replay | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Zero-cost CI re-runs | ✅ replay | ✅ cache | ✅ cache | ⚠️ | ❌ | — |
+| pytest-native | ✅ | ✅ | ❌ CLI/YAML | ✅ | ❌ | ⚠️ library |
+| First-class Mock LLM / Tools | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| LLM-as-Judge scoring | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| RAG metrics | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ reference |
+| Pairwise A/B | ✅ | ⚠️ | ✅ | ✅ | ✅ | ❌ |
+| Statistical eval w/ confidence intervals | ✅ Wilson | ⚠️ | ⚠️ repeat | ⚠️ | ⚠️ | ❌ |
+| Auto-generate tests from runs | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| OSS / self-hostable | ✅ | ✅ | ✅ | ⚠️ enterprise | ❌ enterprise | ✅ |
+| Primary focus | CI / glue testing | LLM eval framework | eval + red-team | tracing + eval | eval + observability | RAG metrics |
+| Pricing | Free / OSS | Free / OSS (+cloud) | Free / OSS | Paid SaaS (free tier) | Paid SaaS (free tier) | Free / OSS |
+
+**What's genuinely distinctive** (vs. the table-stakes everyone has): git-committed, PR-diffable **cassettes** capturing full agent traces (LLM + tool + steps); **auto-generating** a pytest file from a recorded run; first-class **MockLLM / MockTool**; and a packaged **Wilson-interval** statistical helper.
+
+**Honest caveats:**
+- *Zero-cost CI is not unique* — Promptfoo (disk cache, on by default) and DeepEval (`-c`) already make re-runs free. Evalcraft's angle is *deterministic replay of a committed artifact*, not a lower bill per se.
+- *Replay only re-checks a recorded run.* It does not re-execute the live model, so on its own it can't catch model/prompt/retrieval drift — see [what replay does and doesn't test](docs/user-guide/replay.md). For drift, re-record or run a live eval.
+- *The LLM-as-Judge, RAG, and pairwise scorers make real, paid model calls at test time* — they are **not** part of the $0 deterministic path.
+- Other strong OSS/self-hostable options not shown: **Langfuse**, **Arize Phoenix**, **Inspect AI**.
+
+> Evalcraft is a **testing** tool for your agent's deterministic glue + budgets — not an observability platform. Use Braintrust / LangSmith / Langfuse for production tracing; use Evalcraft to keep that layer of your suite fast and committed to git.
+
+<sub>Sources for the contested rows: [Promptfoo caching](https://www.promptfoo.dev/docs/configuration/caching/) · [DeepEval CI/CD + cache](https://deepeval.com/docs/evaluation-unit-testing-in-ci-cd) · [LangSmith pairwise](https://docs.langchain.com/langsmith/evaluate-pairwise)</sub>
 
 ---
 
