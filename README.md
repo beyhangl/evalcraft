@@ -508,13 +508,13 @@ PRs welcome. Please open an issue first for significant changes. See [CONTRIBUTI
 
 ## Design Partners
 
-We're working with 10 early teams to shape evalcraft. Design partners get:
+**We're looking for design partners.** evalcraft is early (v0.1.0), and we'd like a few teams to help shape it. Partners get:
 
 - **Hands-on setup help** — we'll pair with you to get evalcraft into your CI pipeline
-- **Direct Slack access** — talk to the maintainers, not a support queue
+- **Direct access to the maintainer** — not a support queue
 - **Influence the roadmap** — your use cases drive what we build next
 
-Interested? [Sign up here](https://beyhangl.github.io/evalcraft/#frameworks) or email us directly.
+Interested? [Open an issue](https://github.com/beyhangl/evalcraft/issues) and say hi.
 
 ---
 
