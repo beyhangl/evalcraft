@@ -1,5 +1,5 @@
 site_name: Evalcraft
-site_description: The pytest for AI agents — capture, replay, mock, and evaluate agent behavior.
+site_description: VCR for AI agents — record agent runs as cassettes and replay them deterministically in CI for $0.
 site_url: https://beyhangl.github.io/evalcraft/docs/
 repo_url: https://github.com/beyhangl/evalcraft
 repo_name: beyhangl/evalcraft
