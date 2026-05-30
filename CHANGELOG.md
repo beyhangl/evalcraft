@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] — 2026-05-30
+
+### Fixed
+- **Removed references to the unregistered `evalcraft.dev` domain.** The cloud client and the `evalcraft cloud` CLI no longer default to a non-existent `api.evalcraft.dev` endpoint. There is **no public hosted service** — configure a self-hosted dashboard URL explicitly via `base_url=`, the `EVALCRAFT_BASE_URL` env var, or `~/.evalcraft/config.json`. A cloud call with no URL configured now raises a clear, self-host-pointing error instead of failing against a dead host. Also scrubbed the dead domain from the `evalcraft init` config template and the landing-page contact links.
+
 ## [0.2.0] — 2026-05-30
 
 Ships everything developed since the initial `0.1.0` PyPI upload — a much larger

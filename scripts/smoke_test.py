@@ -140,7 +140,7 @@ def test_auth(client: httpx.Client) -> str | None:
     print(f"\n{BOLD}Auth{RESET}")
 
     unique = uuid.uuid4().hex[:8]
-    email = f"smoke-{unique}@evalcraft.dev"
+    email = f"smoke-{unique}@example.com"
     password = "smoketest123"
 
     # Signup

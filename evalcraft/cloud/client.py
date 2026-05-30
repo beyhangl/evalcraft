@@ -34,13 +34,11 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# NOTE: The hosted Evalcraft dashboard/API is not yet publicly available.
-# This default points at the *planned* hosted endpoint; until it ships, set
-# ``base_url`` (or the ``base_url`` field in ~/.evalcraft/config.json) to your
-# own self-hosted dashboard — see the ``dashboard/`` directory. All cloud
-# features are optional: the core capture / replay / eval workflow runs fully
-# offline and never contacts this endpoint.
-_DEFAULT_BASE_URL = "https://api.evalcraft.dev/v1"
+# There is no public hosted Evalcraft API. Cloud features are optional and target
+# a *self-hosted* dashboard (see the ``dashboard/`` directory); configure the
+# endpoint explicitly via the ``base_url`` argument, the ``EVALCRAFT_BASE_URL``
+# environment variable, or ``~/.evalcraft/config.json``. The core capture /
+# replay / eval workflow runs fully offline and never contacts any endpoint.
 _CONFIG_DIR = Path.home() / ".evalcraft"
 _CONFIG_FILE = _CONFIG_DIR / "config.json"
 _QUEUE_DIR = _CONFIG_DIR / "queue"
@@ -104,7 +102,9 @@ class EvalcraftCloud:
         api_key: Bearer token (``ec_...``).  If None, reads from
             ``~/.evalcraft/config.json`` or the ``EVALCRAFT_API_KEY``
             environment variable.
-        base_url: Override the default API endpoint.
+        base_url: URL of your self-hosted Evalcraft dashboard.  Required for any
+            cloud call — there is no public hosted service.  Falls back to the
+            ``EVALCRAFT_BASE_URL`` env var, then ``~/.evalcraft/config.json``.
         timeout: Request timeout in seconds (default 30).
         max_retries: Maximum number of retry attempts for transient errors
             (default 3).  Uses exponential backoff with jitter.
@@ -115,13 +115,13 @@ class EvalcraftCloud:
     def __init__(
         self,
         api_key: str | None = None,
-        base_url: str = _DEFAULT_BASE_URL,
+        base_url: str | None = None,
         timeout: int = 30,
         max_retries: int = 3,
         queue_dir: Path | None = None,
     ):
         self.api_key = api_key or self._load_api_key()
-        self.base_url = base_url.rstrip("/")
+        self.base_url = (base_url or self._load_base_url()).rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
         self.queue_dir = queue_dir or _QUEUE_DIR
@@ -237,8 +237,8 @@ class EvalcraftCloud:
     # ──────────────────────────────────────────
 
     @staticmethod
-    def save_config(api_key: str, base_url: str = _DEFAULT_BASE_URL) -> None:
-        """Persist API key and base URL to ``~/.evalcraft/config.json``."""
+    def save_config(api_key: str, base_url: str = "") -> None:
+        """Persist the API key (and optional dashboard URL) to ``~/.evalcraft/config.json``."""
         _CONFIG_DIR.mkdir(parents=True, exist_ok=True)
         config: dict = {}
         if _CONFIG_FILE.exists():
@@ -247,7 +247,8 @@ class EvalcraftCloud:
             except Exception:
                 pass
         config["api_key"] = api_key
-        config["base_url"] = base_url
+        if base_url:
+            config["base_url"] = base_url
         _CONFIG_FILE.write_text(json.dumps(config, indent=2))
         _CONFIG_FILE.chmod(0o600)
 
@@ -288,6 +289,15 @@ class EvalcraftCloud:
         config = self.load_config()
         return str(config.get("api_key", ""))
 
+    def _load_base_url(self) -> str:
+        """Resolve the dashboard base URL from env or config (empty if unset)."""
+        import os
+        env_url = os.environ.get("EVALCRAFT_BASE_URL", "")
+        if env_url:
+            return env_url
+        config = self.load_config()
+        return str(config.get("base_url", ""))
+
     def _request(
         self,
         method: str,
@@ -307,11 +317,18 @@ class EvalcraftCloud:
         Raises:
             CloudUploadError: After max_retries exhausted or on 4xx errors.
         """
+        if not self.base_url:
+            raise CloudUploadError(
+                "No Evalcraft dashboard URL is configured. There is no public "
+                "hosted service — point the client at your own self-hosted "
+                "dashboard (see the dashboard/ directory) via base_url=..., the "
+                "EVALCRAFT_BASE_URL env var, or ~/.evalcraft/config.json."
+            )
         url = f"{self.base_url}{path}"
         body: bytes | None = None
         headers: dict[str, str] = {
             "Accept": "application/json",
-            "User-Agent": "evalcraft-sdk/0.2.0",
+            "User-Agent": "evalcraft-sdk/0.2.1",
         }
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
