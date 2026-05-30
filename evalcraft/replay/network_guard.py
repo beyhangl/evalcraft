@@ -26,6 +26,7 @@ from __future__ import annotations
 import socket
 import threading
 from collections.abc import Collection
+from typing import Any
 
 # ─── exception ────────────────────────────────────────────────────────────────
 
@@ -118,7 +119,7 @@ class NetworkGuard:
             _active_guards.append(self)
             # Only patch once — the outermost guard owns the patch.
             if len(_active_guards) == 1:
-                socket.create_connection = self._blocking_create_connection
+                socket.create_connection = self._blocking_create_connection  # type: ignore[assignment]
 
     def _uninstall(self) -> None:
         """Deactivate this guard and restore socket.create_connection if needed."""
@@ -135,7 +136,7 @@ class NetworkGuard:
             else:
                 # Outer guard is still active; keep the blocking stub in place
                 # but update it to reflect the outermost guard's allowlist.
-                socket.create_connection = _active_guards[0]._blocking_create_connection
+                socket.create_connection = _active_guards[0]._blocking_create_connection  # type: ignore[assignment]
 
     def _is_allowed(self, host: str) -> bool:
         """Return True if *host* is in this guard's allowlist."""
@@ -146,10 +147,14 @@ class NetworkGuard:
         address: tuple[str, int],
         timeout: float = socket._GLOBAL_DEFAULT_TIMEOUT,  # type: ignore[attr-defined]
         source_address: tuple[str, int] | None = None,
-        *,
-        all_errors: bool = False,
+        **kwargs: Any,
     ) -> socket.socket:
-        """Replacement for socket.create_connection that blocks non-allowed hosts."""
+        """Replacement for socket.create_connection that blocks non-allowed hosts.
+
+        Extra keyword args (e.g. ``all_errors``, added to the stdlib in 3.11) are
+        forwarded verbatim, so this stays correct across Python versions instead
+        of hard-coding a kwarg the running interpreter may not accept.
+        """
         host, port = address
 
         # Walk the guard stack (innermost guard first).  If *any* active
@@ -159,9 +164,7 @@ class NetworkGuard:
 
         for guard in reversed(active_snapshot):
             if guard._is_allowed(host):
-                return _real_create_connection(
-                    address, timeout, source_address, all_errors=all_errors
-                )
+                return _real_create_connection(address, timeout, source_address, **kwargs)
 
         raise ReplayNetworkViolation(host, port)
 
