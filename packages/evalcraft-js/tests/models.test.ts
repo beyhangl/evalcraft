@@ -135,8 +135,10 @@ describe('Cassette', () => {
   it('same spans produce same fingerprint', () => {
     const c1 = new Cassette();
     const c2 = new Cassette();
-    c1.addSpan(new Span({ id: 'abc', kind: SpanKind.TOOL_CALL, tool_name: 'x' }));
-    c2.addSpan(new Span({ id: 'abc', kind: SpanKind.TOOL_CALL, tool_name: 'x' }));
+    // Pin timestamp so the two spans are byte-identical — Span.timestamp otherwise
+    // defaults to Date.now(), making this assertion flaky across a millisecond boundary.
+    c1.addSpan(new Span({ id: 'abc', kind: SpanKind.TOOL_CALL, tool_name: 'x', timestamp: 0 }));
+    c2.addSpan(new Span({ id: 'abc', kind: SpanKind.TOOL_CALL, tool_name: 'x', timestamp: 0 }));
     expect(c1.computeFingerprint()).toBe(c2.computeFingerprint());
   });
 
