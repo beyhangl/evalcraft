@@ -46,6 +46,16 @@ from evalcraft.eval.jury import JuryScorer
 # Hallucination detection
 from evalcraft.eval.hallucination import assert_no_hallucination, detect_hallucinations
 
+# Live eval (run scorers against the real model on a golden input set)
+from evalcraft.eval.live import (
+    LiveCaseResult,
+    LiveEvalCase,
+    LiveEvalComparison,
+    LiveEvalResult,
+    compare_to_baseline,
+    run_live_eval,
+)
+
 __all__ = [
     # Core
     "assert_tool_called",
@@ -77,4 +87,11 @@ __all__ = [
     # Hallucination
     "assert_no_hallucination",
     "detect_hallucinations",
+    # Live eval
+    "LiveEvalCase",
+    "LiveCaseResult",
+    "LiveEvalResult",
+    "LiveEvalComparison",
+    "run_live_eval",
+    "compare_to_baseline",
 ]

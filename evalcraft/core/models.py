@@ -130,6 +130,42 @@ class Span:
 
 
 @dataclass
+class Provenance:
+    """Record-time provenance — *what* a cassette was captured against.
+
+    A cassette is only as truthful as the model / prompt it was recorded
+    against. File age alone can't tell you whether a recording is stale; this
+    captures the model set, a hash of the prompts, the SDK/Python versions, and
+    the record time so tooling (``evalcraft info`` / ``doctor``) can reason about
+    staleness — e.g. "the live model has changed since this was recorded."
+    """
+    recorded_at: float = 0.0
+    sdk_version: str = ""
+    python_version: str = ""
+    models: list[str] = field(default_factory=list)
+    prompt_hash: str = ""
+
+    def to_dict(self) -> dict:
+        return {
+            "recorded_at": self.recorded_at,
+            "sdk_version": self.sdk_version,
+            "python_version": self.python_version,
+            "models": list(self.models),
+            "prompt_hash": self.prompt_hash,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Provenance:
+        return cls(
+            recorded_at=data.get("recorded_at", 0.0),
+            sdk_version=data.get("sdk_version", ""),
+            python_version=data.get("python_version", ""),
+            models=list(data.get("models", [])),
+            prompt_hash=data.get("prompt_hash", ""),
+        )
+
+
+@dataclass
 class Cassette:
     """A recorded agent run — the fundamental unit of Evalcraft.
 
@@ -162,6 +198,11 @@ class Cassette:
 
     metadata: dict = field(default_factory=dict)
 
+    # Record-time provenance — what this cassette was captured against.
+    # None for hand-built cassettes and cassettes recorded before provenance
+    # was added (back-compat).
+    provenance: Provenance | None = None
+
     def compute_fingerprint(self) -> str:
         """Compute a content-based fingerprint for change detection."""
         content = json.dumps(
@@ -171,6 +212,42 @@ class Cassette:
         )
         self.fingerprint = hashlib.sha256(content.encode()).hexdigest()[:16]
         return self.fingerprint
+
+    def capture_provenance(self) -> Provenance:
+        """Capture record-time provenance (models, prompt hash, versions, time).
+
+        Call once when a recording finishes — the capture context does this
+        automatically in ``_finalize``. Unlike file age, this records *what* the
+        cassette was captured against, so staleness can be judged on the model /
+        prompt actually used rather than an arbitrary age threshold.
+        """
+        import platform as _platform
+
+        try:
+            from evalcraft import __version__ as _sdk_version
+        except Exception:  # pragma: no cover - defensive
+            _sdk_version = ""
+
+        llm_spans = self.get_llm_calls()
+        models = sorted({s.model for s in llm_spans if s.model})
+        basis = json.dumps(
+            {
+                "input_text": self.input_text,
+                "llm_inputs": [s.input for s in llm_spans],
+            },
+            sort_keys=True,
+            default=str,
+        )
+        prompt_hash = hashlib.sha256(basis.encode()).hexdigest()[:16]
+
+        self.provenance = Provenance(
+            recorded_at=time.time(),
+            sdk_version=_sdk_version,
+            python_version=_platform.python_version(),
+            models=models,
+            prompt_hash=prompt_hash,
+        )
+        return self.provenance
 
     def compute_metrics(self) -> None:
         """Recompute aggregate metrics from spans."""
@@ -228,6 +305,7 @@ class Cassette:
                 "tool_call_count": self.tool_call_count,
                 "fingerprint": self.fingerprint,
                 "metadata": self.metadata,
+                "provenance": self.provenance.to_dict() if self.provenance else None,
             },
             "spans": [s.to_dict() for s in self.spans],
         }
@@ -253,6 +331,9 @@ class Cassette:
             fingerprint=cassette_data.get("fingerprint", ""),
             metadata=cassette_data.get("metadata", {}),
         )
+        prov = cassette_data.get("provenance")
+        if prov:
+            c.provenance = Provenance.from_dict(prov)
         c.spans = [Span.from_dict(s) for s in spans_data]
         return c
 
