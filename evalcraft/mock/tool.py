@@ -13,11 +13,9 @@ Usage:
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from evalcraft.capture.recorder import get_active_context
-from evalcraft.core.models import Span, SpanKind
 
 
 class MockTool:
@@ -115,9 +113,7 @@ class MockTool:
 
         # Check for error conditions
         error = None
-        if self._error_after is not None and self._call_count >= self._error_after:
-            error = self._error
-        elif self._error and self._error_after is None:
+        if self._error_after is not None and self._call_count >= self._error_after or self._error and self._error_after is None:
             error = self._error
 
         # Resolve result

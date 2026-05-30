@@ -1,11 +1,9 @@
 """Tests for evalcraft.replay.engine."""
 
-import json
 import pytest
-from pathlib import Path
 
-from evalcraft.core.models import Cassette, Span, SpanKind, TokenUsage, AgentRun
-from evalcraft.replay.engine import ReplayEngine, ReplayDiff, replay
+from evalcraft.core.models import AgentRun, Cassette, Span, SpanKind, TokenUsage
+from evalcraft.replay.engine import ReplayDiff, ReplayEngine, replay
 
 
 @pytest.fixture

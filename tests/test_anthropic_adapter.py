@@ -15,13 +15,12 @@ import pytest
 from evalcraft.adapters.anthropic_adapter import (
     AnthropicAdapter,
     _estimate_cost,
+    _get_stop_reason,
     _messages_to_str,
     _response_to_str,
-    _get_stop_reason,
 )
 from evalcraft.capture.recorder import CaptureContext, get_active_context
 from evalcraft.core.models import SpanKind
-
 
 # ---------------------------------------------------------------------------
 # Helpers to build mock Anthropic response objects
@@ -233,9 +232,8 @@ class TestAnthropicAdapterPatch:
         Messages = mock_anthropic_module.Messages
         original = Messages.create
 
-        with pytest.raises(ValueError):
-            with AnthropicAdapter():
-                raise ValueError("oops")
+        with pytest.raises(ValueError), AnthropicAdapter():
+            raise ValueError("oops")
         assert Messages.create is original
 
     def test_double_patch_is_noop(self, mock_anthropic_module):
@@ -276,10 +274,9 @@ class TestAnthropicAdapterRecording:
 
         ctx = CaptureContext(name="test")
         adapter = AnthropicAdapter()
-        with ctx:
-            with adapter:
-                # Call the patched method via the class (simulating instance call)
-                Messages.create(MagicMock(), **kwargs)
+        with ctx, adapter:
+            # Call the patched method via the class (simulating instance call)
+            Messages.create(MagicMock(), **kwargs)
 
         # Restore
         Messages.create = original
@@ -368,14 +365,12 @@ class TestAnthropicAdapterRecording:
 
         ctx = CaptureContext(name="error_test")
         adapter = AnthropicAdapter()
-        with ctx:
-            with adapter:
-                with pytest.raises(RuntimeError):
-                    Messages.create(
-                        MagicMock(),
-                        model="claude-3-5-sonnet-20241022",
-                        messages=[{"role": "user", "content": "hi"}],
-                    )
+        with ctx, adapter, pytest.raises(RuntimeError):
+            Messages.create(
+                MagicMock(),
+                model="claude-3-5-sonnet-20241022",
+                messages=[{"role": "user", "content": "hi"}],
+            )
 
         Messages.create = original
         assert len(ctx.cassette.spans) == 1
@@ -402,13 +397,12 @@ class TestAnthropicAdapterAsyncRecording:
         AsyncMessages.create = AsyncMock(return_value=response)
 
         ctx = CaptureContext(name="async_test")
-        async with ctx:
-            async with AnthropicAdapter():
-                await AsyncMessages.create(
-                    MagicMock(),
-                    model="claude-3-5-sonnet-20241022",
-                    messages=[{"role": "user", "content": "async hi"}],
-                )
+        async with ctx, AnthropicAdapter():
+            await AsyncMessages.create(
+                MagicMock(),
+                model="claude-3-5-sonnet-20241022",
+                messages=[{"role": "user", "content": "async hi"}],
+            )
 
         AsyncMessages.create = original
 
@@ -425,14 +419,13 @@ class TestAnthropicAdapterAsyncRecording:
         AsyncMessages.create = AsyncMock(side_effect=RuntimeError("async error"))
 
         ctx = CaptureContext(name="async_error_test")
-        async with ctx:
-            async with AnthropicAdapter():
-                with pytest.raises(RuntimeError):
-                    await AsyncMessages.create(
-                        MagicMock(),
-                        model="claude-3-5-sonnet-20241022",
-                        messages=[],
-                    )
+        async with ctx, AnthropicAdapter():
+            with pytest.raises(RuntimeError):
+                await AsyncMessages.create(
+                    MagicMock(),
+                    model="claude-3-5-sonnet-20241022",
+                    messages=[],
+                )
 
         AsyncMessages.create = original
 

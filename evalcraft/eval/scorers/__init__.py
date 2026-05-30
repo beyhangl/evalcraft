@@ -17,14 +17,13 @@ import re
 from typing import Any
 
 from evalcraft.core.models import (
+    AgentRun,
+    AssertionResult,
     Cassette,
+    EvalResult,
     Span,
     SpanKind,
-    AgentRun,
-    EvalResult,
-    AssertionResult,
 )
-
 
 # ──────────────────────────────────────────────
 # Tool assertions

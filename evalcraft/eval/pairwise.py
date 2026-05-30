@@ -28,12 +28,11 @@ Usage::
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 from evalcraft.core.models import AgentRun, Cassette
-from evalcraft.eval._utils import get_cassette, call_llm_judge
-
+from evalcraft.eval._utils import call_llm_judge, get_cassette
 
 _PAIRWISE_SYSTEM_PROMPT = (
     "You are a fair evaluation judge comparing two agent outputs. "

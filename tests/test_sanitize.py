@@ -15,7 +15,6 @@ from evalcraft.core.models import Cassette, Span, SpanKind, TokenUsage
 from evalcraft.sanitize import BUILTIN_PATTERNS, CassetteRedactor, RedactMode
 from evalcraft.sanitize.redactor import BUILTIN_PATTERNS as _BP
 
-
 # ──────────────────────────────────────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────────────────────────────────────

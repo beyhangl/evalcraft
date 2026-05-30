@@ -48,7 +48,6 @@ from typing import Any
 from evalcraft.capture.recorder import get_active_context
 from evalcraft.core.models import Span, SpanKind
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -171,14 +170,14 @@ class AutoGenAdapter:
 
     # -- context manager protocol ------------------------------------------
 
-    def __enter__(self) -> "AutoGenAdapter":
+    def __enter__(self) -> AutoGenAdapter:
         self._patch()
         return self
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self._unpatch()
 
-    async def __aenter__(self) -> "AutoGenAdapter":
+    async def __aenter__(self) -> AutoGenAdapter:
         self._patch()
         return self
 

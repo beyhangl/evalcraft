@@ -7,7 +7,6 @@ import pytest
 from evalcraft.cli.generate_cmd import _extract_key_terms, generate_test_code
 from evalcraft.core.models import Cassette, Span, SpanKind, TokenUsage
 
-
 # ──────────────────────────────────────────────
 # Fixtures
 # ──────────────────────────────────────────────

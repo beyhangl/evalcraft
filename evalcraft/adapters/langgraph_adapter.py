@@ -43,8 +43,7 @@ from typing import Any
 from uuid import UUID
 
 from evalcraft.capture.recorder import get_active_context
-from evalcraft.core.models import Span, SpanKind, TokenUsage
-
+from evalcraft.core.models import Span, SpanKind
 
 # ---------------------------------------------------------------------------
 # Internal names that indicate a LangChain/LangGraph housekeeping chain rather
@@ -461,14 +460,14 @@ class LangGraphAdapter:
 
     # -- context manager protocol ------------------------------------------
 
-    def __enter__(self) -> "LangGraphAdapter":
+    def __enter__(self) -> LangGraphAdapter:
         self._patch()
         return self
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self._unpatch()
 
-    async def __aenter__(self) -> "LangGraphAdapter":
+    async def __aenter__(self) -> LangGraphAdapter:
         self._patch()
         return self
 

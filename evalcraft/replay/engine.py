@@ -20,15 +20,15 @@ Usage:
 from __future__ import annotations
 
 import copy
-import json
+from collections.abc import Collection
 from pathlib import Path
-from typing import Any, Callable, Collection
+from typing import Any, Callable
 
 from evalcraft.core.models import (
+    AgentRun,
     Cassette,
     Span,
     SpanKind,
-    AgentRun,
 )
 from evalcraft.replay.network_guard import NetworkGuard
 

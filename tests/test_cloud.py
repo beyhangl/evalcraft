@@ -3,18 +3,14 @@
 from __future__ import annotations
 
 import json
-import time
-import uuid
-from pathlib import Path
-from unittest.mock import MagicMock, patch, call
 import urllib.error
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from evalcraft.cloud.client import EvalcraftCloud, CloudUploadError, OfflineQueueItem
+from evalcraft.cloud.client import CloudUploadError, EvalcraftCloud, OfflineQueueItem
 from evalcraft.core.models import Cassette, Span, SpanKind, TokenUsage
 from evalcraft.golden.manager import GoldenSet
-
 
 # ──────────────────────────────────────────────
 # Fixtures
@@ -130,9 +126,8 @@ def test_upload_cassette_success(client, cassette):
 
 def test_upload_cassette_queued_on_failure(client, cassette, tmp_path):
     err = urllib.error.URLError("connection refused")
-    with patch("urllib.request.urlopen", side_effect=err):
-        with pytest.raises(CloudUploadError):
-            client.upload(cassette)
+    with patch("urllib.request.urlopen", side_effect=err), pytest.raises(CloudUploadError):
+        client.upload(cassette)
 
     # Item should be in queue
     assert client.queue_size() == 1
@@ -162,9 +157,8 @@ def test_upload_golden_success(client, golden_set):
 
 def test_upload_golden_queued_on_failure(client, golden_set):
     err = urllib.error.URLError("timeout")
-    with patch("urllib.request.urlopen", side_effect=err):
-        with pytest.raises(CloudUploadError):
-            client.upload_golden(golden_set)
+    with patch("urllib.request.urlopen", side_effect=err), pytest.raises(CloudUploadError):
+        client.upload_golden(golden_set)
 
     assert client.queue_size() == 1
     queue_files = list(client.queue_dir.glob("*.json"))
@@ -245,10 +239,9 @@ def test_no_retry_on_4xx(client, cassette):
 def test_exhausted_retries_enqueues(client, cassette):
     """After max_retries, item should be queued and CloudUploadError raised."""
     err = urllib.error.URLError("no route to host")
-    with patch("urllib.request.urlopen", side_effect=err):
-        with patch("time.sleep"):
-            with pytest.raises(CloudUploadError):
-                client.upload(cassette)
+    with patch("urllib.request.urlopen", side_effect=err), patch("time.sleep"):
+        with pytest.raises(CloudUploadError):
+            client.upload(cassette)
 
     # max_retries=2 → 3 total attempts, then queue
     assert client.queue_size() == 1
@@ -262,10 +255,9 @@ def test_flush_queue_success(client, cassette):
     """flush_queue() should upload queued items and remove them."""
     # First upload fails → queued
     net_err = urllib.error.URLError("offline")
-    with patch("urllib.request.urlopen", side_effect=net_err):
-        with patch("time.sleep"):
-            with pytest.raises(CloudUploadError):
-                client.upload(cassette)
+    with patch("urllib.request.urlopen", side_effect=net_err), patch("time.sleep"):
+        with pytest.raises(CloudUploadError):
+            client.upload(cassette)
 
     assert client.queue_size() == 1
 
@@ -282,12 +274,11 @@ def test_flush_queue_success(client, cassette):
 def test_flush_queue_partial_failure(client, cassette, golden_set):
     """flush_queue() returns correct counts when some items still fail."""
     net_err = urllib.error.URLError("offline")
-    with patch("urllib.request.urlopen", side_effect=net_err):
-        with patch("time.sleep"):
-            with pytest.raises(CloudUploadError):
-                client.upload(cassette)
-            with pytest.raises(CloudUploadError):
-                client.upload_golden(golden_set)
+    with patch("urllib.request.urlopen", side_effect=net_err), patch("time.sleep"):
+        with pytest.raises(CloudUploadError):
+            client.upload(cassette)
+        with pytest.raises(CloudUploadError):
+            client.upload_golden(golden_set)
 
     assert client.queue_size() == 2
 
@@ -355,9 +346,8 @@ def test_check_connection_ok(client):
 
 def test_check_connection_unreachable(client):
     err = urllib.error.URLError("name resolution failed")
-    with patch("urllib.request.urlopen", side_effect=err):
-        with patch("time.sleep"):
-            result = client.check_connection()
+    with patch("urllib.request.urlopen", side_effect=err), patch("time.sleep"):
+        result = client.check_connection()
     assert result["ok"] is False
     assert result["message"] != ""
 

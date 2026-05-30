@@ -14,13 +14,12 @@ Usage:
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from evalcraft.core.models import Cassette, SpanKind
+from evalcraft.core.models import Cassette
 
 
 class Severity(str, Enum):
@@ -250,7 +249,7 @@ class RegressionDetector:
             regressions.append(Regression(
                 category="tool_sequence",
                 severity=Severity.WARNING,
-                message=f"Tool execution order changed",
+                message="Tool execution order changed",
                 golden_value=golden_seq,
                 current_value=current_seq,
             ))

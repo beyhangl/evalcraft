@@ -6,10 +6,9 @@ from unittest.mock import patch
 
 import pytest
 
-from evalcraft.core.models import AgentRun, Cassette, Span, SpanKind
+from evalcraft.core.models import AgentRun, Cassette
 from evalcraft.eval.pairwise import (
     PairwiseResult,
-    RankingEntry,
     pairwise_compare,
     pairwise_rank,
 )

@@ -30,7 +30,6 @@ from typing import Any
 
 from evalcraft.core.models import Cassette
 
-
 # ──────────────────────────────────────────────
 # Comparison result
 # ──────────────────────────────────────────────

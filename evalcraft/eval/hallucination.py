@@ -30,8 +30,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from evalcraft.core.models import AgentRun, AssertionResult, Cassette
-from evalcraft.eval._utils import get_cassette, call_llm_judge
-
+from evalcraft.eval._utils import call_llm_judge, get_cassette
 
 # ---------------------------------------------------------------------------
 # Data classes

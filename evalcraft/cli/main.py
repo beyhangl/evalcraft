@@ -16,7 +16,6 @@ from evalcraft.core.models import Cassette, SpanKind
 from evalcraft.replay.engine import ReplayDiff, ReplayEngine
 from evalcraft.replay.network_guard import ReplayNetworkViolation
 
-
 # ─── helpers ──────────────────────────────────────────────────────────────────
 
 def _load_cassette(path: str) -> Cassette:
@@ -581,12 +580,12 @@ def mock(cassette: str, output: str | None, var: str) -> None:
             input_repr = repr(str(span.input or ""))
             output_repr = repr(str(span.output or ""))
             lines.append(f"    # LLM call {i}")
-            lines.append(f"    mock.add_response(")
+            lines.append("    mock.add_response(")
             lines.append(f"        {input_repr},")
             lines.append(f"        {output_repr},")
             lines.append(f"        prompt_tokens={pt},")
             lines.append(f"        completion_tokens={ct},")
-            lines.append(f"    )")
+            lines.append("    )")
     else:
         lines.append('    mock.add_response("*", "mock response")')
 
@@ -911,6 +910,7 @@ def sanitize(
         evalcraft sanitize run.cassette.json --pattern "mytoken=TOKEN_[A-Z0-9]+"
     """
     import re as _re
+
     from evalcraft.sanitize.redactor import CassetteRedactor, RedactMode
 
     # Parse extra patterns
@@ -1141,7 +1141,7 @@ def cloud_upload(cassette: str, golden: bool) -> None:
         evalcraft cloud upload cassettes/run1.json
         evalcraft cloud upload weather.golden.json --golden
     """
-    from evalcraft.cloud.client import EvalcraftCloud, CloudUploadError
+    from evalcraft.cloud.client import CloudUploadError, EvalcraftCloud
 
     client = EvalcraftCloud()
     if not client.api_key:

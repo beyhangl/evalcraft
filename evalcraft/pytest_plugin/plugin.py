@@ -30,19 +30,18 @@ CLI options:
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 
 import pytest
 
 from evalcraft.capture.recorder import CaptureContext
 from evalcraft.core.models import Cassette
-from evalcraft.golden.manager import GoldenSet, ComparisonResult
+from evalcraft.golden.manager import GoldenSet
 from evalcraft.mock.llm import MockLLM
 from evalcraft.mock.tool import MockTool
-from evalcraft.regression.detector import RegressionDetector, RegressionReport
 from evalcraft.replay.engine import ReplayEngine
-
 
 # ─────────────────────────────────────────────────────
 # Registration hooks

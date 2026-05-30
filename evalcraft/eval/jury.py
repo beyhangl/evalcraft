@@ -25,12 +25,10 @@ Usage::
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
 
 from evalcraft.core.models import AgentRun, AssertionResult, Cassette
 from evalcraft.eval._utils import get_cassette
 from evalcraft.eval.llm_judge import _call_judge
-
 
 # ---------------------------------------------------------------------------
 # Data classes

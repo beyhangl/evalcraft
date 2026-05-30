@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
-from evalcraft.core.models import AgentRun, AssertionResult, Cassette, Span, SpanKind
-from evalcraft.eval.statistical import StatisticalResult, _wilson_ci, eval_n
+from evalcraft.core.models import AgentRun, AssertionResult, Cassette
+from evalcraft.eval.statistical import _wilson_ci, eval_n
 
 
 @pytest.fixture

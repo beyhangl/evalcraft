@@ -16,8 +16,6 @@ from evalcraft.adapters.gemini_adapter import (
     _response_to_str,
 )
 from evalcraft.capture.recorder import CaptureContext
-from evalcraft.core.models import SpanKind
-
 
 # ──────────────────────────────────────────────
 # Pricing
@@ -231,10 +229,9 @@ class TestGeminiAdapter:
         module, FakeModel = self._make_fake_genai_module()
 
         with patch.dict(sys.modules, {"google.generativeai": module, "google": MagicMock()}):
-            with CaptureContext(name="ctx_test") as ctx:
-                with GeminiAdapter():
-                    model = FakeModel("gemini-1.5-flash")
-                    model.generate_content("Hello")
+            with CaptureContext(name="ctx_test") as ctx, GeminiAdapter():
+                model = FakeModel("gemini-1.5-flash")
+                model.generate_content("Hello")
 
             assert len(ctx.cassette.get_llm_calls()) >= 1
 
@@ -248,11 +245,10 @@ class TestGeminiAdapter:
         FakeModel.generate_content = failing_generate
 
         with patch.dict(sys.modules, {"google.generativeai": module, "google": MagicMock()}):
-            with CaptureContext(name="error_test") as ctx:
-                with GeminiAdapter():
-                    model = FakeModel("gemini-2.0-flash")
-                    with pytest.raises(RuntimeError, match="quota exceeded"):
-                        model.generate_content("test")
+            with CaptureContext(name="error_test") as ctx, GeminiAdapter():
+                model = FakeModel("gemini-2.0-flash")
+                with pytest.raises(RuntimeError, match="quota exceeded"):
+                    model.generate_content("test")
 
             # Error span should be recorded
             error_spans = [s for s in ctx.cassette.spans if s.error]

@@ -18,7 +18,6 @@ from pathlib import Path
 
 import click
 
-
 # ─── supported frameworks ──────────────────────────────────────────────────────
 
 FRAMEWORKS: list[str] = ["openai", "anthropic", "langgraph", "crewai", "generic"]

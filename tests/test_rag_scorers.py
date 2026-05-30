@@ -15,7 +15,6 @@ from evalcraft.eval.rag_scorers import (
     assert_faithfulness,
 )
 
-
 # ──────────────────────────────────────────────
 # Fixtures
 # ──────────────────────────────────────────────

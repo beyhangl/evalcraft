@@ -36,8 +36,7 @@ import time
 from typing import Any
 
 from evalcraft.capture.recorder import get_active_context
-from evalcraft.core.models import Span, SpanKind, TokenUsage
-
+from evalcraft.core.models import Span, SpanKind
 
 # ---------------------------------------------------------------------------
 # Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
@@ -239,14 +238,14 @@ class PydanticAIAdapter:
 
     # -- context manager protocol ------------------------------------------
 
-    def __enter__(self) -> "PydanticAIAdapter":
+    def __enter__(self) -> PydanticAIAdapter:
         self._patch()
         return self
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self._unpatch()
 
-    async def __aenter__(self) -> "PydanticAIAdapter":
+    async def __aenter__(self) -> PydanticAIAdapter:
         self._patch()
         return self
 

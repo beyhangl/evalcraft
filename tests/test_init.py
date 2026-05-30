@@ -22,7 +22,6 @@ from click.testing import CliRunner
 from evalcraft.cli.init_cmd import FRAMEWORKS, scaffold_project
 from evalcraft.cli.main import cli
 
-
 # ─── helpers ──────────────────────────────────────────────────────────────────
 
 

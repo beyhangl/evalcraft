@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch, call
+from unittest.mock import patch
 
 import pytest
 
-from evalcraft.core.models import AgentRun, Cassette, Span, SpanKind
-from evalcraft.eval.jury import JuryScorer, JuryResult, JudgeVote
+from evalcraft.core.models import AgentRun, Cassette
+from evalcraft.eval.jury import JudgeVote, JuryResult, JuryScorer
 
 
 @pytest.fixture

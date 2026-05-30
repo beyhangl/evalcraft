@@ -52,7 +52,6 @@ from typing import Any
 from evalcraft.capture.recorder import get_active_context
 from evalcraft.core.models import Span, SpanKind
 
-
 # ---------------------------------------------------------------------------
 # Step / task extraction helpers
 # ---------------------------------------------------------------------------
@@ -206,14 +205,14 @@ class CrewAIAdapter:
 
     # -- context manager protocol ------------------------------------------
 
-    def __enter__(self) -> "CrewAIAdapter":
+    def __enter__(self) -> CrewAIAdapter:
         self._patch()
         return self
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self._unpatch()
 
-    async def __aenter__(self) -> "CrewAIAdapter":
+    async def __aenter__(self) -> CrewAIAdapter:
         self._patch()
         return self
 

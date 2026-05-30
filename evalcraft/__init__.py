@@ -5,52 +5,52 @@ Capture, replay, mock, and evaluate agent behavior.
 
 __version__ = "0.1.0"
 
-from evalcraft.capture.recorder import capture, CaptureContext
-from evalcraft.replay.engine import replay, ReplayEngine
-from evalcraft.mock.llm import MockLLM
-from evalcraft.mock.tool import MockTool
+from evalcraft.capture.recorder import CaptureContext, capture
+from evalcraft.cloud.client import EvalcraftCloud
+from evalcraft.core.models import AgentRun, Cassette, EvalResult, Span
 from evalcraft.eval import (
-    # Core scorers
-    assert_tool_called,
-    assert_tool_order,
+    # Jury
+    JuryScorer,
+    LiveCaseResult,
+    # Live eval
+    LiveEvalCase,
+    LiveEvalComparison,
+    LiveEvalResult,
+    assert_answer_relevance,
+    assert_context_recall,
+    assert_context_relevance,
+    assert_cost_under,
+    assert_custom_criteria,
+    assert_factual_consistency,
+    # RAG
+    assert_faithfulness,
+    assert_latency_under,
+    # Hallucination
+    assert_no_hallucination,
     assert_no_tool_called,
     assert_output_contains,
     assert_output_matches,
-    assert_cost_under,
-    assert_latency_under,
-    assert_token_count_under,
     # LLM-as-Judge
     assert_output_semantic,
-    assert_factual_consistency,
+    assert_token_count_under,
     assert_tone,
-    assert_custom_criteria,
-    # RAG
-    assert_faithfulness,
-    assert_context_relevance,
-    assert_answer_relevance,
-    assert_context_recall,
+    # Core scorers
+    assert_tool_called,
+    assert_tool_order,
+    compare_to_baseline,
+    detect_hallucinations,
+    # Statistical
+    eval_n,
     # Pairwise
     pairwise_compare,
     pairwise_rank,
-    # Statistical
-    eval_n,
-    # Jury
-    JuryScorer,
-    # Hallucination
-    assert_no_hallucination,
-    detect_hallucinations,
-    # Live eval
-    LiveEvalCase,
-    LiveCaseResult,
-    LiveEvalResult,
-    LiveEvalComparison,
     run_live_eval,
-    compare_to_baseline,
 )
-from evalcraft.core.models import Span, Cassette, AgentRun, EvalResult
 from evalcraft.golden.manager import GoldenSet
+from evalcraft.mock.llm import MockLLM
+from evalcraft.mock.tool import MockTool
 from evalcraft.regression.detector import RegressionDetector, RegressionReport
-from evalcraft.cloud.client import EvalcraftCloud
+from evalcraft.replay.engine import ReplayEngine, replay
 
 __all__ = [
     "capture",

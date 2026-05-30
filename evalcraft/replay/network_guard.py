@@ -25,8 +25,7 @@ from __future__ import annotations
 
 import socket
 import threading
-from typing import Collection, Sequence
-
+from collections.abc import Collection
 
 # ─── exception ────────────────────────────────────────────────────────────────
 
@@ -52,7 +51,7 @@ class ReplayNetworkViolation(RuntimeError):
 # ─── guard ────────────────────────────────────────────────────────────────────
 
 _guard_lock = threading.Lock()
-_active_guards: list["NetworkGuard"] = []
+_active_guards: list[NetworkGuard] = []
 
 # Save the real implementation once, at import time, so nested guards and
 # re-entrance can always restore back to the true original.
@@ -89,7 +88,7 @@ class NetworkGuard:
     # Context manager protocol
     # ------------------------------------------------------------------
 
-    def __enter__(self) -> "NetworkGuard":
+    def __enter__(self) -> NetworkGuard:
         self._install()
         return self
 
@@ -101,7 +100,7 @@ class NetworkGuard:
     # Async context manager protocol (for use with asyncio / anyio code)
     # ------------------------------------------------------------------
 
-    async def __aenter__(self) -> "NetworkGuard":
+    async def __aenter__(self) -> NetworkGuard:
         self._install()
         return self
 
