@@ -1,6 +1,6 @@
 # Evalcraft
 
-**The pytest for AI agents.** Capture, replay, mock, and evaluate agent behavior — without burning API credits on every test run.
+**VCR for AI agents.** Record an agent run once, replay it deterministically in CI for **$0** — fast regression tests for your agent's plumbing (tool calls, control flow, cost & latency budgets), plus live-eval to catch real model drift.
 
 [![CI](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg)](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/evalcraft)](https://pypi.org/project/evalcraft/)
@@ -17,7 +17,7 @@ Agent testing is broken:
 - **Non-deterministic.** Tests fail randomly because LLMs aren't functions.
 - **No CI/CD story.** You can't gate deploys on eval results if evals take 10 minutes and cost $5.
 
-Evalcraft fixes this by recording agent runs as **cassettes** (like VCR for HTTP), then replaying them deterministically. Your test suite goes from 10 minutes + $5 to 200ms + $0.
+Evalcraft records agent runs as **cassettes** (like VCR for HTTP) and replays them deterministically — so the tests that exercise your agent's *plumbing* (tool wiring, control flow, output shape, cost/latency budgets) drop from 10 minutes + $5 to **200ms + $0**. For the questions that genuinely need a live model — quality, drift, LLM-judge, RAG — run [live-eval](user-guide/live-eval.md) on a schedule.
 
 ---
 

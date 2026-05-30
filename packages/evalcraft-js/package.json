@@ -1,7 +1,7 @@
 {
   "name": "evalcraft",
   "version": "0.1.0",
-  "description": "The pytest for AI agents — TypeScript/JavaScript SDK",
+  "description": "VCR for AI agents — TypeScript/JavaScript SDK",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
