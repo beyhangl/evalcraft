@@ -15,8 +15,6 @@ from evalcraft.eval.llm_judge import (
     assert_output_semantic,
     assert_tone,
 )
-from evalcraft.eval._utils import get_cassette as _get_cassette
-
 
 # ──────────────────────────────────────────────
 # Fixtures

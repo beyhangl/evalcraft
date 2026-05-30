@@ -16,8 +16,6 @@ from evalcraft.adapters.pydantic_ai_adapter import (
     _normalize_model_name,
 )
 from evalcraft.capture.recorder import CaptureContext
-from evalcraft.core.models import SpanKind
-
 
 # ──────────────────────────────────────────────
 # Pricing / helpers
@@ -152,7 +150,7 @@ class TestPydanticAIAdapter:
                 adapter._patch()
                 try:
                     agent = FakeAgent("openai:gpt-4o-mini")
-                    result = agent.run_sync("What is the weather?")
+                    agent.run_sync("What is the weather?")
                 finally:
                     adapter._unpatch()
 
@@ -172,10 +170,9 @@ class TestPydanticAIAdapter:
         module, FakeAgent = self._make_fake_pydantic_ai()
 
         with patch.dict(sys.modules, {"pydantic_ai": module}):
-            with CaptureContext(name="ctx_test") as ctx:
-                with PydanticAIAdapter():
-                    agent = FakeAgent("anthropic:claude-sonnet-4-6")
-                    agent.run_sync("Hello")
+            with CaptureContext(name="ctx_test") as ctx, PydanticAIAdapter():
+                agent = FakeAgent("anthropic:claude-sonnet-4-6")
+                agent.run_sync("Hello")
 
             assert len(ctx.cassette.get_llm_calls()) >= 1
             assert ctx.cassette.get_llm_calls()[0].model == "claude-sonnet-4-6"
@@ -189,11 +186,10 @@ class TestPydanticAIAdapter:
         FakeAgent.run_sync = failing_run_sync
 
         with patch.dict(sys.modules, {"pydantic_ai": module}):
-            with CaptureContext(name="error_test") as ctx:
-                with PydanticAIAdapter():
-                    agent = FakeAgent("openai:gpt-4o")
-                    with pytest.raises(RuntimeError, match="unavailable"):
-                        agent.run_sync("test")
+            with CaptureContext(name="error_test") as ctx, PydanticAIAdapter():
+                agent = FakeAgent("openai:gpt-4o")
+                with pytest.raises(RuntimeError, match="unavailable"):
+                    agent.run_sync("test")
 
             error_spans = [s for s in ctx.cassette.spans if s.error]
             assert len(error_spans) == 1
@@ -202,20 +198,18 @@ class TestPydanticAIAdapter:
     def test_no_capture_context_silent(self):
         module, FakeAgent = self._make_fake_pydantic_ai()
 
-        with patch.dict(sys.modules, {"pydantic_ai": module}):
-            with PydanticAIAdapter():
-                agent = FakeAgent("openai:gpt-4o-mini")
-                result = agent.run_sync("test")
-                assert result.data == "Mock response from pydantic-ai agent"
+        with patch.dict(sys.modules, {"pydantic_ai": module}), PydanticAIAdapter():
+            agent = FakeAgent("openai:gpt-4o-mini")
+            result = agent.run_sync("test")
+            assert result.data == "Mock response from pydantic-ai agent"
 
     def test_cost_estimation(self):
         module, FakeAgent = self._make_fake_pydantic_ai()
 
         with patch.dict(sys.modules, {"pydantic_ai": module}):
-            with CaptureContext(name="cost_test") as ctx:
-                with PydanticAIAdapter():
-                    agent = FakeAgent("openai:gpt-4o-mini")
-                    agent.run_sync("test")
+            with CaptureContext(name="cost_test") as ctx, PydanticAIAdapter():
+                agent = FakeAgent("openai:gpt-4o-mini")
+                agent.run_sync("test")
 
             span = ctx.cassette.get_llm_calls()[0]
             assert span.cost_usd is not None

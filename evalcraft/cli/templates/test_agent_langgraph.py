@@ -11,9 +11,8 @@ from __future__ import annotations
 
 import pytest
 
-from evalcraft import CaptureContext, MockLLM
+from evalcraft import MockLLM
 from evalcraft.capture.recorder import get_active_context
-
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
 

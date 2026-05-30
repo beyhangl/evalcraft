@@ -62,7 +62,12 @@ def run_doctor(cassette_dir: str = "tests/cassettes", golden_dir: str | None = N
         return False
 
     # ── 3. Core dependencies ─────────────────────────────────────────────
-    for pkg, name in [("click", "click"), ("rich", "rich"), ("pydantic", "pydantic"), ("yaml", "pyyaml")]:
+    for pkg, name in [
+        ("click", "click"),
+        ("rich", "rich"),
+        ("pydantic", "pydantic"),
+        ("yaml", "pyyaml"),
+    ]:
         try:
             mod = importlib.import_module(pkg)
             try:

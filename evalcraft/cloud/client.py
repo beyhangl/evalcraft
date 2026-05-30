@@ -286,14 +286,14 @@ class EvalcraftCloud:
         if env_key:
             return env_key
         config = self.load_config()
-        return config.get("api_key", "")
+        return str(config.get("api_key", ""))
 
     def _request(
         self,
         method: str,
         path: str,
         payload: dict | None = None,
-    ) -> dict | list:
+    ) -> Any:
         """Make an authenticated HTTP request with exponential-backoff retry.
 
         Args:

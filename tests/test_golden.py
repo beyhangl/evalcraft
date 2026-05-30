@@ -2,17 +2,16 @@
 
 import copy
 import json
+
 import pytest
-from pathlib import Path
 
 from evalcraft.core.models import Cassette, Span, SpanKind, TokenUsage
 from evalcraft.golden.manager import (
-    GoldenSet,
     ComparisonField,
     ComparisonResult,
+    GoldenSet,
     Thresholds,
 )
-
 
 # ──────────────────────────────────────────────
 # Fixtures

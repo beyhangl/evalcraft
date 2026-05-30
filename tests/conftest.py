@@ -1,8 +1,12 @@
 """Shared fixtures for evalcraft tests."""
 
 import pytest
+
 from evalcraft.core.models import (
-    Cassette, Span, SpanKind, TokenUsage, AgentRun, EvalResult, AssertionResult
+    Cassette,
+    Span,
+    SpanKind,
+    TokenUsage,
 )
 
 

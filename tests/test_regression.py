@@ -1,18 +1,16 @@
 """Tests for evalcraft.regression — regression detection."""
 
 import copy
-import json
+
 import pytest
-from pathlib import Path
 
 from evalcraft.core.models import Cassette, Span, SpanKind, TokenUsage
 from evalcraft.regression.detector import (
-    RegressionDetector,
     Regression,
+    RegressionDetector,
     RegressionReport,
     Severity,
 )
-
 
 # ──────────────────────────────────────────────
 # Fixtures

@@ -20,12 +20,10 @@ import asyncio
 import contextvars
 import functools
 import time
-from contextlib import contextmanager, asynccontextmanager
 from pathlib import Path
 from typing import Any, Callable
 
 from evalcraft.core.models import Cassette, Span, SpanKind, TokenUsage
-
 
 # Context variable to track the active capture session
 _active_context: contextvars.ContextVar[CaptureContext | None] = contextvars.ContextVar(
@@ -123,7 +121,7 @@ class CaptureContext:
         log = logging.getLogger(__name__)
         try:
             from evalcraft.sanitize.redactor import CassetteRedactor
-            redactor: CassetteRedactor
+            redactor: Any
             if hasattr(self._redact, "redact"):
                 redactor = self._redact
             else:
@@ -138,8 +136,8 @@ class CaptureContext:
         import logging
         log = logging.getLogger(__name__)
         try:
-            from evalcraft.cloud.client import EvalcraftCloud, CloudUploadError
-            client: EvalcraftCloud
+            from evalcraft.cloud.client import EvalcraftCloud
+            client: Any
             if hasattr(self._cloud, "upload"):
                 client = self._cloud
             else:

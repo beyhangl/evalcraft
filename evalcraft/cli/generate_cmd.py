@@ -12,9 +12,8 @@ Usage::
 from __future__ import annotations
 
 import re
-from pathlib import Path
 
-from evalcraft.core.models import Cassette, SpanKind
+from evalcraft.core.models import Cassette
 
 
 def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
@@ -79,9 +78,9 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
     lines.append("")
 
     # Helper to load replay
-    lines.append(f"def _replay():")
-    lines.append(f'    """Replay the cassette — zero API calls, zero cost."""')
-    lines.append(f"    return replay(CASSETTE_PATH)")
+    lines.append("def _replay():")
+    lines.append('    """Replay the cassette — zero API calls, zero cost."""')
+    lines.append("    return replay(CASSETTE_PATH)")
     lines.append("")
     lines.append("")
 
@@ -91,9 +90,9 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
         func_name = re.sub(r"[^a-zA-Z0-9]", "_", tool_name)
         lines.append(f"def test_{safe_name}_calls_{func_name}():")
         lines.append(f'    """Assert that {tool_name} was called."""')
-        lines.append(f"    run = _replay()")
+        lines.append("    run = _replay()")
         lines.append(f'    result = assert_tool_called(run, "{tool_name}", times={count})')
-        lines.append(f"    assert result.passed, result.message")
+        lines.append("    assert result.passed, result.message")
         lines.append("")
         lines.append("")
 
@@ -103,12 +102,12 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
             func_name = re.sub(r"[^a-zA-Z0-9]", "_", span.tool_name)
             lines.append(f"def test_{safe_name}_{func_name}_args():")
             lines.append(f'    """Assert that {span.tool_name} was called with expected args."""')
-            lines.append(f"    run = _replay()")
-            lines.append(f"    result = assert_tool_called(")
+            lines.append("    run = _replay()")
+            lines.append("    result = assert_tool_called(")
             lines.append(f'        run, "{span.tool_name}",')
             lines.append(f"        with_args={span.tool_args!r},")
-            lines.append(f"    )")
-            lines.append(f"    assert result.passed, result.message")
+            lines.append("    )")
+            lines.append("    assert result.passed, result.message")
             lines.append("")
             lines.append("")
             break  # Only generate one args test per tool to avoid bloat
@@ -116,10 +115,10 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
     # Test: tool ordering
     if len(unique_tools) > 1:
         lines.append(f"def test_{safe_name}_tool_order():")
-        lines.append(f'    """Assert tools were called in the expected order."""')
-        lines.append(f"    run = _replay()")
+        lines.append('    """Assert tools were called in the expected order."""')
+        lines.append("    run = _replay()")
         lines.append(f"    result = assert_tool_order(run, {unique_tools!r})")
-        lines.append(f"    assert result.passed, result.message")
+        lines.append("    assert result.passed, result.message")
         lines.append("")
         lines.append("")
 
@@ -130,19 +129,19 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
         if words:
             term = words[0]
             lines.append(f"def test_{safe_name}_output_contains_key_term():")
-            lines.append(f'    """Assert the output contains an expected term."""')
-            lines.append(f"    run = _replay()")
+            lines.append('    """Assert the output contains an expected term."""')
+            lines.append("    run = _replay()")
             lines.append(f"    result = assert_output_contains(run, {term!r})")
-            lines.append(f"    assert result.passed, result.message")
+            lines.append("    assert result.passed, result.message")
             lines.append("")
             lines.append("")
 
         # Test: output is not empty
         lines.append(f"def test_{safe_name}_output_not_empty():")
-        lines.append(f'    """Assert the agent produced non-empty output."""')
-        lines.append(f"    run = _replay()")
-        lines.append(f'    result = assert_output_matches(run, r".+")')
-        lines.append(f"    assert result.passed, result.message")
+        lines.append('    """Assert the agent produced non-empty output."""')
+        lines.append("    run = _replay()")
+        lines.append('    result = assert_output_matches(run, r".+")')
+        lines.append("    assert result.passed, result.message")
         lines.append("")
         lines.append("")
 
@@ -151,10 +150,10 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
         # Set budget to 2x actual cost — reasonable headroom
         budget = round(cassette.total_cost_usd * 2, 4) or 0.01
         lines.append(f"def test_{safe_name}_cost_budget():")
-        lines.append(f'    """Assert the run stays within cost budget."""')
-        lines.append(f"    run = _replay()")
+        lines.append('    """Assert the run stays within cost budget."""')
+        lines.append("    run = _replay()")
         lines.append(f"    result = assert_cost_under(run, max_usd={budget})")
-        lines.append(f"    assert result.passed, result.message")
+        lines.append("    assert result.passed, result.message")
         lines.append("")
         lines.append("")
 
@@ -163,10 +162,10 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
         # Set budget to 2x actual tokens
         token_budget = cassette.total_tokens * 2
         lines.append(f"def test_{safe_name}_token_budget():")
-        lines.append(f'    """Assert the run stays within token budget."""')
-        lines.append(f"    run = _replay()")
+        lines.append('    """Assert the run stays within token budget."""')
+        lines.append("    run = _replay()")
         lines.append(f"    result = assert_token_count_under(run, max_tokens={token_budget})")
-        lines.append(f"    assert result.passed, result.message")
+        lines.append("    assert result.passed, result.message")
         lines.append("")
         lines.append("")
 
@@ -175,10 +174,10 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
         # Set budget to 3x actual latency
         latency_budget = round(cassette.total_duration_ms * 3, 0)
         lines.append(f"def test_{safe_name}_latency_budget():")
-        lines.append(f'    """Assert the run stays within latency budget."""')
-        lines.append(f"    run = _replay()")
+        lines.append('    """Assert the run stays within latency budget."""')
+        lines.append("    run = _replay()")
         lines.append(f"    result = assert_latency_under(run, max_ms={latency_budget})")
-        lines.append(f"    assert result.passed, result.message")
+        lines.append("    assert result.passed, result.message")
         lines.append("")
 
     return "\n".join(lines)

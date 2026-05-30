@@ -39,10 +39,10 @@ Usage::
 from evalcraft.adapters.anthropic_adapter import AnthropicAdapter
 from evalcraft.adapters.autogen_adapter import AutoGenAdapter
 from evalcraft.adapters.crewai_adapter import CrewAIAdapter
+from evalcraft.adapters.gemini_adapter import GeminiAdapter
 from evalcraft.adapters.langgraph_adapter import LangGraphAdapter
 from evalcraft.adapters.llamaindex_adapter import LlamaIndexAdapter
 from evalcraft.adapters.openai_adapter import OpenAIAdapter
-from evalcraft.adapters.gemini_adapter import GeminiAdapter
 from evalcraft.adapters.pydantic_ai_adapter import PydanticAIAdapter
 
 __all__ = [

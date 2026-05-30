@@ -1,10 +1,10 @@
 """Tests for evalcraft.mock.tool."""
 
 import pytest
-from evalcraft.mock.tool import MockTool, ToolError
+
 from evalcraft.capture.recorder import CaptureContext
 from evalcraft.core.models import SpanKind
-
+from evalcraft.mock.tool import MockTool, ToolError
 
 # ──────────────────────────────────────────────
 # MockTool construction
@@ -291,9 +291,8 @@ class TestMockToolWithCapture:
     def test_error_span_recorded(self):
         tool = MockTool("broken")
         tool.raises("oops")
-        with CaptureContext() as ctx:
-            with pytest.raises(ToolError):
-                tool.call()
+        with CaptureContext() as ctx, pytest.raises(ToolError):
+            tool.call()
         span = ctx.cassette.spans[0]
         assert span.error == "oops"
 

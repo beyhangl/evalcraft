@@ -19,12 +19,11 @@ Usage::
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Sequence
 
 from evalcraft.core.models import Cassette
 from evalcraft.regression.detector import Severity
-
 
 # ---------------------------------------------------------------------------
 # Data classes

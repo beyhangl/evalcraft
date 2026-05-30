@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch, call
+from unittest.mock import patch
 
 import pytest
 
-from evalcraft.core.models import AgentRun, Cassette, Span, SpanKind
-from evalcraft.eval.jury import JuryScorer, JuryResult, JudgeVote
+from evalcraft.core.models import AgentRun, Cassette
+from evalcraft.eval.jury import JudgeVote, JuryResult, JuryScorer
 
 
 @pytest.fixture
@@ -238,7 +238,9 @@ class TestJuryResultSerialization:
         assert d["votes"][0]["provider"] == "openai"
 
     def test_judge_vote_to_dict(self):
-        vote = JudgeVote(provider="openai", model="gpt-4.1", passed=True, score=0.95, reason="Excellent")
+        vote = JudgeVote(
+            provider="openai", model="gpt-4.1", passed=True, score=0.95, reason="Excellent"
+        )
         d = vote.to_dict()
         assert d["provider"] == "openai"
         assert d["model"] == "gpt-4.1"

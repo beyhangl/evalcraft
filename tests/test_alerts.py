@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import json
-import smtplib
 import urllib.error
 import urllib.request
-from io import BytesIO
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -15,7 +13,6 @@ from evalcraft.alerts.email import EmailAlert, SMTPConfig, _build_html
 from evalcraft.alerts.slack import SlackAlert
 from evalcraft.alerts.webhook import GenericWebhook
 from evalcraft.regression.detector import Regression, RegressionReport, Severity
-
 
 # ──────────────────────────────────────────
 # Fixtures

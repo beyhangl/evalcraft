@@ -87,7 +87,10 @@ def _build_html(report: RegressionReport) -> str:
     """Build an HTML email body for the given regression report."""
     max_sev = report.max_severity
     max_sev_label = max_sev.value if max_sev else "NONE"
-    badge_style = _SEV_BADGE_STYLE.get(max_sev, "background:#eee;color:#333;") if max_sev else "background:#eee;color:#333;"
+    default_badge_style = "background:#eee;color:#333;"
+    badge_style = (
+        _SEV_BADGE_STYLE.get(max_sev, default_badge_style) if max_sev else default_badge_style
+    )
 
     rows_html = _build_table_rows(report.regressions)
     count = len(report.regressions)

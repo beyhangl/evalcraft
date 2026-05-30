@@ -34,8 +34,7 @@ from evalcraft.core.models import (
     AssertionResult,
     Cassette,
 )
-from evalcraft.eval._utils import get_cassette, call_llm_judge, normalize_pass_key
-
+from evalcraft.eval._utils import call_llm_judge, get_cassette, normalize_pass_key
 
 _RAG_SYSTEM_PROMPT = (
     "You are a RAG evaluation judge. You evaluate retrieval-augmented "
