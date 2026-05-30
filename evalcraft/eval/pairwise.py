@@ -210,11 +210,11 @@ def pairwise_rank(
         List of RankingEntry sorted by score (highest first).
     """
     if len(cassettes) < 2:
-        entries = []
+        singletons = []
         for c in cassettes:
             name = get_cassette(c).name or "unnamed"
-            entries.append(RankingEntry(name=name, score=1.0))
-        return entries
+            singletons.append(RankingEntry(name=name, score=1.0))
+        return singletons
 
     # Build entries
     entries: dict[int, RankingEntry] = {}

@@ -67,7 +67,7 @@ def pytest_configure(config: pytest.Config) -> None:
         "evalcraft_golden(path): path to golden-set file for regression comparison",
     )
     # Session-level list accumulates per-test metrics for the terminal summary.
-    config._evalcraft_results: list[dict] = []  # type: ignore[attr-defined]
+    config._evalcraft_results = []  # type: ignore[attr-defined]
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -108,7 +108,7 @@ def evalcraft_cassette_dir(request: pytest.FixtureRequest) -> Path:
     ``<rootdir>/tests/cassettes``.
     """
     option: str | None = request.config.getoption("cassette_dir", default=None)
-    directory = Path(option) if option else Path(request.config.rootdir) / "tests" / "cassettes"
+    directory = Path(option) if option else request.config.rootpath / "tests" / "cassettes"
     directory.mkdir(parents=True, exist_ok=True)
     return directory
 
@@ -267,7 +267,7 @@ def golden_set(request: pytest.FixtureRequest) -> GoldenSet | None:
 
     path = Path(str(marker.args[0]))
     if not path.is_absolute():
-        path = Path(str(request.config.rootdir)) / path
+        path = request.config.rootpath / path
 
     if not path.exists():
         pytest.skip(f"Golden set not found: {path}")
@@ -360,7 +360,7 @@ def _load_cassette_from_marker(request: pytest.FixtureRequest) -> Cassette | Non
 
     path = Path(str(marker.args[0]))
     if not path.is_absolute():
-        path = Path(str(request.config.rootdir)) / path
+        path = request.config.rootpath / path
 
     if not path.exists():
         record_mode: str = request.config.getoption("evalcraft_record", default="none")

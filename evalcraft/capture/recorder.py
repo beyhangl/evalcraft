@@ -121,7 +121,7 @@ class CaptureContext:
         log = logging.getLogger(__name__)
         try:
             from evalcraft.sanitize.redactor import CassetteRedactor
-            redactor: CassetteRedactor
+            redactor: Any
             if hasattr(self._redact, "redact"):
                 redactor = self._redact
             else:
@@ -137,7 +137,7 @@ class CaptureContext:
         log = logging.getLogger(__name__)
         try:
             from evalcraft.cloud.client import EvalcraftCloud
-            client: EvalcraftCloud
+            client: Any
             if hasattr(self._cloud, "upload"):
                 client = self._cloud
             else:
