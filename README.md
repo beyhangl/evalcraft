@@ -137,6 +137,11 @@ assert assert_cost_under(run, max_usd=0.05).passed
 
 ### 4. LLM-as-Judge evaluation
 
+> ⚠️ **These are live scorers.** Unlike replay + the structural scorers (which are
+> offline, deterministic, and $0), the LLM-as-Judge / RAG / pairwise scorers call a
+> real model at test time — they cost money, need an API key, and are non-deterministic
+> (use `eval_n` + confidence intervals). See [Offline vs. live scorers](https://beyhangl.github.io/evalcraft/user-guide/scorers/).
+
 ```python
 from evalcraft import replay, assert_output_semantic, assert_factual_consistency
 
@@ -268,24 +273,36 @@ them deterministically — no API key, no network calls, no cost.
 
 ---
 
-## Why Evalcraft?
+## How Evalcraft compares
 
-| | Evalcraft | Braintrust | LangSmith | Promptfoo |
-|---|---|---|---|---|
-| Cassette-based replay | **Yes** | No | No | No |
-| Zero-cost CI testing | **Yes** | No | No | Partial |
-| pytest-native | **Yes** | No | No | No |
-| Mock LLM / Tools | **Yes** | No | No | No |
-| LLM-as-Judge scoring | **Yes** | Yes | Yes | Yes |
-| RAG evaluation metrics | **Yes** | No | No | No |
-| Pairwise A/B comparison | **Yes** | No | No | Yes |
-| Statistical eval (CI) | **Yes** | Partial | No | No |
-| Auto-test generation | **Yes** | No | No | No |
-| Framework agnostic | **Yes** | Yes | Yes | Yes |
-| Self-hostable | **Yes** | No | Partial | Yes |
-| Pricing | Free / OSS | Paid SaaS | Paid SaaS | Free / OSS |
+An honest comparison against the closest tools. ✅ first-class · ⚠️ partial / via integration · ❌ no · — not applicable.
 
-> Evalcraft is a **testing** tool, not an observability platform. Use Braintrust or LangSmith for production tracing; use Evalcraft to keep your test suite fast and free.
+| | Evalcraft | DeepEval | Promptfoo | LangSmith | Braintrust | Ragas |
+|---|---|---|---|---|---|---|
+| Git-committed cassette replay | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Zero-cost CI re-runs | ✅ replay | ✅ cache | ✅ cache | ⚠️ | ❌ | — |
+| pytest-native | ✅ | ✅ | ❌ CLI/YAML | ✅ | ❌ | ⚠️ library |
+| First-class Mock LLM / Tools | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| LLM-as-Judge scoring | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| RAG metrics | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ reference |
+| Pairwise A/B | ✅ | ⚠️ | ✅ | ✅ | ✅ | ❌ |
+| Statistical eval w/ confidence intervals | ✅ Wilson | ⚠️ | ⚠️ repeat | ⚠️ | ⚠️ | ❌ |
+| Auto-generate tests from runs | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| OSS / self-hostable | ✅ | ✅ | ✅ | ⚠️ enterprise | ❌ enterprise | ✅ |
+| Primary focus | CI / glue testing | LLM eval framework | eval + red-team | tracing + eval | eval + observability | RAG metrics |
+| Pricing | Free / OSS | Free / OSS (+cloud) | Free / OSS | Paid SaaS (free tier) | Paid SaaS (free tier) | Free / OSS |
+
+**What's genuinely distinctive** (vs. the table-stakes everyone has): git-committed, PR-diffable **cassettes** capturing full agent traces (LLM + tool + steps); **auto-generating** a pytest file from a recorded run; first-class **MockLLM / MockTool**; and a packaged **Wilson-interval** statistical helper.
+
+**Honest caveats:**
+- *Zero-cost CI is not unique* — Promptfoo (disk cache, on by default) and DeepEval (`-c`) already make re-runs free. Evalcraft's angle is *deterministic replay of a committed artifact*, not a lower bill per se.
+- *Replay only re-checks a recorded run.* It does not re-execute the live model, so on its own it can't catch model/prompt/retrieval drift — see [what replay does and doesn't test](docs/user-guide/replay.md). For drift, re-record or run a live eval.
+- *The LLM-as-Judge, RAG, and pairwise scorers make real, paid model calls at test time* — they are **not** part of the $0 deterministic path.
+- Other strong OSS/self-hostable options not shown: **Langfuse**, **Arize Phoenix**, **Inspect AI**.
+
+> Evalcraft is a **testing** tool for your agent's deterministic glue + budgets — not an observability platform. Use Braintrust / LangSmith / Langfuse for production tracing; use Evalcraft to keep that layer of your suite fast and committed to git.
+
+<sub>Sources for the contested rows: [Promptfoo caching](https://www.promptfoo.dev/docs/configuration/caching/) · [DeepEval CI/CD + cache](https://deepeval.com/docs/evaluation-unit-testing-in-ci-cd) · [LangSmith pairwise](https://docs.langchain.com/langsmith/evaluate-pairwise)</sub>
 
 ---
 
@@ -308,7 +325,7 @@ them deterministically — no API key, no network calls, no cost.
 | **CLI** | 14 commands: replay, diff, eval, generate-tests, doctor, golden, regression, sanitize, ... |
 | **pytest plugin** | Native fixtures and markers — `cassette`, `mock_llm`, `@pytest.mark.evalcraft` |
 | **CI Gate** | GitHub Action with PR comments, score thresholds, regression detection |
-| **JS/TS SDK** | Full TypeScript SDK with feature parity — scorers, mocks, adapters |
+| **JS/TS SDK** | TypeScript SDK (pre-release, source-only): capture/replay, mocks, 16 scorers, OpenAI/Gemini/Vercel AI adapters |
 
 ---
 
@@ -401,6 +418,34 @@ The action runs your agent tests, checks cost/regression thresholds, and posts a
 
 ---
 
+## Catching drift: live-eval
+
+Replay is deterministic and free because it **doesn't run your model** — which is
+exactly why it can't catch model/prompt/retrieval **drift**. Live-eval is the
+complementary layer: it runs your *real* agent over a golden set of **inputs**,
+scores the live output, and gates CI when quality regresses against a baseline.
+
+```python
+from evalcraft.eval.live import LiveEvalCase, LiveEvalResult, run_live_eval, compare_to_baseline
+from evalcraft import assert_output_contains
+
+cases = [LiveEvalCase(name="paris", input="Weather in Paris?",
+                      scorers=[lambda c: assert_output_contains(c, "Paris")])]
+
+def runner(case):
+    return my_agent.run(case.input)   # your REAL agent — paid, non-deterministic
+
+result = run_live_eval(cases, runner)
+comparison = compare_to_baseline(
+    result, LiveEvalResult.load("live-baseline.json"), max_score_drop=0.1
+)
+assert comparison.passed, comparison.summary()
+```
+
+Run it nightly or as a release gate (not on every commit). See [Live Eval](https://beyhangl.github.io/evalcraft/user-guide/live-eval/).
+
+---
+
 ## CLI reference
 
 ```
@@ -422,6 +467,7 @@ evalcraft [command] [options]
 | `evalcraft regression <cassette>` | Detect regressions |
 | `evalcraft sanitize <cassette>` | Redact PII and secrets |
 | `evalcraft doctor` | Diagnose setup issues (deps, API keys, cassettes) |
+| `evalcraft live-eval <current> --baseline <b>` | Gate a live-eval run vs a baseline (catch drift) |
 
 ---
 
@@ -433,7 +479,7 @@ Cassette
 +-- input_text, output_text
 +-- total_tokens, total_cost_usd, total_duration_ms
 +-- llm_call_count, tool_call_count
-+-- fingerprint  (SHA-256 of span content -- detects regressions)
++-- fingerprint  (SHA-256 of span content -- changes when the recording changes)
 +-- spans[]
     +-- Span (llm_request / llm_response)
     |   +-- model, token_usage, cost_usd
@@ -449,8 +495,13 @@ Cassettes are plain JSON — check them into git, diff them in PRs.
 
 ## TypeScript / JavaScript SDK
 
+> **Status: pre-release (source-only).** The JS/TS SDK is **not yet published to npm.**
+> Until it is, build it from source from this repo:
+
 ```bash
-npm install evalcraft
+git clone https://github.com/beyhangl/evalcraft
+cd evalcraft/packages/evalcraft-js
+npm install && npm run build   # emits dist/ (CJS + ESM + type defs)
 ```
 
 ```typescript
@@ -463,7 +514,24 @@ import { wrapOpenAI } from 'evalcraft/adapters/openai';
 import { wrapGemini } from 'evalcraft/adapters/gemini';
 ```
 
-Full feature parity with the Python SDK — 19 scorers, mocks, LLM-as-Judge, RAG metrics, and framework adapters (OpenAI, Gemini, Vercel AI).
+The JS/TS SDK covers the core workflow — capture, replay, `MockLLM`/`MockTool`, and **16 scorers** (8 core + 4 LLM-as-Judge + 4 RAG) — with OpenAI, Gemini, and Vercel AI adapters. It is **not yet at full parity** with the Python SDK.
+
+### Python vs JS/TS parity
+
+| Capability | Python | JS/TS |
+|---|---|---|
+| Capture / replay / cassettes | ✅ | ✅ |
+| `MockLLM` / `MockTool` | ✅ | ✅ |
+| Core scorers (tool / output / cost / latency / tokens) | ✅ (8) | ✅ (8) |
+| LLM-as-Judge scorers | ✅ (4) | ✅ (4) |
+| RAG metrics | ✅ (4) | ✅ (4) |
+| Pairwise A/B | ✅ | ❌ |
+| Statistical eval (`eval_n`) | ✅ | ❌ |
+| Multi-judge jury / consensus | ✅ | ❌ |
+| Hallucination detection | ✅ | ❌ |
+| Golden sets / regression / trend | ✅ | ❌ |
+| CLI + pytest plugin | ✅ | ❌ |
+| Framework adapters | 8 (OpenAI, Anthropic, Gemini, Pydantic AI, LangGraph, CrewAI, AutoGen, LlamaIndex) | 3 (OpenAI, Gemini, Vercel AI) |
 
 ---
 
@@ -486,13 +554,13 @@ PRs welcome. Please open an issue first for significant changes. See [CONTRIBUTI
 
 ## Design Partners
 
-We're working with 10 early teams to shape evalcraft. Design partners get:
+**We're looking for design partners.** evalcraft is early (v0.1.0), and we'd like a few teams to help shape it. Partners get:
 
 - **Hands-on setup help** — we'll pair with you to get evalcraft into your CI pipeline
-- **Direct Slack access** — talk to the maintainers, not a support queue
+- **Direct access to the maintainer** — not a support queue
 - **Influence the roadmap** — your use cases drive what we build next
 
-Interested? [Sign up here](https://beyhangl.github.io/evalcraft/#frameworks) or email us directly.
+Interested? [Open an issue](https://github.com/beyhangl/evalcraft/issues) and say hi.
 
 ---
 

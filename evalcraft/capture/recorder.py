@@ -109,6 +109,7 @@ class CaptureContext:
         self.cassette.total_duration_ms = (time.time() - self._start_time) * 1000
         self.cassette.compute_metrics()
         self.cassette.compute_fingerprint()
+        self.cassette.capture_provenance()
         if self._redact is not False and self._redact is not None:
             self._auto_redact()
         if self.save_path:

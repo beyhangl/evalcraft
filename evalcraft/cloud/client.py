@@ -34,6 +34,12 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# NOTE: The hosted Evalcraft dashboard/API is not yet publicly available.
+# This default points at the *planned* hosted endpoint; until it ships, set
+# ``base_url`` (or the ``base_url`` field in ~/.evalcraft/config.json) to your
+# own self-hosted dashboard — see the ``dashboard/`` directory. All cloud
+# features are optional: the core capture / replay / eval workflow runs fully
+# offline and never contacts this endpoint.
 _DEFAULT_BASE_URL = "https://api.evalcraft.dev/v1"
 _CONFIG_DIR = Path.home() / ".evalcraft"
 _CONFIG_FILE = _CONFIG_DIR / "config.json"

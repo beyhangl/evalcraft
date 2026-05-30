@@ -20,6 +20,44 @@ from evalcraft.eval.scorers import Evaluator
 
 ---
 
+## Offline vs. live scorers
+
+Evalcraft has **two kinds** of scorers, and the difference matters: only the
+*offline* family delivers the "deterministic, $0, runs-on-every-commit" promise.
+
+### Offline / deterministic (no network, $0)
+
+Evaluated entirely against the recorded cassette — no model is called. These run
+fine inside replay's `NetworkGuard`:
+
+- `assert_tool_called`, `assert_tool_order`, `assert_no_tool_called`
+- `assert_output_contains`, `assert_output_matches`
+- `assert_cost_under`, `assert_latency_under`, `assert_token_count_under`
+
+> Cost / latency / token assertions read the **recorded** numbers — they gate the
+> captured run, not a fresh live run.
+
+### Live / paid / non-deterministic (calls a real model at test time)
+
+These send the recorded output to a judge **model** when invoked, so they incur
+cost + latency, require an API key, and are **not** deterministic. Run them with
+`eval_n(...)` + confidence intervals, and keep them out of the $0 per-commit path
+(use nightly / gated jobs):
+
+- **LLM-as-Judge:** `assert_output_semantic`, `assert_factual_consistency`, `assert_tone`, `assert_custom_criteria`
+- **RAG metrics:** `assert_faithfulness`, `assert_context_relevance`, `assert_answer_relevance`, `assert_context_recall`
+- **Pairwise:** `pairwise_compare`, `pairwise_rank`
+- **Multi-judge:** `JuryScorer`
+- **Hallucination:** `assert_no_hallucination`, `detect_hallucinations`
+
+> The judge model is configurable (`provider=`, `model=`). A judge call cannot run
+> inside replay's `NetworkGuard` — it needs the network. For deterministic, $0 CI
+> you can **opt in** to record/replay of judge responses with
+> `evalcraft.eval.judge_cache.use_judge_cache(...)` (or the `EVALCRAFT_JUDGE_CACHE`
+> env var) — at the cost of a frozen judgment that only updates when you re-record.
+
+---
+
 ## AssertionResult
 
 Every scorer returns an `AssertionResult`:
