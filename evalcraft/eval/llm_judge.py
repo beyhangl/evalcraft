@@ -26,9 +26,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from evalcraft.core.models import AssertionResult, AgentRun, Cassette
-from evalcraft.eval._utils import get_cassette, call_llm_judge, normalize_pass_key
-
+from evalcraft.core.models import AgentRun, AssertionResult, Cassette
+from evalcraft.eval._utils import call_llm_judge, get_cassette, normalize_pass_key
 
 _JUDGE_SYSTEM_PROMPT = (
     "You are an evaluation judge.  You receive an agent output and "

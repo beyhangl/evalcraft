@@ -29,14 +29,12 @@ from __future__ import annotations
 
 import copy
 import hashlib
-import json
 import re
 from enum import Enum
 from pathlib import Path
 from typing import Any
 
 from evalcraft.core.models import Cassette
-
 
 # ─── redaction modes ─────────────────────────────────────────────────────────
 

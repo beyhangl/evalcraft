@@ -1,22 +1,18 @@
 """Tests for evalcraft.eval.scorers."""
 
-import pytest
-from evalcraft.core.models import (
-    Cassette, Span, SpanKind, TokenUsage, AgentRun, EvalResult
-)
+from evalcraft.core.models import AgentRun, Cassette
 from evalcraft.eval.scorers import (
-    assert_tool_called,
-    assert_tool_order,
+    Evaluator,
+    _get_cassette,
+    assert_cost_under,
+    assert_latency_under,
     assert_no_tool_called,
     assert_output_contains,
     assert_output_matches,
-    assert_cost_under,
-    assert_latency_under,
     assert_token_count_under,
-    Evaluator,
-    _get_cassette,
+    assert_tool_called,
+    assert_tool_order,
 )
-
 
 # ──────────────────────────────────────────────
 # _get_cassette helper

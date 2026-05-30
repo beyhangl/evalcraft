@@ -16,10 +16,10 @@ from evalcraft.pytest_plugin.plugin import (
     evalcraft_cassette_dir,
     mock_llm,
     mock_tool,
-    replay_engine,
     pytest_addoption,
     pytest_configure,
     pytest_terminal_summary,
+    replay_engine,
 )
 
 __all__ = [

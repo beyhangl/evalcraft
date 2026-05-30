@@ -1,10 +1,10 @@
 """Tests for evalcraft.mock.llm."""
 
 import pytest
-from evalcraft.mock.llm import MockLLM, MockResponse
+
 from evalcraft.capture.recorder import CaptureContext
 from evalcraft.core.models import SpanKind
-
+from evalcraft.mock.llm import MockLLM, MockResponse
 
 # ──────────────────────────────────────────────
 # MockResponse

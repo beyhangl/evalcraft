@@ -20,32 +20,31 @@ Covers:
 
 from __future__ import annotations
 
-import importlib
+import importlib as _importlib
 import socket
-import threading
+
+# Import sub-modules directly to avoid the name-shadowing caused by
+# ``evalcraft.__init__`` exporting a ``replay`` function that masks the
+# ``evalcraft.replay`` subpackage when patch() resolves dotted paths.
 from unittest.mock import MagicMock, patch
 
 import pytest
 from click.testing import CliRunner
 
-# Import sub-modules directly to avoid the name-shadowing caused by
-# ``evalcraft.__init__`` exporting a ``replay`` function that masks the
-# ``evalcraft.replay`` subpackage when patch() resolves dotted paths.
-import sys as _sys
-import importlib as _importlib
-
 _ng_module = _importlib.import_module("evalcraft.replay.network_guard")
 _engine_module = _importlib.import_module("evalcraft.replay.engine")
 
-from evalcraft.replay.network_guard import (
+from evalcraft.cli.main import cli  # noqa: E402  must follow import_module calls above
+from evalcraft.replay.engine import (  # noqa: E402  see name-shadowing note above
+    ReplayEngine,
+    replay,
+)
+from evalcraft.replay.network_guard import (  # noqa: E402  see name-shadowing note above
     NetworkGuard,
     ReplayNetworkViolation,
     _active_guards,
     _real_create_connection,
 )
-from evalcraft.replay.engine import ReplayEngine, replay
-from evalcraft.cli.main import cli
-
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -90,9 +89,8 @@ class TestReplayNetworkViolation:
 
 class TestNetworkGuardBlocking:
     def test_blocks_connection_inside_context(self):
-        with NetworkGuard():
-            with pytest.raises(ReplayNetworkViolation):
-                _try_connect("example.com", 80)
+        with NetworkGuard(), pytest.raises(ReplayNetworkViolation):
+            _try_connect("example.com", 80)
 
     def test_does_not_block_outside_context(self):
         """After the guard exits, socket.create_connection must be restored."""
@@ -103,9 +101,8 @@ class TestNetworkGuardBlocking:
         assert socket.create_connection is _real_create_connection
 
     def test_raises_on_https_port(self):
-        with NetworkGuard():
-            with pytest.raises(ReplayNetworkViolation):
-                _try_connect("secure.example.com", 443)
+        with NetworkGuard(), pytest.raises(ReplayNetworkViolation):
+            _try_connect("secure.example.com", 443)
 
     def test_violation_carries_correct_host(self):
         with NetworkGuard():
@@ -147,9 +144,8 @@ class TestNetworkGuardAllowlist:
                     _try_connect("external.example.com", 80)
 
     def test_empty_allowlist_blocks_all(self):
-        with NetworkGuard(allowlist=[]):
-            with pytest.raises(ReplayNetworkViolation):
-                _try_connect("localhost", 8080)
+        with NetworkGuard(allowlist=[]), pytest.raises(ReplayNetworkViolation):
+            _try_connect("localhost", 8080)
 
     def test_multiple_hosts_in_allowlist(self):
         mock_sock = MagicMock()
@@ -162,9 +158,8 @@ class TestNetworkGuardAllowlist:
 
     def test_allowlist_is_exact_match(self):
         """'localhos' (typo) should NOT match 'localhost'."""
-        with NetworkGuard(allowlist=["localhos"]):
-            with pytest.raises(ReplayNetworkViolation):
-                _try_connect("localhost", 8080)
+        with NetworkGuard(allowlist=["localhos"]), pytest.raises(ReplayNetworkViolation):
+            _try_connect("localhost", 8080)
 
     def test_allowlist_property_returns_frozenset(self):
         guard = NetworkGuard(allowlist=["a.com", "b.com"])
@@ -207,10 +202,8 @@ class TestNetworkGuardIsActive:
 
 class TestNetworkGuardNesting:
     def test_nested_guard_still_blocks(self):
-        with NetworkGuard():
-            with NetworkGuard():
-                with pytest.raises(ReplayNetworkViolation):
-                    _try_connect("example.com", 80)
+        with NetworkGuard(), NetworkGuard(), pytest.raises(ReplayNetworkViolation):
+            _try_connect("example.com", 80)
 
     def test_socket_restored_after_nested_exit(self):
         with NetworkGuard():

@@ -30,8 +30,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from evalcraft.core.models import AgentRun, AssertionResult, Cassette
-from evalcraft.eval._utils import get_cassette, call_llm_judge
-
+from evalcraft.eval._utils import call_llm_judge, get_cassette
 
 # ---------------------------------------------------------------------------
 # Data classes
@@ -187,7 +186,10 @@ def detect_hallucinations(
             text=raw_claim.get("text", ""),
             supported=bool(raw_claim.get("supported", False)),
             reason=raw_claim.get("reason", ""),
-            category=raw_claim.get("category", "unsupported" if not raw_claim.get("supported") else "supported"),
+            category=raw_claim.get(
+                "category",
+                "unsupported" if not raw_claim.get("supported") else "supported",
+            ),
         ))
 
     total = len(claims)
@@ -247,6 +249,9 @@ def assert_no_hallucination(
         name="assert_no_hallucination",
         passed=result.passed,
         expected=f"hallucination_rate <= {threshold:.0%}",
-        actual=f"{result.hallucination_rate:.0%} ({result.unsupported_claims}/{result.total_claims} claims unsupported)",
+        actual=(
+            f"{result.hallucination_rate:.0%} "
+            f"({result.unsupported_claims}/{result.total_claims} claims unsupported)"
+        ),
         message=detail if not result.passed else "",
     )

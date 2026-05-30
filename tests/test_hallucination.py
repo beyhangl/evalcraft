@@ -44,8 +44,18 @@ class TestDetectHallucinations:
     def test_no_hallucinations(self, mock_judge, faithful_cassette):
         mock_judge.return_value = {
             "claims": [
-                {"text": "Paris has 2.1 million people", "supported": True, "reason": "Matches context", "category": "supported"},
-                {"text": "Known for the Eiffel Tower", "supported": True, "reason": "Matches context", "category": "supported"},
+                {
+                    "text": "Paris has 2.1 million people",
+                    "supported": True,
+                    "reason": "Matches context",
+                    "category": "supported",
+                },
+                {
+                    "text": "Known for the Eiffel Tower",
+                    "supported": True,
+                    "reason": "Matches context",
+                    "category": "supported",
+                },
             ]
         }
 
@@ -62,8 +72,18 @@ class TestDetectHallucinations:
     def test_all_hallucinated(self, mock_judge, hallucinating_cassette):
         mock_judge.return_value = {
             "claims": [
-                {"text": "Paris has 5 million people", "supported": False, "reason": "Context says 2.1 million", "category": "contradicted"},
-                {"text": "Eiffel Tower is 500m tall", "supported": False, "reason": "Context says 330m", "category": "contradicted"},
+                {
+                    "text": "Paris has 5 million people",
+                    "supported": False,
+                    "reason": "Context says 2.1 million",
+                    "category": "contradicted",
+                },
+                {
+                    "text": "Eiffel Tower is 500m tall",
+                    "supported": False,
+                    "reason": "Context says 330m",
+                    "category": "contradicted",
+                },
             ]
         }
 
@@ -78,9 +98,24 @@ class TestDetectHallucinations:
     def test_partial_hallucination(self, mock_judge, hallucinating_cassette):
         mock_judge.return_value = {
             "claims": [
-                {"text": "Paris has 5 million people", "supported": False, "reason": "Wrong number", "category": "contradicted"},
-                {"text": "Eiffel Tower exists", "supported": True, "reason": "Confirmed", "category": "supported"},
-                {"text": "Tower is 500m tall", "supported": False, "reason": "Wrong height", "category": "contradicted"},
+                {
+                    "text": "Paris has 5 million people",
+                    "supported": False,
+                    "reason": "Wrong number",
+                    "category": "contradicted",
+                },
+                {
+                    "text": "Eiffel Tower exists",
+                    "supported": True,
+                    "reason": "Confirmed",
+                    "category": "supported",
+                },
+                {
+                    "text": "Tower is 500m tall",
+                    "supported": False,
+                    "reason": "Wrong height",
+                    "category": "contradicted",
+                },
             ]
         }
 
@@ -171,8 +206,18 @@ class TestAssertNoHallucination:
             supported_claims=0,
             unsupported_claims=2,
             claims=[
-                Claim(text="Paris has 5 million", supported=False, category="contradicted", reason="Wrong"),
-                Claim(text="Tower is 500m", supported=False, category="contradicted", reason="Wrong"),
+                Claim(
+                    text="Paris has 5 million",
+                    supported=False,
+                    category="contradicted",
+                    reason="Wrong",
+                ),
+                Claim(
+                    text="Tower is 500m",
+                    supported=False,
+                    category="contradicted",
+                    reason="Wrong",
+                ),
             ],
         )
 

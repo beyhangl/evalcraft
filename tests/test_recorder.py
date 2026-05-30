@@ -1,14 +1,16 @@
 """Tests for evalcraft.capture.recorder."""
 
-import asyncio
 import pytest
-from pathlib import Path
 
 from evalcraft.capture.recorder import (
-    CaptureContext, capture, get_active_context, record_span, record_llm_call, record_tool_call
+    CaptureContext,
+    capture,
+    get_active_context,
+    record_llm_call,
+    record_span,
+    record_tool_call,
 )
-from evalcraft.core.models import Span, SpanKind, TokenUsage
-
+from evalcraft.core.models import Span, SpanKind
 
 # ──────────────────────────────────────────────
 # get_active_context

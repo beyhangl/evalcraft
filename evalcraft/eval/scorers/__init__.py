@@ -14,17 +14,13 @@ Usage:
 from __future__ import annotations
 
 import re
-from typing import Any
 
 from evalcraft.core.models import (
-    Cassette,
-    Span,
-    SpanKind,
     AgentRun,
-    EvalResult,
     AssertionResult,
+    Cassette,
+    EvalResult,
 )
-
 
 # ──────────────────────────────────────────────
 # Tool assertions

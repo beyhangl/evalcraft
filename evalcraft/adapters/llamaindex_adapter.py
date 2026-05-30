@@ -48,7 +48,6 @@ from typing import Any
 from evalcraft.capture.recorder import get_active_context
 from evalcraft.core.models import Span, SpanKind
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -206,7 +205,9 @@ def _build_handler_class(CBEventType: Any, EventPayload: Any, BaseCallbackHandle
                 messages = payload.get(EventPayload.MESSAGES) or payload.get(
                     getattr(EventPayload, "PROMPT", "prompt"), None
                 )
-                serialized = payload.get(getattr(EventPayload, "SERIALIZED", "serialized"), {}) or {}
+                serialized = (
+                    payload.get(getattr(EventPayload, "SERIALIZED", "serialized"), {}) or {}
+                )
 
                 model = (
                     serialized.get("model")
@@ -366,14 +367,14 @@ class LlamaIndexAdapter:
 
     # -- context manager protocol ------------------------------------------
 
-    def __enter__(self) -> "LlamaIndexAdapter":
+    def __enter__(self) -> LlamaIndexAdapter:
         self._patch()
         return self
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self._unpatch()
 
-    async def __aenter__(self) -> "LlamaIndexAdapter":
+    async def __aenter__(self) -> LlamaIndexAdapter:
         self._patch()
         return self
 

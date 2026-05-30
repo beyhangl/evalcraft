@@ -1,14 +1,16 @@
 """Tests for evalcraft.core.models."""
 
-import json
 import time
-import pytest
-from pathlib import Path
 
 from evalcraft.core.models import (
-    SpanKind, TokenUsage, Span, Cassette, AgentRun, EvalResult, AssertionResult
+    AgentRun,
+    AssertionResult,
+    Cassette,
+    EvalResult,
+    Span,
+    SpanKind,
+    TokenUsage,
 )
-
 
 # ──────────────────────────────────────────────
 # SpanKind

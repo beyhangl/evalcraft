@@ -107,7 +107,7 @@ def _provider_call(
         kwargs: dict[str, Any] = {}
         if api_key:
             kwargs["api_key"] = api_key
-        client = openai.OpenAI(**kwargs)
+        client: Any = openai.OpenAI(**kwargs)
         response = client.chat.completions.create(
             model=resolved_model,
             temperature=temperature,

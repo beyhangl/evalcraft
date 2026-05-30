@@ -36,8 +36,7 @@ import time
 from typing import Any
 
 from evalcraft.capture.recorder import get_active_context
-from evalcraft.core.models import Span, SpanKind, TokenUsage
-
+from evalcraft.core.models import Span, SpanKind
 
 # ---------------------------------------------------------------------------
 # Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
@@ -50,7 +49,7 @@ _MODEL_PRICING: dict[str, tuple[float, float]] = {
     "gpt-5.4-mini": (0.25, 2.00),
     "gpt-5.4-nano": (0.05, 0.20),
     "gpt-4.1": (2.00, 8.00),
-    "gpt-5.4-nano": (0.40, 1.60),
+    "gpt-4.1-mini": (0.40, 1.60),
     "gpt-4.1-nano": (0.10, 0.40),
     # OpenAI — GPT-4o
     "gpt-4o": (2.50, 10.00),
@@ -239,14 +238,14 @@ class PydanticAIAdapter:
 
     # -- context manager protocol ------------------------------------------
 
-    def __enter__(self) -> "PydanticAIAdapter":
+    def __enter__(self) -> PydanticAIAdapter:
         self._patch()
         return self
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self._unpatch()
 
-    async def __aenter__(self) -> "PydanticAIAdapter":
+    async def __aenter__(self) -> PydanticAIAdapter:
         self._patch()
         return self
 

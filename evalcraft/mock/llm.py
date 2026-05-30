@@ -16,10 +16,9 @@ from __future__ import annotations
 import re
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Callable
 
 from evalcraft.capture.recorder import get_active_context
-from evalcraft.core.models import Span, SpanKind, TokenUsage
 
 
 @dataclass

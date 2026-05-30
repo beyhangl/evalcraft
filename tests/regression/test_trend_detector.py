@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import math
+
 import pytest
 
 from evalcraft.core.models import Cassette, Span, SpanKind
-from evalcraft.regression.trend import TrendDetector, TrendReport, TrendRegression
 from evalcraft.regression.detector import Severity
-
+from evalcraft.regression.trend import TrendDetector, TrendReport
 
 # ---------------------------------------------------------------------------
 # Helpers
