@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2026-05-30
+
+Ships everything developed since the initial `0.1.0` PyPI upload — a much larger
+evaluation surface, new drift-catching and determinism tooling, an honest
+re-scope of the project's positioning, several bug fixes, and a full lint/type
+cleanup. Backward-compatible with `0.1.0` cassettes.
+
+### Added
+
+#### Evaluation
+- **LLM-as-Judge scorers** — `assert_output_semantic`, `assert_factual_consistency`, `assert_tone`, `assert_custom_criteria` (OpenAI or Anthropic judge, configurable model)
+- **RAG metrics** — `assert_faithfulness`, `assert_context_relevance`, `assert_answer_relevance`, `assert_context_recall`
+- **Pairwise A/B** — `pairwise_compare` and `pairwise_rank` (round-robin tournament) with position-bias mitigation
+- **Statistical eval** — `eval_n` with Wilson-score confidence intervals
+- **Multi-judge consensus** — `JuryScorer`
+- **Hallucination detection** — `assert_no_hallucination`, `detect_hallucinations` (per-claim breakdown)
+- **Live-eval mode** — `run_live_eval` / `compare_to_baseline` + the `evalcraft live-eval` CLI: run scorers against the *real* model over a golden input set and gate CI on score regressions. This is the layer that catches model/prompt/retrieval drift, which replay cannot.
+
+#### Cassettes
+- **Provenance metadata** — each recording captures the model set, a prompt hash, SDK/Python versions, and record time (for staleness reasoning); surfaced in `evalcraft info`. Loads provenance-less cassettes unchanged.
+- **Opt-in judge cache** — `evalcraft.eval.judge_cache.use_judge_cache(...)` / the `EVALCRAFT_JUDGE_CACHE` env var record/replay LLM-judge responses for deterministic, $0 judge scoring in CI (modes: `auto` / `record` / `replay`).
+
+#### Other
+- Regression `TrendDetector` for multi-run gradual-drift analysis
+- **Gemini** and **Pydantic AI** adapters (Python); Gemini + Vercel AI adapters (JS)
+- `evalcraft generate-tests` (pytest file from a cassette) and `evalcraft doctor` (setup diagnostics)
+- TypeScript/JavaScript SDK (pre-release, source-only): capture/replay, mocks, 16 scorers, OpenAI/Gemini/Vercel AI adapters
+
+### Fixed
+- LangGraph adapter: two `NameError`s in `on_llm_end` / `on_chain_end` (referenced callback params they never receive)
+- NetworkGuard: Python 3.9/3.10 crash from hard-coding the `all_errors` kwarg (added to the stdlib only in 3.11) — now forwards `**kwargs`
+- De-flaked the JS fingerprint-determinism test (pinned `Span.timestamp`)
+- Repointed the dead `evalcraft.dev` documentation URL to the GitHub Pages site
+
+### Changed
+- **Positioning** re-scoped from "The pytest for AI agents" to **"VCR for AI agents"** — honest about what replay does, and no longer colliding with DeepEval's tagline
+- Documentation corrected for accuracy: offline-vs-live scorer labeling, fingerprint/regression semantics (detects *recorded* changes, not live drift), an accurate Python-vs-JS parity matrix, a fact-checked comparison table, and JS install instructions (build-from-source; not yet on npm)
+
+### Internal
+- ruff: 325 → 0 findings; mypy: made runnable and clean across the package (strict bug-catching checks kept on; annotation-completeness sub-checks right-sized to the codebase's style)
+- 803 Python tests and 145 JS tests passing
+
 ## [0.1.0] — 2026-03-05
 
 Initial public release of Evalcraft — the pytest for AI agents.
