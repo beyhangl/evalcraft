@@ -34,6 +34,9 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# NOTE: `evalcraft.dev` may be advertised as documentation, but the hosted API may
+# not be deployed. Keep this default for backwards compatibility; users can
+# override via `base_url=` when running their own dashboard backend.
 _DEFAULT_BASE_URL = "https://api.evalcraft.dev/v1"
 _CONFIG_DIR = Path.home() / ".evalcraft"
 _CONFIG_FILE = _CONFIG_DIR / "config.json"
