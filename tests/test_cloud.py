@@ -52,7 +52,7 @@ def golden_set(cassette):
 def client(tmp_path):
     return EvalcraftCloud(
         api_key="ec_test_key",
-        base_url="https://api.evalcraft.dev/v1",
+        base_url="https://dash.example.com/v1",
         timeout=5,
         max_retries=2,
         queue_dir=tmp_path / "queue",
@@ -97,12 +97,23 @@ def test_api_key_from_config(tmp_path, monkeypatch):
         assert c.api_key == "ec_from_config"
 
 
+def test_no_base_url_configured_raises_clear_error(tmp_path, monkeypatch):
+    """With no base_url (arg / env / config), a cloud request fails with a clear,
+    self-host-pointing error instead of hitting a non-existent default host."""
+    monkeypatch.delenv("EVALCRAFT_BASE_URL", raising=False)
+    with patch("evalcraft.cloud.client._CONFIG_FILE", tmp_path / "missing.json"):
+        c = EvalcraftCloud(api_key="ec_x", queue_dir=tmp_path / "queue")
+        assert c.base_url == ""
+        with pytest.raises(CloudUploadError, match="self-hosted"):
+            c.list_cassettes("proj")
+
+
 # ──────────────────────────────────────────────
 # upload()
 # ──────────────────────────────────────────────
 
 def test_upload_cassette_success(client, cassette):
-    server_resp = {"id": "cas_abc123", "url": "https://app.evalcraft.dev/cassettes/cas_abc123"}
+    server_resp = {"id": "cas_abc123", "url": "https://app.example.com/cassettes/cas_abc123"}
     mock_resp = _make_mock_response(server_resp)
 
     with patch("urllib.request.urlopen", return_value=mock_resp) as mock_open:
@@ -113,7 +124,7 @@ def test_upload_cassette_success(client, cassette):
 
     # Verify correct URL and method
     req = mock_open.call_args[0][0]
-    assert req.full_url == "https://api.evalcraft.dev/v1/cassettes"
+    assert req.full_url == "https://dash.example.com/v1/cassettes"
     assert req.method == "POST"
     assert req.headers.get("Authorization") == "Bearer ec_test_key"
     assert req.headers.get("Content-type") == "application/json"
@@ -142,7 +153,7 @@ def test_upload_cassette_queued_on_failure(client, cassette, tmp_path):
 # ──────────────────────────────────────────────
 
 def test_upload_golden_success(client, golden_set):
-    server_resp = {"id": "gs_xyz", "url": "https://app.evalcraft.dev/golden/gs_xyz"}
+    server_resp = {"id": "gs_xyz", "url": "https://app.example.com/golden/gs_xyz"}
     mock_resp = _make_mock_response(server_resp)
 
     with patch("urllib.request.urlopen", return_value=mock_resp) as mock_open:
@@ -150,7 +161,7 @@ def test_upload_golden_success(client, golden_set):
 
     assert result["id"] == "gs_xyz"
     req = mock_open.call_args[0][0]
-    assert req.full_url == "https://api.evalcraft.dev/v1/golden-sets"
+    assert req.full_url == "https://dash.example.com/v1/golden-sets"
     payload = json.loads(req.data.decode("utf-8"))
     assert payload["name"] == "weather_golden"
 
@@ -203,7 +214,7 @@ def test_get_regressions(client):
 def test_retry_on_5xx_then_success(client, cassette):
     """Should retry on 5xx and succeed on the next attempt."""
     server_err = urllib.error.HTTPError(
-        url="https://api.evalcraft.dev/v1/cassettes",
+        url="https://dash.example.com/v1/cassettes",
         code=503,
         msg="Service Unavailable",
         hdrs=MagicMock(),  # type: ignore[arg-type]
@@ -221,7 +232,7 @@ def test_retry_on_5xx_then_success(client, cassette):
 def test_no_retry_on_4xx(client, cassette):
     """4xx errors should not be retried."""
     err = urllib.error.HTTPError(
-        url="https://api.evalcraft.dev/v1/cassettes",
+        url="https://dash.example.com/v1/cassettes",
         code=401,
         msg="Unauthorized",
         hdrs=MagicMock(),  # type: ignore[arg-type]

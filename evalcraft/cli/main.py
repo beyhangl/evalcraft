@@ -58,7 +58,7 @@ _SPAN_COLORS: dict[SpanKind, str] = {
 # ─── CLI root ─────────────────────────────────────────────────────────────────
 
 @click.group()
-@click.version_option(version="0.2.0", prog_name="evalcraft")
+@click.version_option(version="0.2.1", prog_name="evalcraft")
 def cli() -> None:
     """evalcraft — capture, replay, and evaluate AI agent runs."""
 
@@ -1111,8 +1111,8 @@ def cloud() -> None:
 @cloud.command("login")
 @click.option("--api-key", prompt="API key", hide_input=True,
               help="Your Evalcraft API key (ec_...)")
-@click.option("--url", default="https://api.evalcraft.dev/v1",
-              help="Override API base URL")
+@click.option("--url", default="",
+              help="Your self-hosted dashboard URL (optional; there is no public hosted service)")
 def cloud_login(api_key: str, url: str) -> None:
     """Save your API key to ~/.evalcraft/config.json.
 

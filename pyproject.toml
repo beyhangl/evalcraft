@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "evalcraft"
-version = "0.2.0"
+version = "0.2.1"
 description = "VCR for AI agents — record agent runs as cassettes and replay them deterministically in CI for $0."
 readme = "README.md"
 license = "MIT"

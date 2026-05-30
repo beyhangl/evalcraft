@@ -37,4 +37,4 @@ auto_upload = false
 
 [cloud]
 # Override the Evalcraft cloud API endpoint.
-# base_url = "https://api.evalcraft.dev/v1"
+# base_url = "http://localhost:8000/v1"  # your self-hosted dashboard (no public service)

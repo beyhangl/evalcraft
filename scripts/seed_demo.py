@@ -258,7 +258,7 @@ def main():
     # 2. Sign up demo user
     print("Creating demo user...", end=" ")
     r = client.post("/auth/signup", json={
-        "email": "demo@evalcraft.dev",
+        "email": "demo@example.com",
         "password": "demodemo123",
         "full_name": "Demo User",
         "team_name": "Demo Team",
@@ -266,7 +266,7 @@ def main():
     if r.status_code == 409:
         print("already exists, logging in.")
         r = client.post("/auth/login", json={
-            "email": "demo@evalcraft.dev",
+            "email": "demo@example.com",
             "password": "demodemo123",
         })
         r.raise_for_status()
@@ -382,7 +382,7 @@ def main():
 
     print()
     print("Seed complete!")
-    print(f"  Login:    demo@evalcraft.dev / demodemo123")
+    print(f"  Login:    demo@example.com / demodemo123")
     print(f"  Frontend: http://localhost:3000")
     print(f"  Backend:  http://localhost:8000")
     print(f"  API docs: http://localhost:8000/docs")
