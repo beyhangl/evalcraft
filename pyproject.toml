@@ -84,6 +84,24 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "SIM"]
+ignore = [
+    # N806/N803: the codebase intentionally binds class objects and SDK symbols
+    # to PascalCase locals/args (e.g. dynamically-resolved `Messages`/`FakeAgent`
+    # classes, `BaseCallbackHandler` passed as an arg) and declares function-local
+    # constants in UPPER_CASE (`_STOPWORDS`, `_SEV_COLORS`). Lower-casing these
+    # would be misleading, so these naming rules are disabled rather than churned.
+    "N806",
+    "N803",
+    # SIM117/SIM105/SIM108: these flag established, intentional style — nested
+    # `with` blocks in tests that read as setup-then-action, deliberate
+    # best-effort `try/except/pass` swallows, and explicit if/else blocks. The
+    # suggested rewrites (single `with`, `contextlib.suppress`, ternaries) are
+    # cosmetic; ruff marks several as unsafe fixes because combining context
+    # managers can change exit ordering. Disabled to avoid churn / behavior risk.
+    "SIM117",
+    "SIM105",
+    "SIM108",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
