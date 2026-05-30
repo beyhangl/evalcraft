@@ -155,7 +155,7 @@ def _build_handler_class() -> type:
                 duration_ms=duration_ms,
                 prompt_tokens=prompt_tokens,
                 completion_tokens=completion_tokens,
-                metadata={"serialized_name": serialized.get("name", "")},
+                metadata={"serialized_name": model},
             )
 
         def on_llm_error(
@@ -272,7 +272,7 @@ def _build_handler_class() -> type:
                 kind=SpanKind.AGENT_STEP,
                 name=f"node:{node_name}" if node_name else "node:unknown",
                 duration_ms=duration_ms,
-                input=_safe_serialise(inputs),
+                input=None,
                 output=_safe_serialise(outputs),
                 metadata={"tags": kwargs.get("tags") or []},
             )
