@@ -203,7 +203,6 @@ class AutoGenAdapter:
             ) from exc
 
         self._ConversableAgent = ConversableAgent
-        adapter = self
 
         # ---- receive: captures all inter-agent messages -------------------
         original_receive = ConversableAgent.receive

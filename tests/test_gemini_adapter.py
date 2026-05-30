@@ -210,7 +210,7 @@ class TestGeminiAdapter:
                 adapter._patch()
                 try:
                     model = FakeModel("gemini-2.0-flash")
-                    response = model.generate_content("What is the weather?")
+                    model.generate_content("What is the weather?")
                 finally:
                     adapter._unpatch()
 

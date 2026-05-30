@@ -29,7 +29,7 @@ from collections.abc import Collection
 
 # ─── exception ────────────────────────────────────────────────────────────────
 
-class ReplayNetworkViolation(RuntimeError):
+class ReplayNetworkViolation(RuntimeError):  # noqa: N818  public API, kept stable (no Error suffix)
     """Raised when an outgoing network request is attempted during replay.
 
     Attributes:

@@ -150,7 +150,7 @@ class TestPydanticAIAdapter:
                 adapter._patch()
                 try:
                     agent = FakeAgent("openai:gpt-4o-mini")
-                    result = agent.run_sync("What is the weather?")
+                    agent.run_sync("What is the weather?")
                 finally:
                     adapter._unpatch()
 

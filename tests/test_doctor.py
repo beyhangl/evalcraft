@@ -8,7 +8,7 @@ from evalcraft.cli.doctor_cmd import run_doctor
 class TestDoctor:
     def test_runs_without_error(self, capsys):
         """Doctor should run and produce output without crashing."""
-        result = run_doctor(cassette_dir="tests/cassettes")
+        run_doctor(cassette_dir="tests/cassettes")
         captured = capsys.readouterr()
 
         # Should print something
@@ -16,7 +16,7 @@ class TestDoctor:
         assert "passed" in captured.out
 
     def test_detects_evalcraft_installed(self, capsys):
-        result = run_doctor()
+        run_doctor()
         captured = capsys.readouterr()
         assert "evalcraft" in captured.out
 

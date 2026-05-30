@@ -34,9 +34,12 @@ from click.testing import CliRunner
 _ng_module = _importlib.import_module("evalcraft.replay.network_guard")
 _engine_module = _importlib.import_module("evalcraft.replay.engine")
 
-from evalcraft.cli.main import cli
-from evalcraft.replay.engine import ReplayEngine, replay
-from evalcraft.replay.network_guard import (
+from evalcraft.cli.main import cli  # noqa: E402  must follow import_module calls above
+from evalcraft.replay.engine import (  # noqa: E402  see name-shadowing note above
+    ReplayEngine,
+    replay,
+)
+from evalcraft.replay.network_guard import (  # noqa: E402  see name-shadowing note above
     NetworkGuard,
     ReplayNetworkViolation,
     _active_guards,
