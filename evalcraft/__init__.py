@@ -4,7 +4,7 @@ Record agent runs as cassettes and replay them deterministically in CI for $0;
 mock LLMs/tools, score runs, and catch real model drift with live-eval.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from evalcraft.capture.recorder import CaptureContext, capture
 from evalcraft.cloud.client import EvalcraftCloud
