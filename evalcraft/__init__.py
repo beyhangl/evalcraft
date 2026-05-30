@@ -1,6 +1,7 @@
-"""Evalcraft — The pytest for AI agents.
+"""Evalcraft — VCR for AI agents.
 
-Capture, replay, mock, and evaluate agent behavior.
+Record agent runs as cassettes and replay them deterministically in CI for $0;
+mock LLMs/tools, score runs, and catch real model drift with live-eval.
 """
 
 __version__ = "0.1.0"
