@@ -107,9 +107,17 @@ class TestE2EReplay:
             save_path=str(path),
         ) as ctx:
             ctx.record_input("Weather in Paris?")
-            ctx.record_tool_call(tool_name="get_weather", args={"city": "Paris"}, result={"temp": 18})
-            ctx.record_llm_call(model="gpt-4o-mini", input="test", output="Paris is 18°C and cloudy.",
-                                prompt_tokens=50, completion_tokens=10, cost_usd=0.00005)
+            ctx.record_tool_call(
+                tool_name="get_weather", args={"city": "Paris"}, result={"temp": 18}
+            )
+            ctx.record_llm_call(
+                model="gpt-4o-mini",
+                input="test",
+                output="Paris is 18°C and cloudy.",
+                prompt_tokens=50,
+                completion_tokens=10,
+                cost_usd=0.00005,
+            )
             ctx.record_output("Paris is 18°C and cloudy.")
         return path
 
@@ -144,10 +152,21 @@ class TestE2EAssertions:
         path = tmp_path / "assertions_test.json"
         with CaptureContext(name="assertions_test", save_path=str(path)) as ctx:
             ctx.record_input("Weather?")
-            ctx.record_tool_call(tool_name="search", args={"q": "weather"}, result="sunny", duration_ms=10)
-            ctx.record_tool_call(tool_name="format", args={"style": "brief"}, result="It's sunny", duration_ms=5)
-            ctx.record_llm_call(model="gpt-4o", input="test", output="It's sunny in NYC",
-                                prompt_tokens=100, completion_tokens=20, cost_usd=0.002, duration_ms=500)
+            ctx.record_tool_call(
+                tool_name="search", args={"q": "weather"}, result="sunny", duration_ms=10
+            )
+            ctx.record_tool_call(
+                tool_name="format", args={"style": "brief"}, result="It's sunny", duration_ms=5
+            )
+            ctx.record_llm_call(
+                model="gpt-4o",
+                input="test",
+                output="It's sunny in NYC",
+                prompt_tokens=100,
+                completion_tokens=20,
+                cost_usd=0.002,
+                duration_ms=500,
+            )
             ctx.record_output("It's sunny in NYC")
         return replay(str(path))
 
@@ -329,8 +348,15 @@ class TestE2EAutoGenerate:
         with CaptureContext(name="gen_test", agent_name="bot", save_path=str(path)) as ctx:
             ctx.record_input("Hello")
             ctx.record_tool_call(tool_name="search", args={"q": "hello"}, result="found")
-            ctx.record_llm_call(model="gpt-4o", input="test", output="World",
-                                prompt_tokens=50, completion_tokens=10, cost_usd=0.001, duration_ms=200)
+            ctx.record_llm_call(
+                model="gpt-4o",
+                input="test",
+                output="World",
+                prompt_tokens=50,
+                completion_tokens=10,
+                cost_usd=0.001,
+                duration_ms=200,
+            )
             ctx.record_output("World")
 
         c = Cassette.load(path)

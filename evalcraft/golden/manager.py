@@ -329,7 +329,8 @@ class GoldenSet:
                 golden_value=t.max_latency_ms,
                 candidate_value=candidate.total_duration_ms,
                 message="" if passed else (
-                    f"Latency {candidate.total_duration_ms:.0f}ms exceeds limit {t.max_latency_ms:.0f}ms"
+                    f"Latency {candidate.total_duration_ms:.0f}ms exceeds "
+                    f"limit {t.max_latency_ms:.0f}ms"
                 ),
             ))
 

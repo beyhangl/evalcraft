@@ -205,7 +205,9 @@ def _build_handler_class(CBEventType: Any, EventPayload: Any, BaseCallbackHandle
                 messages = payload.get(EventPayload.MESSAGES) or payload.get(
                     getattr(EventPayload, "PROMPT", "prompt"), None
                 )
-                serialized = payload.get(getattr(EventPayload, "SERIALIZED", "serialized"), {}) or {}
+                serialized = (
+                    payload.get(getattr(EventPayload, "SERIALIZED", "serialized"), {}) or {}
+                )
 
                 model = (
                     serialized.get("model")

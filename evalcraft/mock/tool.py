@@ -113,7 +113,9 @@ class MockTool:
 
         # Check for error conditions
         error = None
-        if self._error_after is not None and self._call_count >= self._error_after or self._error and self._error_after is None:
+        if (self._error_after is not None and self._call_count >= self._error_after) or (
+            self._error and self._error_after is None
+        ):
             error = self._error
 
         # Resolve result

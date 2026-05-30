@@ -266,7 +266,9 @@ class TestAnthropicAdapterPatch:
 # ---------------------------------------------------------------------------
 
 class TestAnthropicAdapterRecording:
-    def _run_patched_call(self, mock_anthropic_module, response: Any, kwargs: dict) -> CaptureContext:
+    def _run_patched_call(
+        self, mock_anthropic_module, response: Any, kwargs: dict
+    ) -> CaptureContext:
         """Helper: run a patched sync create() inside a CaptureContext."""
         Messages = mock_anthropic_module.Messages
         original = Messages.create
@@ -287,7 +289,10 @@ class TestAnthropicAdapterRecording:
         ctx = self._run_patched_call(
             mock_anthropic_module,
             response,
-            {"model": "claude-3-5-sonnet-20241022", "messages": [{"role": "user", "content": "hi"}]},
+            {
+                "model": "claude-3-5-sonnet-20241022",
+                "messages": [{"role": "user", "content": "hi"}],
+            },
         )
         assert len(ctx.cassette.spans) == 1
         span = ctx.cassette.spans[0]

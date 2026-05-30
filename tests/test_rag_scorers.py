@@ -38,7 +38,8 @@ def empty_cassette():
 @pytest.fixture
 def sample_contexts():
     return [
-        "Paris is the capital of France with a population of approximately 2.1 million in the city proper.",
+        "Paris is the capital of France with a population of approximately "
+        "2.1 million in the city proper.",
         "The Eiffel Tower was built in 1889 and stands 330 meters tall.",
         "French cuisine is renowned worldwide for its techniques and flavors.",
     ]

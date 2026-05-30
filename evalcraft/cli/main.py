@@ -113,7 +113,12 @@ def init(framework: str | None, tests_dir: str, overwrite: bool) -> None:
 
 @cli.command()
 @click.argument("script", type=click.Path(exists=True, dir_okay=False))
-@click.option("--output", "-o", default=None, help="Output cassette path (default: <script>.cassette.json)")
+@click.option(
+    "--output",
+    "-o",
+    default=None,
+    help="Output cassette path (default: <script>.cassette.json)",
+)
 @click.option("--name", "-n", default="", help="Cassette name")
 @click.option("--agent", "-a", default="", help="Agent name tag")
 @click.option("--framework", "-f", default="", help="Framework tag")
@@ -330,10 +335,20 @@ def diff(old: str, new: str, as_json: bool) -> None:
 
 @cli.command("eval")
 @click.argument("cassette", type=click.Path(exists=True, dir_okay=False))
-@click.option("--max-cost", default=None, type=float, metavar="USD", help="Max cost threshold in USD")
+@click.option(
+    "--max-cost", default=None, type=float, metavar="USD", help="Max cost threshold in USD"
+)
 @click.option("--max-tokens", default=None, type=int, help="Max token count threshold")
-@click.option("--max-latency", default=None, type=float, metavar="MS", help="Max latency in milliseconds")
-@click.option("--tool", "required_tools", multiple=True, metavar="NAME", help="Tool that must have been called (repeatable)")
+@click.option(
+    "--max-latency", default=None, type=float, metavar="MS", help="Max latency in milliseconds"
+)
+@click.option(
+    "--tool",
+    "required_tools",
+    multiple=True,
+    metavar="NAME",
+    help="Tool that must have been called (repeatable)",
+)
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON")
 def eval_cmd(
     cassette: str,
@@ -533,7 +548,9 @@ def info(cassette: str, as_json: bool, spans: bool) -> None:
 @cli.command()
 @click.argument("cassette", type=click.Path(exists=True, dir_okay=False))
 @click.option("--output", "-o", default=None, help="Output Python file (default: stdout)")
-@click.option("--var", default="mock_llm", help="Variable name for MockLLM factory (default: mock_llm)")
+@click.option(
+    "--var", default="mock_llm", help="Variable name for MockLLM factory (default: mock_llm)"
+)
 def mock(cassette: str, output: str | None, var: str) -> None:
     """Generate MockLLM and tool fixtures from CASSETTE.
 
@@ -680,7 +697,9 @@ def generate_tests(cassette: str, output: str | None) -> None:
             + f"  {out_path}"
         )
         c.compute_metrics()
-        click.echo(f"  tests: tool calls ({len(c.get_tool_calls())}), output, cost, tokens, latency")
+        click.echo(
+            f"  tests: tool calls ({len(c.get_tool_calls())}), output, cost, tokens, latency"
+        )
     else:
         click.echo(code)
 
@@ -858,7 +877,8 @@ def regression_cmd(cassette: str, golden: str, as_json: bool) -> None:
     click.echo()
     click.echo(
         f"  {len(report.regressions)} regression(s) found — "
-        f"max severity: {click.style(report.max_severity.value if report.max_severity else 'NONE', bold=True)}"
+        f"max severity: "
+        f"{click.style(report.max_severity.value if report.max_severity else 'NONE', bold=True)}"
     )
 
     if report.has_critical:
@@ -944,7 +964,11 @@ def sanitize(
         findings = redactor.scan(c)
         total = sum(len(v) for v in findings.values())
         if as_json:
-            click.echo(json.dumps({"cassette": cassette, "findings": findings, "total": total}, indent=2))
+            click.echo(
+                json.dumps(
+                    {"cassette": cassette, "findings": findings, "total": total}, indent=2
+                )
+            )
             return
         # human-readable scan report
         click.echo(
@@ -1052,7 +1076,9 @@ def alert_test(
         click.echo(click.style("  testing", fg="cyan", bold=True) + f"  Slack: {preview}")
         try:
             SlackAlert(webhook_url=slack_url).send_regression(report)
-            click.echo(click.style("  sent", fg="green", bold=True) + "     Slack test alert delivered")
+            click.echo(
+                click.style("  sent", fg="green", bold=True) + "     Slack test alert delivered"
+            )
         except Exception as exc:
             click.echo(click.style(f"  error: {exc}", fg="red"), err=True)
             sys.exit(1)

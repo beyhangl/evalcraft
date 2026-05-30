@@ -512,7 +512,9 @@ class TestCLISanitize:
         c = _make_cassette(input_text="email: alice@example.com end", output_text="ok")
         c.save(src)
         runner = CliRunner()
-        result = runner.invoke(cli, ["sanitize", str(src), "--output", str(dst), "--mode", "remove"])
+        result = runner.invoke(
+            cli, ["sanitize", str(src), "--output", str(dst), "--mode", "remove"]
+        )
         assert result.exit_code == 0, result.output
         raw = dst.read_text()
         assert "alice@example.com" not in raw

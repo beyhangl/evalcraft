@@ -238,7 +238,9 @@ class TestJuryResultSerialization:
         assert d["votes"][0]["provider"] == "openai"
 
     def test_judge_vote_to_dict(self):
-        vote = JudgeVote(provider="openai", model="gpt-4.1", passed=True, score=0.95, reason="Excellent")
+        vote = JudgeVote(
+            provider="openai", model="gpt-4.1", passed=True, score=0.95, reason="Excellent"
+        )
         d = vote.to_dict()
         assert d["provider"] == "openai"
         assert d["model"] == "gpt-4.1"
