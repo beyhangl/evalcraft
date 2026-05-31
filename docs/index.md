@@ -1,6 +1,8 @@
 # Evalcraft
 
-**VCR for AI agents.** Record an agent run once, replay it deterministically in CI for **$0** — fast regression tests for your agent's plumbing (tool calls, control flow, cost & latency budgets), plus live-eval to catch real model drift.
+**Deterministic tests for AI agents — generated from one real run.**
+
+Capture an agent run and evalcraft writes a **pytest** that locks its tool calls, output shape, and cost — then replays it in CI for **$0**. Like VCR for HTTP, but it writes the agent tests for you.
 
 [![CI](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg)](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/evalcraft)](https://pypi.org/project/evalcraft/)
