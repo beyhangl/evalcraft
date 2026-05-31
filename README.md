@@ -1,7 +1,8 @@
 <p align="center">
   <img src="site/logo.png" alt="Evalcraft" width="400" />
 </p>
-<p align="center"><strong>VCR for AI agents.</strong> Record an agent run once, replay it deterministically in CI for <strong>$0</strong> — fast regression tests for your agent's plumbing (tool calls, control flow, cost &amp; latency budgets), plus live-eval to catch real model drift.</p>
+<p align="center"><strong>Deterministic tests for AI agents — generated from one real run.</strong></p>
+<p align="center">Capture an agent run and evalcraft writes a <strong>pytest</strong> that locks its tool calls, output shape, and cost — then replays it in CI for <strong>$0</strong>. Like VCR for HTTP, but it writes the agent tests for you.</p>
 
 [![CI](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg)](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/evalcraft)](https://pypi.org/project/evalcraft/)
