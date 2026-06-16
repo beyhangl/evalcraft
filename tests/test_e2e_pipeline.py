@@ -76,7 +76,7 @@ class TestE2ECapture:
 
         # Verify JSON is valid and contains expected data
         data = json.loads(cassette_path.read_text())
-        assert data.get("evalcraft_version") == "0.3.0"
+        assert data.get("evalcraft_version") == "0.3.1"
         assert data["cassette"]["name"] == "weather_agent_run"
         assert data["cassette"]["agent_name"] == "weather_bot"
         assert data["cassette"]["framework"] == "openai"

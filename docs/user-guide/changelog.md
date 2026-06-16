@@ -7,6 +7,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
+## [0.3.1] — 2026-06-16
+
+### Fixed
+- README logo now renders on the PyPI project page (switched from a repo-relative image path to an absolute URL). No SDK or docs behavior changes.
+
+---
+
 ## [0.3.0] — 2026-06-01
 
 ### Added

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="site/logo.png" alt="Evalcraft" width="400" />
+  <img src="https://raw.githubusercontent.com/beyhangl/evalcraft/main/site/logo.png" alt="Evalcraft" width="400" />
 </p>
 <p align="center"><strong>Deterministic tests for AI agents — generated from one real run.</strong></p>
 <p align="center">Capture an agent run and evalcraft writes a <strong>pytest</strong> that locks its tool calls, output shape, and cost — then replays it in CI for <strong>$0</strong>. Like VCR for HTTP, but it writes the agent tests for you.</p>
