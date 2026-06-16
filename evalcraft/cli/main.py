@@ -885,6 +885,108 @@ def regression_cmd(cassette: str, golden: str, as_json: bool) -> None:
         sys.exit(1)
 
 
+# ─── check-stale ──────────────────────────────────────────────────────────────
+
+@cli.command("check-stale")
+@click.argument("cassettes", nargs=-1, required=True,
+                type=click.Path(exists=True, dir_okay=False))
+@click.option("--models", "models_csv", default=None,
+              help="Comma-separated current model set (e.g. 'gpt-5.1,claude-sonnet-4-5'). "
+                   "A recorded model absent here is CRITICAL (retired/swapped).")
+@click.option("--prompts", "prompts_path", default=None,
+              type=click.Path(exists=True, dir_okay=False),
+              help="JSON/text file of current prompts; its hash is compared to the "
+                   "recorded prompt_hash (WARNING on drift).")
+@click.option("--max-age-days", default=None, type=int,
+              help="Recorded-at age over N days is INFO. Defaults to 30 if no other check given.")
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON")
+def check_stale_cmd(
+    cassettes: tuple[str, ...],
+    models_csv: str | None,
+    prompts_path: str | None,
+    max_age_days: int | None,
+    as_json: bool,
+) -> None:
+    """Flag CASSETTES recorded against a retired model or a drifted prompt.
+
+    Activates each cassette's recorded provenance (model set, prompt hash,
+    timestamp). Exits non-zero if ANY cassette references a model no longer in
+    --models, so CI can block deterministic tests that have silently gone stale.
+
+    Example:
+
+        evalcraft check-stale tests/cassettes/*.json --models "gpt-5.1,claude-sonnet-4-5"
+    """
+    from evalcraft.staleness import StalenessChecker, hash_prompts_file
+
+    current_models = (
+        [m.strip() for m in models_csv.split(",") if m.strip()]
+        if models_csv is not None
+        else None
+    )
+    current_prompt_hash = hash_prompts_file(prompts_path) if prompts_path else None
+
+    # With no explicit check requested, fall back to an age check (default 30d).
+    effective_age = max_age_days
+    if max_age_days is None and current_models is None and current_prompt_hash is None:
+        effective_age = 30
+
+    checker = StalenessChecker(max_age_days=effective_age)
+
+    reports = []
+    for path in cassettes:
+        cassette = _load_cassette(path)
+        report = checker.check(
+            cassette,
+            current_models=current_models,
+            current_prompt_hash=current_prompt_hash,
+        )
+        if not report.cassette_name:
+            report.cassette_name = Path(path).stem
+        reports.append(report)
+
+    any_critical = any(r.has_critical for r in reports)
+
+    if as_json:
+        click.echo(json.dumps(
+            {"cassettes": [r.to_dict() for r in reports]}, indent=2, default=str
+        ))
+        if any_critical:
+            sys.exit(1)
+        return
+
+    _SEV_COLORS = {"CRITICAL": "red", "WARNING": "yellow", "INFO": "blue"}
+
+    click.echo(
+        click.style("  staleness check", fg="cyan", bold=True)
+        + f"  {len(reports)} cassette(s)"
+    )
+    click.echo()
+
+    total_findings = 0
+    for report in reports:
+        if not report.has_findings:
+            click.echo(click.style("  fresh", fg="green", bold=True) + f"  {report.cassette_name}")
+            continue
+        click.echo(click.style(f"  {report.cassette_name}", bold=True))
+        for f in report.findings:
+            total_findings += 1
+            color = _SEV_COLORS.get(f.severity.value, "white")
+            icon = click.style(f"  {f.severity.value:<8}", fg=color, bold=True)
+            click.echo(f"{icon}  [{f.category}] {f.message}")
+        click.echo()
+
+    if total_findings == 0:
+        click.echo(click.style("  all cassettes fresh", fg="green", bold=True))
+    elif any_critical:
+        click.echo(click.style(
+            "  CRITICAL staleness found — re-record the affected cassettes", fg="red", bold=True
+        ))
+
+    if any_critical:
+        sys.exit(1)
+
+
 # ─── sanitize ─────────────────────────────────────────────────────────────────
 
 @cli.command()

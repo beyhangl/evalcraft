@@ -65,6 +65,7 @@ nav:
     - Capture API: user-guide/capture.md
     - Replay Engine: user-guide/replay.md
     - "Live Eval (catch drift)": user-guide/live-eval.md
+    - "Check Stale (model retirement)": user-guide/check-stale.md
     - Mock LLM & Tools: user-guide/mock.md
     - Scorers: user-guide/scorers.md
     - pytest Plugin: user-guide/pytest-plugin.md

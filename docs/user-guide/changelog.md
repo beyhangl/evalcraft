@@ -7,6 +7,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
+## [Unreleased]
+
+### Added
+- `evalcraft check-stale` — detect cassettes recorded against a retired/swapped model (CRITICAL, non-zero exit for CI) or a drifted prompt (WARNING), by activating the provenance each cassette records. See [Check Stale](check-stale.md).
+
+---
+
 ## [0.1.0] — 2026-03-05
 
 Initial public release of Evalcraft — the pytest for AI agents.

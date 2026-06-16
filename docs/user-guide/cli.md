@@ -465,6 +465,25 @@ def test_with_generated_fixtures():
 
 ---
 
+## `evalcraft check-stale`
+
+Flag cassettes recorded against a model that's been retired or swapped (or a drifted prompt), using the provenance each cassette records. Exits non-zero on a retired model so CI can block stale deterministic tests.
+
+```bash
+evalcraft check-stale CASSETTES... [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--models "a,b,c"` | Current model set; a recorded model not in it is CRITICAL |
+| `--prompts PATH` | Current prompts file; hash drift vs the recording is a WARNING |
+| `--max-age-days N` | Recorded-at age over N days is INFO (defaults to 30 if no other check) |
+| `--json` | Emit JSON; still exits 1 on any CRITICAL |
+
+See [Check Stale](check-stale.md) for the full guide.
+
+---
+
 ## Exit codes
 
 | Code | Meaning |

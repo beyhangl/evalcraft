@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **`evalcraft check-stale`** — activates the provenance every cassette already records (model set, prompt hash, timestamp) to flag deterministic tests that have silently gone stale: a recorded model absent from the current `--models` set is **CRITICAL** (non-zero exit — a CI gate), a drifted `--prompts` hash is a **WARNING**, and age is **INFO**. Adds a `StalenessChecker` Python API (`evalcraft.staleness`) and refactors a shared `compute_prompt_hash` so recorded and recomputed prompt hashes match byte-for-byte. No new dependencies; runs fully offline.
+
 ## [0.2.1] — 2026-05-30
 
 ### Fixed

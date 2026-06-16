@@ -52,6 +52,7 @@ from evalcraft.mock.llm import MockLLM
 from evalcraft.mock.tool import MockTool
 from evalcraft.regression.detector import RegressionDetector, RegressionReport
 from evalcraft.replay.engine import ReplayEngine, replay
+from evalcraft.staleness import StalenessChecker, StalenessFinding, StalenessReport
 
 __all__ = [
     "capture",
@@ -95,5 +96,8 @@ __all__ = [
     "GoldenSet",
     "RegressionDetector",
     "RegressionReport",
+    "StalenessChecker",
+    "StalenessFinding",
+    "StalenessReport",
     "EvalcraftCloud",
 ]

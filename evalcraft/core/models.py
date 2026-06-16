@@ -165,6 +165,21 @@ class Provenance:
         )
 
 
+def compute_prompt_hash(input_text: str, llm_inputs: list[Any]) -> str:
+    """Hash the prompt surface of a run — the user input plus each LLM span's input.
+
+    Used both when recording provenance (:meth:`Cassette.capture_provenance`) and
+    when checking staleness, so a recorded hash and a recomputed one match
+    byte-for-byte. List order is significant; only dict keys are sorted.
+    """
+    basis = json.dumps(
+        {"input_text": input_text, "llm_inputs": list(llm_inputs)},
+        sort_keys=True,
+        default=str,
+    )
+    return hashlib.sha256(basis.encode()).hexdigest()[:16]
+
+
 @dataclass
 class Cassette:
     """A recorded agent run — the fundamental unit of Evalcraft.
@@ -230,15 +245,9 @@ class Cassette:
 
         llm_spans = self.get_llm_calls()
         models = sorted({s.model for s in llm_spans if s.model})
-        basis = json.dumps(
-            {
-                "input_text": self.input_text,
-                "llm_inputs": [s.input for s in llm_spans],
-            },
-            sort_keys=True,
-            default=str,
+        prompt_hash = compute_prompt_hash(
+            self.input_text, [s.input for s in llm_spans]
         )
-        prompt_hash = hashlib.sha256(basis.encode()).hexdigest()[:16]
 
         self.provenance = Provenance(
             recorded_at=time.time(),
