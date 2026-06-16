@@ -10,29 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://beyhangl.github.io/evalcraft/docs/">
+        <link rel="canonical" href="https://beyhangl.github.io/evalcraft/docs/user-guide/check-stale/">
       
       
+        <link rel="prev" href="../live-eval/">
       
-        <link rel="next" href="user-guide/">
+      
+        <link rel="next" href="../mock/">
       
       
         
       
       
-      <link rel="icon" href="logo.png">
+      <link rel="icon" href="../../logo.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
-        <title>Evalcraft</title>
+        <title>Check Stale (model retirement) - Evalcraft</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,7 +53,7 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#evalcraft" class="md-skip">
+        <a href="#check-stale-catch-cassettes-recorded-against-a-retired-model" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="Evalcraft" class="md-header__button md-logo" aria-label="Evalcraft" data-md-component="logo">
+    <a href="../.." title="Evalcraft" class="md-header__button md-logo" aria-label="Evalcraft" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Check Stale (model retirement)
             
           </span>
         </div>
@@ -221,11 +223,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -242,11 +242,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="user-guide/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -282,7 +284,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="Evalcraft" class="md-nav__button md-logo" aria-label="Evalcraft" data-md-component="logo">
+    <a href="../.." title="Evalcraft" class="md-nav__button md-logo" aria-label="Evalcraft" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -309,37 +311,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -355,81 +330,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-problem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The problem
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How it works
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#install" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Install
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Documentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -438,28 +338,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -477,7 +380,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -495,7 +398,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -523,7 +426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/quickstart/" class="md-nav__link">
+      <a href="../quickstart/" class="md-nav__link">
         
   
   
@@ -551,7 +454,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/five-minute-case-study/" class="md-nav__link">
+      <a href="../five-minute-case-study/" class="md-nav__link">
         
   
   
@@ -579,7 +482,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/concepts/" class="md-nav__link">
+      <a href="../concepts/" class="md-nav__link">
         
   
   
@@ -607,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/capture/" class="md-nav__link">
+      <a href="../capture/" class="md-nav__link">
         
   
   
@@ -635,7 +538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/replay/" class="md-nav__link">
+      <a href="../replay/" class="md-nav__link">
         
   
   
@@ -663,7 +566,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/live-eval/" class="md-nav__link">
+      <a href="../live-eval/" class="md-nav__link">
         
   
   
@@ -688,10 +591,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="user-guide/check-stale/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check Stale (model retirement)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -707,6 +637,87 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-it-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What it checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flags
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Flags">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#-prompts-file-shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --prompts file shape
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wire-it-into-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wire it into CI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python API
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -719,7 +730,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/mock/" class="md-nav__link">
+      <a href="../mock/" class="md-nav__link">
         
   
   
@@ -747,7 +758,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/scorers/" class="md-nav__link">
+      <a href="../scorers/" class="md-nav__link">
         
   
   
@@ -775,7 +786,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/pytest-plugin/" class="md-nav__link">
+      <a href="../pytest-plugin/" class="md-nav__link">
         
   
   
@@ -803,7 +814,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
@@ -837,10 +848,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -849,7 +863,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_13" >
         
           
-          <label class="md-nav__link" for="__nav_2_13" id="__nav_2_13_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_13" id="__nav_2_13_label" tabindex="">
             
   
   
@@ -885,7 +899,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/adapters/openai/" class="md-nav__link">
+      <a href="../adapters/openai/" class="md-nav__link">
         
   
   
@@ -913,7 +927,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/adapters/anthropic/" class="md-nav__link">
+      <a href="../adapters/anthropic/" class="md-nav__link">
         
   
   
@@ -941,7 +955,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/adapters/langgraph/" class="md-nav__link">
+      <a href="../adapters/langgraph/" class="md-nav__link">
         
   
   
@@ -969,7 +983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/adapters/crewai/" class="md-nav__link">
+      <a href="../adapters/crewai/" class="md-nav__link">
         
   
   
@@ -1005,7 +1019,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/ci-cd/" class="md-nav__link">
+      <a href="../ci-cd/" class="md-nav__link">
         
   
   
@@ -1033,7 +1047,7 @@
   
   
     <li class="md-nav__item">
-      <a href="user-guide/changelog/" class="md-nav__link">
+      <a href="../changelog/" class="md-nav__link">
         
   
   
@@ -1081,139 +1095,127 @@
   
 
 
-<h1 id="evalcraft">Evalcraft<a class="headerlink" href="#evalcraft" title="Permanent link">&para;</a></h1>
-<p><strong>Deterministic tests for AI agents — generated from one real run.</strong></p>
-<p>Capture an agent run and evalcraft writes a <strong>pytest</strong> that locks its tool calls, output shape, and cost — then replays it in CI for <strong>$0</strong>. Like VCR for HTTP, but it writes the agent tests for you.</p>
-<p><a href="https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg" /></a>
-<a href="https://pypi.org/project/evalcraft/"><img alt="PyPI" src="https://img.shields.io/pypi/v/evalcraft" /></a>
-<a href="https://pypi.org/project/evalcraft/"><img alt="Python" src="https://img.shields.io/pypi/pyversions/evalcraft" /></a>
-<a href="https://github.com/beyhangl/evalcraft/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/beyhangl/evalcraft" /></a></p>
-<hr />
-<h2 id="the-problem">The problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h2>
-<p>Agent testing is broken:</p>
-<ul>
-<li><strong>Expensive.</strong> Running 200 tests against GPT-4 costs real money. Every commit.</li>
-<li><strong>Non-deterministic.</strong> Tests fail randomly because LLMs aren't functions.</li>
-<li><strong>No CI/CD story.</strong> You can't gate deploys on eval results if evals take 10 minutes and cost $5.</li>
-</ul>
-<p>Evalcraft records agent runs as <strong>cassettes</strong> (like VCR for HTTP) and replays them deterministically — so the tests that exercise your agent's <em>plumbing</em> (tool wiring, control flow, output shape, cost/latency budgets) drop from 10 minutes + $5 to <strong>200ms + $0</strong>. For the questions that genuinely need a live model — quality, drift, LLM-judge, RAG — run <a href="user-guide/live-eval/">live-eval</a> on a schedule.</p>
-<hr />
-<h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>  Your Agent
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>      │
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>      ▼
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>┌─────────────┐    record     ┌──────────────┐
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  CaptureCtx │ ────────────► │   Cassette   │  (plain JSON, git-friendly)
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│             │               │  (spans[])   │
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>└─────────────┘               └──────┬───────┘
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                                     │
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                    ┌────────────────┼────────────────┐
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                    ▼                ▼                ▼
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>              replay()          MockLLM /        assert_*()
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>           (zero API calls)    MockTool()       (scorers)
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                    │                                 │
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>                    └──────────────┬──────────────────┘
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>                                   ▼
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>                            pytest / CI gate
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>                           (200ms, $0.00)
+<h1 id="check-stale-catch-cassettes-recorded-against-a-retired-model">Check Stale — catch cassettes recorded against a retired model<a class="headerlink" href="#check-stale-catch-cassettes-recorded-against-a-retired-model" title="Permanent link">&para;</a></h1>
+<p>A replayed cassette is a <em>deterministic</em> test: it passes as long as the recording
+is unchanged. But that's exactly the trap — a green replay says nothing about
+whether the recording still mirrors reality. In 2026, models get <strong>hard
+retirement dates</strong> (and providers silently update weights). When the model a
+cassette was recorded against is gone, your test keeps "passing" against a world
+that no longer exists.</p>
+<p><code>evalcraft check-stale</code> fixes the blind spot by <strong>activating the provenance</strong>
+every cassette already records (model set, prompt hash, timestamp) and turning it
+into a CI gate.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>evalcraft<span class="w"> </span>check-stale<span class="w"> </span>tests/cassettes/*.json<span class="w"> </span>--models<span class="w"> </span><span class="s2">&quot;gpt-5.1,claude-sonnet-4-5&quot;</span>
 </span></code></pre></div>
-<hr />
-<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>evalcraft
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>  staleness check  3 cassette(s)
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># With pytest plugin</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;evalcraft[pytest]&quot;</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># With framework adapters</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;evalcraft[openai]&quot;</span><span class="w">      </span><span class="c1"># OpenAI SDK adapter</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;evalcraft[anthropic]&quot;</span><span class="w">   </span><span class="c1"># Anthropic SDK adapter</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;evalcraft[langchain]&quot;</span><span class="w">   </span><span class="c1"># LangGraph adapter</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># Everything</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;evalcraft[all]&quot;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  refund_flow
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  CRITICAL  [model_retired] Recorded model &#39;gpt-4o&#39; is not in the current model set —
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>            it may have been retired or swapped. This deterministic test no longer
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>            mirrors production.
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  fresh  weather_agent
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  fresh  search_agent
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>  CRITICAL staleness found — re-record the affected cassettes
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a># exit code 1
 </span></code></pre></div>
-<hr />
-<h2 id="quick-example">Quick example<a class="headerlink" href="#quick-example" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">CaptureContext</span><span class="p">,</span> <span class="n">MockLLM</span><span class="p">,</span> <span class="n">MockTool</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">assert_tool_called</span><span class="p">,</span> <span class="n">assert_cost_under</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># 1. Record a run with mocks</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">MockLLM</span><span class="p">()</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">llm</span><span class="o">.</span><span class="n">add_response</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;It&#39;s 22°C and sunny in Paris.&quot;</span><span class="p">)</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">search</span> <span class="o">=</span> <span class="n">MockTool</span><span class="p">(</span><span class="s2">&quot;get_weather&quot;</span><span class="p">)</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">search</span><span class="o">.</span><span class="n">returns</span><span class="p">({</span><span class="s2">&quot;temp&quot;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span> <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;sunny&quot;</span><span class="p">})</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">with</span> <span class="n">CaptureContext</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;weather_test&quot;</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="s2">&quot;tests/cassettes/weather.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">record_input</span><span class="p">(</span><span class="s2">&quot;What&#39;s the weather in Paris?&quot;</span><span class="p">)</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">search</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">city</span><span class="o">=</span><span class="s2">&quot;Paris&quot;</span><span class="p">)</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    <span class="n">response</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Weather data: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">record_output</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="c1"># 2. Replay from cassette — zero API calls</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">replay</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="n">run</span> <span class="o">=</span> <span class="n">replay</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/weather.json&quot;</span><span class="p">)</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="c1"># 3. Assert behavior</span>
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="k">assert</span> <span class="n">assert_tool_called</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;get_weather&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">passed</span>
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="k">assert</span> <span class="n">assert_cost_under</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">max_usd</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">passed</span>
-</span></code></pre></div>
-<hr />
-<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<h2 id="what-it-checks">What it checks<a class="headerlink" href="#what-it-checks" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Section</th>
+<th>Finding</th>
+<th>Severity</th>
+<th>Meaning</th>
+<th>Exits CI?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>model_retired</code></td>
+<td><strong>CRITICAL</strong></td>
+<td>A recorded model is absent from the current <code>--models</code> set (retired or swapped) — the cassette may now exercise an API that errors live.</td>
+<td><strong>Yes (exit 1)</strong></td>
+</tr>
+<tr>
+<td><code>prompt_drift</code></td>
+<td>WARNING</td>
+<td>The current prompt hash (<code>--prompts</code>) differs from the recorded one — still replays, but no longer mirrors the live prompt.</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>age</code></td>
+<td>INFO</td>
+<td>The recording is older than <code>--max-age-days</code>.</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>no_provenance</code></td>
+<td>INFO</td>
+<td>A legacy / hand-built cassette with no provenance — re-record to enable checks.</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>Only a <strong>retired model</strong> blocks the build — it's the one signal that means "your
+deterministic test is lying." Prompt drift and age are visible but non-blocking.</p>
+<h2 id="flags">Flags<a class="headerlink" href="#flags" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><a href="user-guide/quickstart/">Quickstart</a></td>
-<td>Get running in 5 minutes</td>
+<td><code>--models "a,b,c"</code></td>
+<td>The model set you ship today. Any recorded model not in this exact set → CRITICAL. Omit to skip the model check.</td>
 </tr>
 <tr>
-<td><a href="user-guide/five-minute-case-study/">Case Study</a></td>
-<td>How a team caught a $50/day regression</td>
+<td><code>--prompts &lt;file&gt;</code></td>
+<td>A file of your current prompts; its hash is compared to the recorded <code>prompt_hash</code>. Omit to skip.</td>
 </tr>
 <tr>
-<td><a href="user-guide/concepts/">Concepts</a></td>
-<td>Cassettes, spans, capture, replay explained</td>
+<td><code>--max-age-days N</code></td>
+<td>Recorded-at age over <code>N</code> days → INFO. Defaults to <code>30</code> if no other check is given.</td>
 </tr>
 <tr>
-<td><a href="user-guide/capture/">Capture API</a></td>
-<td>Full capture API reference</td>
-</tr>
-<tr>
-<td><a href="user-guide/replay/">Replay Engine</a></td>
-<td>Replay and diff cassettes</td>
-</tr>
-<tr>
-<td><a href="user-guide/mock/">Mock LLM &amp; Tools</a></td>
-<td>Deterministic mocks for testing</td>
-</tr>
-<tr>
-<td><a href="user-guide/scorers/">Scorers</a></td>
-<td>Built-in assertion functions</td>
-</tr>
-<tr>
-<td><a href="user-guide/pytest-plugin/">pytest Plugin</a></td>
-<td>Fixtures, markers, and CLI flags</td>
-</tr>
-<tr>
-<td><a href="user-guide/cli/">CLI Reference</a></td>
-<td>All 6 CLI commands</td>
-</tr>
-<tr>
-<td><a href="user-guide/adapters/openai/">Adapters</a></td>
-<td>OpenAI, Anthropic, LangGraph, CrewAI</td>
-</tr>
-<tr>
-<td><a href="user-guide/ci-cd/">CI/CD</a></td>
-<td>GitHub Actions integration</td>
+<td><code>--json</code></td>
+<td>Emit <code>{"cassettes": [report, ...]}</code> (severity strings <code>CRITICAL</code>/<code>WARNING</code>/<code>INFO</code>). Still exits 1 on any CRITICAL.</td>
 </tr>
 </tbody>
 </table>
+<p>Matching is <strong>exact and case-sensitive</strong> — a swap from <code>gpt-5.1</code> to <code>gpt-5.1-mini</code>
+<em>should</em> fire. No fuzzy family matching.</p>
+<h3 id="-prompts-file-shape"><code>--prompts</code> file shape<a class="headerlink" href="#-prompts-file-shape" title="Permanent link">&para;</a></h3>
+<p>The hash basis is identical to what was recorded at capture time, so a file that
+reproduces the prompts matches byte-for-byte. Accepted shapes:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>// 1. JSON object with the run&#39;s input + per-LLM-call inputs
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>{ &quot;input_text&quot;: &quot;refund order 123&quot;, &quot;llm_inputs&quot;: [&quot;system + user prompt...&quot;, &quot;...&quot;] }
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>// 2. JSON list → treated as llm_inputs (input_text = &quot;&quot;)
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>[&quot;system + user prompt...&quot;]
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>// 3. anything else → treated as input_text
+</span></code></pre></div>
+<h2 id="wire-it-into-ci">Wire it into CI<a class="headerlink" href="#wire-it-into-ci" title="Permanent link">&para;</a></h2>
+<p>Add it as a fast, deterministic gate next to your other checks — no API key, no
+network:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fail if any cassette was recorded against a retired model</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">evalcraft check-stale tests/cassettes/*.json --models &quot;${{ vars.CURRENT_MODELS }}&quot;</span>
+</span></code></pre></div>
+<p>When a model is retired, the gate goes red — <strong>re-record the affected cassettes</strong>
+(which refreshes their provenance), review the new behavior, and commit.</p>
+<h2 id="python-api">Python API<a class="headerlink" href="#python-api" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">StalenessChecker</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span> <span class="nn">evalcraft.core.models</span> <span class="kn">import</span> <span class="n">Cassette</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">report</span> <span class="o">=</span> <span class="n">StalenessChecker</span><span class="p">(</span><span class="n">max_age_days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">Cassette</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/refund_flow.json&quot;</span><span class="p">),</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">current_models</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gpt-5.1&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-sonnet-4-5&quot;</span><span class="p">],</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">)</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">assert</span> <span class="ow">not</span> <span class="n">report</span><span class="o">.</span><span class="n">has_critical</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+</span></code></pre></div>
 
 
 
@@ -1296,10 +1298,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "toc.integrate"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "toc.integrate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

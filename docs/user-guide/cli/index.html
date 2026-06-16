@@ -594,6 +594,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../check-stale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check Stale (model retirement)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../mock/" class="md-nav__link">
         
   
@@ -1005,6 +1033,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#evalcraft-check-stale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        evalcraft check-stale
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exit-codes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1049,10 +1088,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_12" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_13" >
         
           
-          <label class="md-nav__link" for="__nav_2_12" id="__nav_2_12_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2_13" id="__nav_2_13_label" tabindex="">
             
   
   
@@ -1070,8 +1109,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_12_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_12">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_13">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1727,6 +1766,38 @@
 </span><span id="__span-35-6"><a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">content</span> <span class="o">==</span> <span class="s2">&quot;It&#39;s 18°C and cloudy in Paris right now.&quot;</span>
 </span></code></pre></div>
 <hr />
+<h2 id="evalcraft-check-stale"><code>evalcraft check-stale</code><a class="headerlink" href="#evalcraft-check-stale" title="Permanent link">&para;</a></h2>
+<p>Flag cassettes recorded against a model that's been retired or swapped (or a drifted prompt), using the provenance each cassette records. Exits non-zero on a retired model so CI can block stale deterministic tests.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>evalcraft<span class="w"> </span>check-stale<span class="w"> </span>CASSETTES...<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--models "a,b,c"</code></td>
+<td>Current model set; a recorded model not in it is CRITICAL</td>
+</tr>
+<tr>
+<td><code>--prompts PATH</code></td>
+<td>Current prompts file; hash drift vs the recording is a WARNING</td>
+</tr>
+<tr>
+<td><code>--max-age-days N</code></td>
+<td>Recorded-at age over N days is INFO (defaults to 30 if no other check)</td>
+</tr>
+<tr>
+<td><code>--json</code></td>
+<td>Emit JSON; still exits 1 on any CRITICAL</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="../check-stale/">Check Stale</a> for the full guide.</p>
+<hr />
 <h2 id="exit-codes">Exit codes<a class="headerlink" href="#exit-codes" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1747,11 +1818,11 @@
 </tbody>
 </table>
 <p>Use exit codes in CI scripts:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>evalcraft<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>cassettes/run.json<span class="w"> </span>--max-cost<span class="w"> </span><span class="m">0</span>.05<span class="w"> </span>--tool<span class="w"> </span>web_search
-</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-ne<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
-</span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Eval failed — blocking deploy&quot;</span>
-</span><span id="__span-36-4"><a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
-</span><span id="__span-36-5"><a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="k">fi</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>evalcraft<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>cassettes/run.json<span class="w"> </span>--max-cost<span class="w"> </span><span class="m">0</span>.05<span class="w"> </span>--tool<span class="w"> </span>web_search
+</span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-ne<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+</span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Eval failed — blocking deploy&quot;</span>
+</span><span id="__span-37-4"><a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a><span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-37-5"><a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a><span class="k">fi</span>
 </span></code></pre></div>
 
 

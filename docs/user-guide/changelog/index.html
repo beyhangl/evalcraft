@@ -592,6 +592,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../check-stale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check Stale (model retirement)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../mock/" class="md-nav__link">
         
   
@@ -722,10 +750,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_12" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_13" >
         
           
-          <label class="md-nav__link" for="__nav_2_12" id="__nav_2_12_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2_13" id="__nav_2_13_label" tabindex="">
             
   
   
@@ -743,8 +771,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_12_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_12">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_13">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -969,6 +997,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#030-2026-06-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.3.0] — 2026-06-01
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.3.0] — 2026-06-01">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#010-2026-03-05" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -981,7 +1037,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1142,9 +1198,15 @@
 <p>The format follows <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a> and
 <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <hr />
+<h2 id="030-2026-06-01">[0.3.0] — 2026-06-01<a class="headerlink" href="#030-2026-06-01" title="Permanent link">&para;</a></h2>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>evalcraft check-stale</code> — detect cassettes recorded against a retired/swapped model (CRITICAL, non-zero exit for CI) or a drifted prompt (WARNING), by activating the provenance each cassette records. See <a href="../check-stale/">Check Stale</a>.</li>
+</ul>
+<hr />
 <h2 id="010-2026-03-05"><a href="https://github.com/beyhangl/evalcraft/releases/tag/v0.1.0">0.1.0</a> — 2026-03-05<a class="headerlink" href="#010-2026-03-05" title="Permanent link">&para;</a></h2>
 <p>Initial public release of Evalcraft — the pytest for AI agents.</p>
-<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <h4 id="core-data-model">Core data model<a class="headerlink" href="#core-data-model" title="Permanent link">&para;</a></h4>
 <ul>
 <li><strong><code>Span</code></strong> — atomic unit of capture, recording every LLM call, tool invocation, agent step, user input, and output with timing, token usage, and cost metadata</li>
