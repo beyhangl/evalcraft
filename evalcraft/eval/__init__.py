@@ -52,6 +52,18 @@ from evalcraft.eval.scorers import (
     assert_tool_order,
 )
 
+# Structured-output / tool-arg shape scorers (deterministic, $0)
+from evalcraft.eval.scorers.structured import (
+    assert_match_groups,
+    assert_output_field,
+    assert_output_has_keys,
+    assert_output_json,
+    assert_output_json_schema,
+    assert_output_value_in,
+    assert_output_value_in_range,
+    assert_tool_args_match_schema,
+)
+
 # Statistical evaluation
 from evalcraft.eval.statistical import eval_n
 
@@ -66,6 +78,15 @@ __all__ = [
     "assert_latency_under",
     "assert_token_count_under",
     "Evaluator",
+    # Structured-output / tool-arg shape (deterministic, $0)
+    "assert_output_json",
+    "assert_output_json_schema",
+    "assert_output_has_keys",
+    "assert_output_field",
+    "assert_output_value_in",
+    "assert_output_value_in_range",
+    "assert_match_groups",
+    "assert_tool_args_match_schema",
     # LLM-as-Judge
     "assert_output_semantic",
     "assert_factual_consistency",

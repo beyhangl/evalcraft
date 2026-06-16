@@ -77,6 +77,14 @@ def minimal_cassette():
     return Cassette(name="minimal")
 
 
+@pytest.fixture
+def json_output_cassette():
+    """A cassette whose final output is structured JSON."""
+    c = Cassette(name="extractor_agent", agent_name="extractor")
+    c.output_text = '{"city": "Paris", "temp_c": 18, "status": "ok"}'
+    return c
+
+
 # ──────────────────────────────────────────────
 # generate_test_code
 # ──────────────────────────────────────────────
@@ -169,6 +177,19 @@ class TestGenerateTestCode:
         code = generate_test_code(minimal_cassette, "cassettes/m.json")
         assert "from evalcraft import replay" in code
         assert "assert_tool_called" not in code
+
+    def test_json_output_generates_structured_tests(self, json_output_cassette):
+        code = generate_test_code(json_output_cassette, "cassettes/x.json")
+        compile(code, "<test>", "exec")  # still valid Python
+        assert "def test_extractor_agent_output_is_json" in code
+        assert "assert_output_json(run)" in code
+        assert "def test_extractor_agent_output_shape" in code
+        assert "assert_output_has_keys(run, ['city', 'temp_c', 'status'])" in code
+
+    def test_plain_text_output_skips_structured_tests(self, weather_cassette):
+        # weather output is prose, not JSON — no structured-output tests emitted
+        code = generate_test_code(weather_cassette, "cassettes/w.json")
+        assert "assert_output_json" not in code
 
     def test_sanitises_name_with_special_chars(self):
         c = Cassette(name="my-agent.v2 (test)")

@@ -136,7 +136,43 @@ assert assert_tool_called(run, "get_weather", with_args={"city": "Paris"}).passe
 assert assert_cost_under(run, max_usd=0.05).passed
 ```
 
-### 4. LLM-as-Judge evaluation
+### 4. Lock structured output & tool-call shape (deterministic, $0)
+
+When your agent emits structured JSON or calls tools, validate the **shape**
+with zero model calls — these run offline in milliseconds on every commit:
+
+```python
+from evalcraft import (
+    replay, assert_output_json_schema, assert_output_value_in,
+    assert_tool_args_match_schema,
+)
+
+run = replay("tests/cassettes/weather.json")
+
+# The final output is JSON conforming to a schema (dict / .json file / pydantic model)
+assert assert_output_json_schema(run, {
+    "type": "object",
+    "required": ["city", "temp_c", "status"],
+    "properties": {
+        "city":   {"type": "string"},
+        "temp_c": {"type": "number", "minimum": -90, "maximum": 60},
+        "status": {"enum": ["ok", "error"]},
+    },
+}).passed
+assert assert_output_value_in(run, "status", ["ok", "error"]).passed
+
+# The agent called the tool with correctly-shaped arguments — the $0 answer to a
+# question other tools spend a live LLM on:
+assert assert_tool_args_match_schema(run, "get_weather", {
+    "type": "object", "required": ["city"],
+    "properties": {"city": {"type": "string"}},
+}).passed
+```
+
+Uses a pure-stdlib JSON-Schema subset by default; `pip install "evalcraft[schema]"`
+for full Draft 2020-12. See [Structured Output](https://beyhangl.github.io/evalcraft/docs/user-guide/structured-output/).
+
+### 5. LLM-as-Judge evaluation
 
 > ⚠️ **These are live scorers.** Unlike replay + the structural scorers (which are
 > offline, deterministic, and $0), the LLM-as-Judge / RAG / pairwise scorers call a
@@ -157,7 +193,7 @@ result = assert_factual_consistency(run, ground_truth="Paris is 18C and cloudy")
 assert result.passed
 ```
 
-### 5. RAG evaluation metrics
+### 6. RAG evaluation metrics
 
 ```python
 from evalcraft import replay, assert_faithfulness, assert_answer_relevance
@@ -172,7 +208,7 @@ assert assert_faithfulness(run, contexts=contexts).passed
 assert assert_answer_relevance(run, query="Tell me about Paris").passed
 ```
 
-### 6. Use with pytest
+### 7. Use with pytest
 
 ```python
 # tests/test_weather_agent.py
@@ -194,7 +230,7 @@ pytest tests/ -v
 # 200ms, $0.00
 ```
 
-### 7. Pairwise A/B comparison
+### 8. Pairwise A/B comparison
 
 ```python
 from evalcraft import pairwise_compare, pairwise_rank
@@ -212,7 +248,7 @@ for entry in rankings:
 
 Position bias is mitigated by randomizing presentation order.
 
-### 8. Statistical evaluation with confidence intervals
+### 9. Statistical evaluation with confidence intervals
 
 ```python
 from evalcraft import eval_n, assert_output_semantic
@@ -225,14 +261,14 @@ print(f"Pass rate: {result.pass_rate:.0%} ({result.passes}/{result.n})")
 print(f"95% CI: [{result.ci_lower:.2f}, {result.ci_upper:.2f}]")
 ```
 
-### 9. Auto-generate tests from cassettes
+### 10. Auto-generate tests from cassettes
 
 ```bash
 evalcraft generate-tests tests/cassettes/weather.json -o tests/test_weather.py
 # Generates a complete pytest file with tool, output, cost, token, and latency assertions
 ```
 
-### 10. Diagnose your setup
+### 11. Diagnose your setup
 
 ```bash
 evalcraft doctor
@@ -315,7 +351,8 @@ An honest comparison against the closest tools. ✅ first-class · ⚠️ partia
 | **Replay** | Re-run cassettes deterministically — no API calls, zero cost |
 | **Mock LLM** | Substitute real LLMs with deterministic mocks (exact / pattern / wildcard) |
 | **Mock Tools** | Mock any tool with static, dynamic, sequential, or error-simulating responses |
-| **Scorers** | 19 built-in assertions: tool calls, output, cost, latency, tokens, LLM-as-Judge, RAG metrics |
+| **Scorers** | 27 built-in assertions: tool calls, output, cost, latency, tokens, **structured output / JSON-Schema**, LLM-as-Judge, RAG metrics |
+| **Structured Output** | Deterministic, `$0` shape checks — valid JSON, JSON-Schema conformance, required keys, enum, range, regex capture groups, and **tool-call-argument schema validation** — no model call |
 | **LLM-as-Judge** | Semantic evaluation, factual consistency, tone, custom criteria — via OpenAI or Anthropic |
 | **RAG Metrics** | Faithfulness, context relevance, answer relevance, context recall |
 | **Pairwise A/B** | Arena-style comparison — LLM judge picks winner with position-bias mitigation |

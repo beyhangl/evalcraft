@@ -14,6 +14,7 @@ from __future__ import annotations
 import re
 
 from evalcraft.core.models import Cassette
+from evalcraft.eval.scorers.structured import _extract_json
 
 
 def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
@@ -32,6 +33,11 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
     tool_calls = cassette.get_tool_calls()
     unique_tools = list(dict.fromkeys(tool_sequence))  # Preserve order, deduplicate
     has_output = bool(cassette.output_text)
+    if has_output:
+        json_ok, json_value, _ = _extract_json(cassette.output_text)
+    else:
+        json_ok, json_value = False, None
+    output_is_json_object = json_ok and isinstance(json_value, dict)
     has_cost = cassette.total_cost_usd > 0
     has_tokens = cassette.total_tokens > 0
     has_latency = cassette.total_duration_ms > 0
@@ -44,6 +50,8 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
         imports.append("assert_tool_order")
     if has_output:
         imports.extend(["assert_output_contains", "assert_output_matches"])
+    if output_is_json_object:
+        imports.extend(["assert_output_json", "assert_output_has_keys"])
     if has_cost:
         imports.append("assert_cost_under")
     if has_tokens:
@@ -144,6 +152,25 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
         lines.append("    assert result.passed, result.message")
         lines.append("")
         lines.append("")
+
+        # Test: structured output — the recorded output is JSON, so lock its shape
+        # deterministically (valid JSON + the same top-level keys).
+        if output_is_json_object and json_value:
+            top_keys = list(json_value.keys())[:8]
+            lines.append(f"def test_{safe_name}_output_is_json():")
+            lines.append('    """Assert the output is valid structured JSON ($0, offline)."""')
+            lines.append("    run = _replay()")
+            lines.append("    result = assert_output_json(run)")
+            lines.append("    assert result.passed, result.message")
+            lines.append("")
+            lines.append("")
+            lines.append(f"def test_{safe_name}_output_shape():")
+            lines.append('    """Lock the shape of the structured output (top-level keys)."""')
+            lines.append("    run = _replay()")
+            lines.append(f"    result = assert_output_has_keys(run, {top_keys!r})")
+            lines.append("    assert result.passed, result.message")
+            lines.append("")
+            lines.append("")
 
     # Test: cost budget
     if has_cost:

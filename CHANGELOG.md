@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] — 2026-06-16
+
+### Added
+- **Deterministic structured-output & tool-call-argument scorers** — a family of `$0`, offline, model-free assertions that lock the *shape* of what an agent returns. Agents increasingly emit structured JSON (function calling, `response_format`/structured outputs), and these turn "did it return the right shape?" into a byte-stable pytest check instead of an LLM-judge call:
+  - `assert_output_json` — output is valid (or, with `embedded=True`, prose-wrapped) JSON.
+  - `assert_output_json_schema` — output conforms to a JSON Schema. Schema may be a dict, a `.json` path, an inline JSON string, or a **pydantic model class** (pydantic is already a core dep). Uses a pure-stdlib JSON-Schema **subset** validator by default (type/required/properties/enum/min·max/length/pattern/items/uniqueItems/anyOf·allOf·oneOf/`$ref`+`$defs`), and transparently upgrades to full Draft 2020-12 if the optional `jsonschema` package is installed. The built-in validator **raises** on any keyword it doesn't implement, so a test can never get a false PASS.
+  - `assert_output_has_keys`, `assert_output_field` (dotted/bracket paths, `equals`/`exists`), `assert_output_value_in` (enum), `assert_output_value_in_range` (numeric bounds, inclusive/exclusive).
+  - `assert_match_groups` — fills the regex capture-group gap left by `assert_output_matches` (validates `.groups()` / `.groupdict()`).
+  - `assert_tool_args_match_schema(tool_name, schema, which="all"|"any")` — validates each recorded `tool_args` dict against a schema. The deterministic, `$0` answer to "are the agent's tool calls shaped correctly?".
+- **`generate-tests` now emits structured-output tests automatically** — when a recorded output parses as JSON, the generated pytest file gains `assert_output_json` + `assert_output_has_keys(...)` tests that lock the output's shape.
+
 ## [0.3.1] — 2026-06-16
 
 ### Fixed

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "evalcraft"
-version = "0.3.1"
+version = "0.4.0"
 description = "VCR for AI agents — record agent runs as cassettes and replay them deterministically in CI for $0."
 readme = "README.md"
 license = "MIT"
@@ -43,6 +43,9 @@ autogen = ["pyautogen>=0.2"]
 llamaindex = ["llama-index-core>=0.10"]
 gemini = ["google-generativeai>=0.5"]
 pydantic-ai = ["pydantic-ai>=0.0.30"]
+# Optional: full JSON-Schema Draft 2020-12 coverage for assert_output_json_schema /
+# assert_tool_args_match_schema. Without it, a pure-stdlib subset validator is used.
+schema = ["jsonschema>=4.0"]
 all = [
     "pytest>=7.0",
     "openai>=1.0",
@@ -53,6 +56,7 @@ all = [
     "llama-index-core>=0.10",
     "google-generativeai>=0.5",
     "pydantic-ai>=0.0.30",
+    "jsonschema>=4.0",
 ]
 dev = [
     "pytest>=7.0",

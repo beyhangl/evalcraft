@@ -7,6 +7,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
+## [0.4.0] — 2026-06-16
+
+### Added
+- **Deterministic structured-output & tool-call-argument scorers** ($0, offline, no model call): `assert_output_json`, `assert_output_json_schema` (dict / `.json` path / inline JSON / pydantic model; pure-stdlib subset validator that upgrades to full Draft 2020-12 when `jsonschema` is installed), `assert_output_has_keys`, `assert_output_field`, `assert_output_value_in`, `assert_output_value_in_range`, `assert_match_groups` (regex capture groups), and `assert_tool_args_match_schema` (validate recorded tool-call arguments against a schema). See [Structured Output](structured-output.md).
+- `generate-tests` auto-emits `assert_output_json` + `assert_output_has_keys` tests when a recorded output is JSON.
+
+---
+
 ## [0.3.1] — 2026-06-16
 
 ### Fixed

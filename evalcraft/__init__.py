@@ -4,7 +4,7 @@ Record agent runs as cassettes and replay them deterministically in CI for $0;
 mock LLMs/tools, score runs, and catch real model drift with live-eval.
 """
 
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 
 from evalcraft.capture.recorder import CaptureContext, capture
 from evalcraft.cloud.client import EvalcraftCloud
@@ -26,16 +26,25 @@ from evalcraft.eval import (
     # RAG
     assert_faithfulness,
     assert_latency_under,
+    # Structured-output / tool-arg shape (deterministic, $0)
+    assert_match_groups,
     # Hallucination
     assert_no_hallucination,
     assert_no_tool_called,
     assert_output_contains,
+    assert_output_field,
+    assert_output_has_keys,
+    assert_output_json,
+    assert_output_json_schema,
     assert_output_matches,
     # LLM-as-Judge
     assert_output_semantic,
+    assert_output_value_in,
+    assert_output_value_in_range,
     assert_token_count_under,
     assert_tone,
     # Core scorers
+    assert_tool_args_match_schema,
     assert_tool_called,
     assert_tool_order,
     compare_to_baseline,
@@ -69,6 +78,14 @@ __all__ = [
     "assert_cost_under",
     "assert_latency_under",
     "assert_token_count_under",
+    "assert_output_json",
+    "assert_output_json_schema",
+    "assert_output_has_keys",
+    "assert_output_field",
+    "assert_output_value_in",
+    "assert_output_value_in_range",
+    "assert_match_groups",
+    "assert_tool_args_match_schema",
     "assert_output_semantic",
     "assert_factual_consistency",
     "assert_tone",
