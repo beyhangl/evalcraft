@@ -7,7 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
-## [Unreleased]
+## [0.3.0] — 2026-06-01
 
 ### Added
 - `evalcraft check-stale` — detect cassettes recorded against a retired/swapped model (CRITICAL, non-zero exit for CI) or a drifted prompt (WARNING), by activating the provenance each cassette records. See [Check Stale](check-stale.md).
