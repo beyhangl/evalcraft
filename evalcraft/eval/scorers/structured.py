@@ -46,6 +46,20 @@ from evalcraft.core.models import (
     AssertionResult,
     Cassette,
 )
+from evalcraft.eval._utils import get_cassette as _get_cassette
+from evalcraft.eval.scorers._jsonschema import validate_schema
+
+__all__ = [
+    "assert_match_groups",
+    "assert_output_field",
+    "assert_output_has_keys",
+    "assert_output_json",
+    "assert_output_json_schema",
+    "assert_output_value_in",
+    "assert_output_value_in_range",
+    "assert_tool_args_match_schema",
+    "validate_schema",
+]
 
 _UNSET = object()
 
@@ -178,233 +192,23 @@ def _load_schema(schema: Any) -> dict:
 
 
 # ──────────────────────────────────────────────
-# Built-in JSON-Schema subset validator (pure stdlib)
-# ──────────────────────────────────────────────
-
-# Keywords the built-in validator enforces.
-_SUPPORTED = frozenset({
-    "type", "enum", "const", "properties", "required", "additionalProperties",
-    "items", "minItems", "maxItems", "uniqueItems", "minLength", "maxLength",
-    "pattern", "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum",
-    "multipleOf", "anyOf", "allOf", "oneOf", "$ref",
-})
-# Annotation/metadata keywords that are ignored (never affect validation).
-_IGNORED = frozenset({
-    "title", "description", "default", "examples", "$schema", "$id", "$comment",
-    "$defs", "definitions", "readOnly", "writeOnly", "deprecated", "format",
-})
-
-
-def _is_type(value: Any, t: str) -> bool:
-    if t == "object":
-        return isinstance(value, dict)
-    if t == "array":
-        return isinstance(value, list)
-    if t == "string":
-        return isinstance(value, str)
-    if t == "integer":
-        return isinstance(value, int) and not isinstance(value, bool)
-    if t == "number":
-        return isinstance(value, (int, float)) and not isinstance(value, bool)
-    if t == "boolean":
-        return isinstance(value, bool)
-    if t == "null":
-        return value is None
-    raise ValueError(f"Unknown JSON-Schema type {t!r}")
-
-
-def _resolve_ref(root: dict, ref: str) -> dict:
-    if not ref.startswith("#/"):
-        raise ValueError(
-            f"The built-in schema validator only supports local '#/...' $refs (got {ref!r}). "
-            "Install the full engine with: pip install \"evalcraft[schema]\""
-        )
-    node: Any = root
-    for raw in ref[2:].split("/"):
-        key = raw.replace("~1", "/").replace("~0", "~")
-        if not isinstance(node, dict) or key not in node:
-            raise ValueError(f"Unresolvable $ref {ref!r}: missing segment {key!r}")
-        node = node[key]
-    if not isinstance(node, dict):
-        raise ValueError(f"$ref {ref!r} does not point at a schema object")
-    return node
-
-
-def _validate_subset(value: Any, schema: dict, root: dict, path: str) -> list[str]:
-    """Validate ``value`` against ``schema``; return a list of error strings."""
-    if "$ref" in schema:
-        schema = _resolve_ref(root, schema["$ref"])
-
-    unknown = set(schema) - _SUPPORTED - _IGNORED
-    if unknown:
-        raise ValueError(
-            f"The built-in schema validator does not support keyword(s) "
-            f"{sorted(unknown)} at {path}. Install full Draft 2020-12 support with: "
-            'pip install "evalcraft[schema]"'
-        )
-
-    errors: list[str] = []
-
-    for kw in ("allOf", "anyOf", "oneOf"):
-        if kw not in schema:
-            continue
-        subs = schema[kw]
-        results = [_validate_subset(value, s, root, path) for s in subs]
-        ok = sum(1 for r in results if not r)
-        if kw == "allOf" and ok != len(subs):
-            errors.append(f"{path}: does not match all of the required schemas")
-        elif kw == "anyOf" and ok == 0:
-            errors.append(f"{path}: does not match any of the allowed schemas")
-        elif kw == "oneOf" and ok != 1:
-            errors.append(f"{path}: must match exactly one schema (matched {ok})")
-
-    if "type" in schema:
-        types = schema["type"]
-        types = [types] if isinstance(types, str) else types
-        if not any(_is_type(value, t) for t in types):
-            errors.append(f"{path}: expected type {schema['type']}, got {_typename(value)}")
-            return errors  # further checks assume the right type
-
-    if "const" in schema and value != schema["const"]:
-        errors.append(f"{path}: expected const {schema['const']!r}, got {value!r}")
-    if "enum" in schema and value not in schema["enum"]:
-        errors.append(f"{path}: {value!r} is not one of {schema['enum']!r}")
-
-    if isinstance(value, str):
-        errors += _validate_string(value, schema, path)
-    if isinstance(value, bool):
-        pass  # booleans are not numbers
-    elif isinstance(value, (int, float)):
-        errors += _validate_number(value, schema, path)
-    if isinstance(value, list):
-        errors += _validate_array(value, schema, root, path)
-    if isinstance(value, dict):
-        errors += _validate_object(value, schema, root, path)
-
-    return errors
-
-
-def _validate_string(value: str, schema: dict, path: str) -> list[str]:
-    errors = []
-    if "minLength" in schema and len(value) < schema["minLength"]:
-        errors.append(f"{path}: string shorter than minLength {schema['minLength']}")
-    if "maxLength" in schema and len(value) > schema["maxLength"]:
-        errors.append(f"{path}: string longer than maxLength {schema['maxLength']}")
-    if "pattern" in schema and re.search(schema["pattern"], value) is None:
-        errors.append(f"{path}: {value!r} does not match pattern {schema['pattern']!r}")
-    return errors
-
-
-def _validate_number(value: float, schema: dict, path: str) -> list[str]:
-    errors = []
-    if "minimum" in schema and value < schema["minimum"]:
-        errors.append(f"{path}: {value} < minimum {schema['minimum']}")
-    if "maximum" in schema and value > schema["maximum"]:
-        errors.append(f"{path}: {value} > maximum {schema['maximum']}")
-    if "exclusiveMinimum" in schema and value <= schema["exclusiveMinimum"]:
-        errors.append(f"{path}: {value} <= exclusiveMinimum {schema['exclusiveMinimum']}")
-    if "exclusiveMaximum" in schema and value >= schema["exclusiveMaximum"]:
-        errors.append(f"{path}: {value} >= exclusiveMaximum {schema['exclusiveMaximum']}")
-    if "multipleOf" in schema and schema["multipleOf"]:
-        q = value / schema["multipleOf"]
-        if abs(q - round(q)) > 1e-9:
-            errors.append(f"{path}: {value} is not a multiple of {schema['multipleOf']}")
-    return errors
-
-
-def _validate_array(value: list, schema: dict, root: dict, path: str) -> list[str]:
-    errors = []
-    if "minItems" in schema and len(value) < schema["minItems"]:
-        errors.append(f"{path}: array shorter than minItems {schema['minItems']}")
-    if "maxItems" in schema and len(value) > schema["maxItems"]:
-        errors.append(f"{path}: array longer than maxItems {schema['maxItems']}")
-    if schema.get("uniqueItems"):
-        seen = [json.dumps(v, sort_keys=True, default=str) for v in value]
-        if len(set(seen)) != len(seen):
-            errors.append(f"{path}: array items are not unique")
-    if "items" in schema and isinstance(schema["items"], dict):
-        for i, item in enumerate(value):
-            errors += _validate_subset(item, schema["items"], root, f"{path}[{i}]")
-    return errors
-
-
-def _validate_object(value: dict, schema: dict, root: dict, path: str) -> list[str]:
-    errors = []
-    props = schema.get("properties", {})
-    for key in schema.get("required", []):
-        if key not in value:
-            errors.append(f"{path}: missing required key {key!r}")
-    for key, sub in props.items():
-        if key in value:
-            errors += _validate_subset(value[key], sub, root, f"{path}.{key}")
-    ap = schema.get("additionalProperties", True)
-    if ap is not True:
-        extra = [k for k in value if k not in props]
-        if ap is False and extra:
-            errors.append(f"{path}: unexpected keys {extra} (additionalProperties is false)")
-        elif isinstance(ap, dict):
-            for k in extra:
-                errors += _validate_subset(value[k], ap, root, f"{path}.{k}")
-    return errors
-
-
-def _typename(value: Any) -> str:
-    if value is None:
-        return "null"
-    if isinstance(value, bool):
-        return "boolean"
-    if isinstance(value, str):
-        return "string"
-    if isinstance(value, int):
-        return "integer"
-    if isinstance(value, float):
-        return "number"
-    if isinstance(value, list):
-        return "array"
-    if isinstance(value, dict):
-        return "object"
-    return type(value).__name__
-
-
-def _jsonschema_available() -> bool:
-    try:
-        import jsonschema  # noqa: F401
-        return True
-    except ImportError:
-        return False
-
-
-def validate_schema(value: Any, schema: dict, engine: str = "auto") -> tuple[str, list[str]]:
-    """Validate ``value`` against ``schema``. Returns ``(engine_used, errors)``.
-
-    ``engine``: ``"auto"`` (use ``jsonschema`` if installed, else the built-in
-    subset), ``"builtin"`` (force the stdlib subset), or ``"jsonschema"`` (force
-    the optional full engine, raising if it is not installed).
-    """
-    if engine not in ("auto", "builtin", "jsonschema"):
-        raise ValueError(f"engine must be 'auto', 'builtin', or 'jsonschema', got {engine!r}")
-
-    use_jsonschema = engine == "jsonschema" or (engine == "auto" and _jsonschema_available())
-    if use_jsonschema:
-        import jsonschema
-        validator = jsonschema.Draft202012Validator(schema)
-        errors = [
-            f"${''.join(f'.{p}' if isinstance(p, str) else f'[{p}]' for p in e.absolute_path)}"
-            f": {e.message}"
-            for e in sorted(validator.iter_errors(value), key=lambda e: list(e.absolute_path))
-        ]
-        return "jsonschema", errors
-    return "builtin", _validate_subset(value, schema, schema, "$")
-
-
-# ──────────────────────────────────────────────
 # Output-shape scorers
 # ──────────────────────────────────────────────
 
-def _get_cassette(obj: Cassette | AgentRun) -> Cassette:
-    if isinstance(obj, AgentRun):
-        return obj.cassette
-    return obj
+def _parse_or_fail(
+    cassette: Cassette | AgentRun, name: str, expected: Any, embedded: bool
+) -> tuple[Any, AssertionResult | None]:
+    """Parse the run's output as JSON. Returns ``(value, None)`` on success, or
+    ``(None, failing_AssertionResult)`` when the output is not valid JSON."""
+    c = _get_cassette(cassette)
+    ok, value, err = _extract_json(c.output_text, embedded=embedded)
+    if ok:
+        return value, None
+    fail = AssertionResult(
+        name=name, passed=False, expected=expected,
+        actual=c.output_text[:200], message=f"Output is not valid JSON: {err}",
+    )
+    return None, fail
 
 
 def assert_output_json(
@@ -444,16 +248,11 @@ def assert_output_json_schema(
         embedded: Accept JSON embedded in prose (see ``assert_output_json``).
         engine: ``"auto"`` / ``"builtin"`` / ``"jsonschema"``.
     """
-    c = _get_cassette(cassette)
-    ok, value, err = _extract_json(c.output_text, embedded=embedded)
-    if not ok:
-        return AssertionResult(
-            name="assert_output_json_schema",
-            passed=False,
-            expected="JSON matching schema",
-            actual=c.output_text[:200],
-            message=f"Output is not valid JSON: {err}",
-        )
+    value, fail = _parse_or_fail(
+        cassette, "assert_output_json_schema", "JSON matching schema", embedded
+    )
+    if fail:
+        return fail
     schema_dict = _load_schema(schema)
     _used, errors = validate_schema(value, schema_dict, engine=engine)
     return AssertionResult(
@@ -476,14 +275,9 @@ def assert_output_has_keys(
     Each entry may be a top-level key or a dotted/bracket path. ``path`` is an
     optional base path to descend into before checking the keys.
     """
-    c = _get_cassette(cassette)
-    ok, value, err = _extract_json(c.output_text, embedded=embedded)
-    if not ok:
-        return AssertionResult(
-            name="assert_output_has_keys",
-            passed=False, expected=keys, actual=c.output_text[:200],
-            message=f"Output is not valid JSON: {err}",
-        )
+    value, fail = _parse_or_fail(cassette, "assert_output_has_keys", keys, embedded)
+    if fail:
+        return fail
     root = value
     if path is not None:
         found, root = _resolve_path(value, path)
@@ -514,19 +308,15 @@ def assert_output_field(
     With ``equals`` set, the resolved value must equal it. Otherwise the field
     just has to be present.
     """
-    c = _get_cassette(cassette)
-    ok, value, err = _extract_json(c.output_text, embedded=embedded)
-    if not ok:
-        return AssertionResult(
-            name=f"assert_output_field({path})", passed=False,
-            expected=equals if equals is not _UNSET else "present",
-            actual=c.output_text[:200], message=f"Output is not valid JSON: {err}",
-        )
+    expected = equals if equals is not _UNSET else "present"
+    value, fail = _parse_or_fail(cassette, f"assert_output_field({path})", expected, embedded)
+    if fail:
+        return fail
     found, resolved = _resolve_path(value, path)
     if not found:
         return AssertionResult(
             name=f"assert_output_field({path})", passed=False,
-            expected=equals if equals is not _UNSET else "present", actual=None,
+            expected=expected, actual=None,
             message=f"Field '{path}' not found in output",
         )
     if equals is not _UNSET and resolved != equals:
@@ -536,7 +326,7 @@ def assert_output_field(
         )
     return AssertionResult(
         name=f"assert_output_field({path})", passed=True,
-        expected=equals if equals is not _UNSET else "present", actual=resolved,
+        expected=expected, actual=resolved,
     )
 
 
@@ -547,13 +337,9 @@ def assert_output_value_in(
     embedded: bool = False,
 ) -> AssertionResult:
     """Assert the value at ``path`` is one of ``allowed`` (enum membership)."""
-    c = _get_cassette(cassette)
-    ok, value, err = _extract_json(c.output_text, embedded=embedded)
-    if not ok:
-        return AssertionResult(
-            name=f"assert_output_value_in({path})", passed=False, expected=allowed,
-            actual=c.output_text[:200], message=f"Output is not valid JSON: {err}",
-        )
+    value, fail = _parse_or_fail(cassette, f"assert_output_value_in({path})", allowed, embedded)
+    if fail:
+        return fail
     found, resolved = _resolve_path(value, path)
     if not found:
         return AssertionResult(
@@ -580,14 +366,11 @@ def assert_output_value_in_range(
 
     With ``exclusive=True`` the bounds are exclusive.
     """
-    c = _get_cassette(cassette)
-    ok, value, err = _extract_json(c.output_text, embedded=embedded)
-    if not ok:
-        return AssertionResult(
-            name=f"assert_output_value_in_range({path})", passed=False,
-            expected=(minimum, maximum), actual=c.output_text[:200],
-            message=f"Output is not valid JSON: {err}",
-        )
+    value, fail = _parse_or_fail(
+        cassette, f"assert_output_value_in_range({path})", (minimum, maximum), embedded
+    )
+    if fail:
+        return fail
     found, resolved = _resolve_path(value, path)
     if not found:
         return AssertionResult(
@@ -599,7 +382,7 @@ def assert_output_value_in_range(
         return AssertionResult(
             name=f"assert_output_value_in_range({path})", passed=False,
             expected=(minimum, maximum), actual=resolved,
-            message=f"Field '{path}' is {_typename(resolved)}, not a number",
+            message=f"Field '{path}' is not a number (got {resolved!r})",
         )
     failures = []
     if minimum is not None:

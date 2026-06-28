@@ -21,6 +21,7 @@ from evalcraft.core.models import (
     Cassette,
     EvalResult,
 )
+from evalcraft.eval._utils import get_cassette as _get_cassette
 
 # ──────────────────────────────────────────────
 # Tool assertions
@@ -352,13 +353,3 @@ class Evaluator:
             assertions=results,
         )
 
-
-# ──────────────────────────────────────────────
-# Helpers
-# ──────────────────────────────────────────────
-
-def _get_cassette(obj: Cassette | AgentRun) -> Cassette:
-    """Extract cassette from either a Cassette or AgentRun."""
-    if isinstance(obj, AgentRun):
-        return obj.cassette
-    return obj
