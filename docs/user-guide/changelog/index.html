@@ -704,6 +704,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../loop-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loop Detection ($0)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../pytest-plugin/" class="md-nav__link">
         
   
@@ -778,10 +806,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_14" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_15" >
         
           
-          <label class="md-nav__link" for="__nav_2_14" id="__nav_2_14_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2_15" id="__nav_2_15_label" tabindex="">
             
   
   
@@ -799,8 +827,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_14_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_14">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_15">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1025,6 +1053,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#050-2026-06-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.5.0] — 2026-06-16
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.5.0] — 2026-06-16">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#040-2026-06-16" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1037,7 +1093,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1093,7 +1149,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1121,7 +1177,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_2" class="md-nav__link">
+  <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1282,8 +1338,15 @@
 <p>The format follows <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a> and
 <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <hr />
-<h2 id="040-2026-06-16">[0.4.0] — 2026-06-16<a class="headerlink" href="#040-2026-06-16" title="Permanent link">&para;</a></h2>
+<h2 id="050-2026-06-16">[0.5.0] — 2026-06-16<a class="headerlink" href="#050-2026-06-16" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Deterministic loop / repetition detection</strong> ($0, offline, no model call): <code>assert_no_loops</code> / <code>detect_loops</code> flag an agent stuck repeating the same tool call (same <code>tool_args</code>) or the same/near-duplicate step output; <code>assert_no_repeated_tool_calls</code> is the focused tool-only check. See <a href="../loop-detection/">Loop Detection</a>.</li>
+<li><code>generate-tests</code> auto-emits an <code>assert_no_loops</code> guard when the recorded baseline has tool calls and no loops of its own.</li>
+</ul>
+<hr />
+<h2 id="040-2026-06-16">[0.4.0] — 2026-06-16<a class="headerlink" href="#040-2026-06-16" title="Permanent link">&para;</a></h2>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Deterministic structured-output &amp; tool-call-argument scorers</strong> ($0, offline, no model call): <code>assert_output_json</code>, <code>assert_output_json_schema</code> (dict / <code>.json</code> path / inline JSON / pydantic model; pure-stdlib subset validator that upgrades to full Draft 2020-12 when <code>jsonschema</code> is installed), <code>assert_output_has_keys</code>, <code>assert_output_field</code>, <code>assert_output_value_in</code>, <code>assert_output_value_in_range</code>, <code>assert_match_groups</code> (regex capture groups), and <code>assert_tool_args_match_schema</code> (validate recorded tool-call arguments against a schema). See <a href="../structured-output/">Structured Output</a>.</li>
 <li><code>generate-tests</code> auto-emits <code>assert_output_json</code> + <code>assert_output_has_keys</code> tests when a recorded output is JSON.</li>
@@ -1296,14 +1359,14 @@
 </ul>
 <hr />
 <h2 id="030-2026-06-01">[0.3.0] — 2026-06-01<a class="headerlink" href="#030-2026-06-01" title="Permanent link">&para;</a></h2>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>evalcraft check-stale</code> — detect cassettes recorded against a retired/swapped model (CRITICAL, non-zero exit for CI) or a drifted prompt (WARNING), by activating the provenance each cassette records. See <a href="../check-stale/">Check Stale</a>.</li>
 </ul>
 <hr />
 <h2 id="010-2026-03-05"><a href="https://github.com/beyhangl/evalcraft/releases/tag/v0.1.0">0.1.0</a> — 2026-03-05<a class="headerlink" href="#010-2026-03-05" title="Permanent link">&para;</a></h2>
 <p>Initial public release of Evalcraft — the pytest for AI agents.</p>
-<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
 <h4 id="core-data-model">Core data model<a class="headerlink" href="#core-data-model" title="Permanent link">&para;</a></h4>
 <ul>
 <li><strong><code>Span</code></strong> — atomic unit of capture, recording every LLM call, tool invocation, agent step, user input, and output with timing, token usage, and cost metadata</li>

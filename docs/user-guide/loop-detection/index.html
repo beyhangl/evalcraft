@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://beyhangl.github.io/evalcraft/docs/user-guide/live-eval/">
+        <link rel="canonical" href="https://beyhangl.github.io/evalcraft/docs/user-guide/loop-detection/">
       
       
-        <link rel="prev" href="../replay/">
+        <link rel="prev" href="../structured-output/">
       
       
-        <link rel="next" href="../check-stale/">
+        <link rel="next" href="../pytest-plugin/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Live Eval (catch drift) - Evalcraft</title>
+        <title>Loop Detection ($0) - Evalcraft</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#live-eval-catching-drift" class="md-skip">
+        <a href="#loop-detection-0" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Live Eval (catch drift)
+              Loop Detection ($0)
             
           </span>
         </div>
@@ -563,37 +563,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Live Eval (catch drift)
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../live-eval/" class="md-nav__link">
         
   
   
@@ -609,48 +582,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How it works
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#gating-ci-against-a-baseline" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Gating CI against a baseline
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -772,10 +703,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../loop-detection/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loop Detection ($0)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -791,6 +749,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#two-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two signals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#catching-near-duplicates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Catching near-duplicates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#just-the-tool-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Just the tool calls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inspecting-the-findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inspecting the findings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#its-automatic-in-generate-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        It's automatic in generate-tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-it-belongs-in-the-0-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why it belongs in the $0 path
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1112,94 +1156,69 @@
   
 
 
-<h1 id="live-eval-catching-drift">Live Eval — catching drift<a class="headerlink" href="#live-eval-catching-drift" title="Permanent link">&para;</a></h1>
-<p><a href="../replay/">Replay</a> tests a <em>recorded</em> run: it never re-executes the live model,
-so it <strong>cannot</strong> catch the regressions that come from <strong>model / prompt /
-retrieval drift</strong> (a provider updates a model, you edit a prompt, your retrieval
-corpus changes). Live-eval is the complementary layer that does.</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Replay (per-commit)</th>
-<th>Live-eval (nightly / gated)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Runs the real model?</td>
-<td>No — replays a cassette</td>
-<td><strong>Yes</strong></td>
-</tr>
-<tr>
-<td>Cost / determinism</td>
-<td>$0, deterministic, offline</td>
-<td>Paid, non-deterministic, online</td>
-</tr>
-<tr>
-<td>Catches glue / logic regressions</td>
-<td>✅</td>
-<td>✅</td>
-</tr>
-<tr>
-<td>Catches model / prompt / retrieval drift</td>
-<td>❌</td>
-<td>✅</td>
-</tr>
-<tr>
-<td>Where it runs</td>
-<td>every push</td>
-<td>nightly or release gate</td>
-</tr>
-</tbody>
-</table>
-<p>Use <strong>both</strong>: replay for fast per-commit checks of your agent's deterministic
-glue, live-eval to track real quality over time.</p>
-<h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
-<p>You define a set of golden <strong>inputs</strong> (not frozen outputs), supply a <code>runner</code>
-that executes your real agent, and attach scorers. Live-eval runs each input,
-scores the live output, and aggregates per-case scores you can compare against a
-saved baseline.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">evalcraft.eval.live</span> <span class="kn">import</span> <span class="n">LiveEvalCase</span><span class="p">,</span> <span class="n">LiveEvalResult</span><span class="p">,</span> <span class="n">run_live_eval</span><span class="p">,</span> <span class="n">compare_to_baseline</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">assert_output_contains</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">cases</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">LiveEvalCase</span><span class="p">(</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;paris_weather&quot;</span><span class="p">,</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="nb">input</span><span class="o">=</span><span class="s2">&quot;What&#39;s the weather in Paris?&quot;</span><span class="p">,</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">assert_output_contains</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="s2">&quot;Paris&quot;</span><span class="p">)],</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="p">),</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">]</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">def</span> <span class="nf">runner</span><span class="p">(</span><span class="n">case</span><span class="p">):</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="c1"># Run your REAL agent. Return a str, or a Cassette / AgentRun for trace scoring.</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="k">return</span> <span class="n">my_agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">case</span><span class="o">.</span><span class="n">input</span><span class="p">)</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="n">result</span> <span class="o">=</span> <span class="n">run_live_eval</span><span class="p">(</span><span class="n">cases</span><span class="p">,</span> <span class="n">runner</span><span class="p">)</span>        <span class="c1"># live, paid, non-deterministic</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">pass_rate</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">mean_score</span><span class="p">)</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="n">result</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;live-baseline.json&quot;</span><span class="p">)</span>            <span class="c1"># save the first good run as a baseline</span>
+<h1 id="loop-detection-0">Loop detection ($0)<a class="headerlink" href="#loop-detection-0" title="Permanent link">&para;</a></h1>
+<p>A stuck agent doesn't crash — it <em>loops</em>, quietly burning tokens and latency
+calling the same tool with the same arguments over and over, or restating the
+same conclusion every step. Evalcraft detects both, <strong>offline, deterministically,
+and <code>$0</code></strong>: it reads only the recorded spans and never calls a model.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">replay</span><span class="p">,</span> <span class="n">assert_no_loops</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">run</span> <span class="o">=</span> <span class="n">replay</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/agent.json&quot;</span><span class="p">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">assert</span> <span class="n">assert_no_loops</span><span class="p">(</span><span class="n">run</span><span class="p">)</span><span class="o">.</span><span class="n">passed</span>
 </span></code></pre></div>
-<h2 id="gating-ci-against-a-baseline">Gating CI against a baseline<a class="headerlink" href="#gating-ci-against-a-baseline" title="Permanent link">&para;</a></h2>
-<p>Re-run live-eval (e.g. nightly), then fail the build if any case regresses:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">current</span> <span class="o">=</span> <span class="n">run_live_eval</span><span class="p">(</span><span class="n">cases</span><span class="p">,</span> <span class="n">runner</span><span class="p">)</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">comparison</span> <span class="o">=</span> <span class="n">compare_to_baseline</span><span class="p">(</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">current</span><span class="p">,</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">LiveEvalResult</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;live-baseline.json&quot;</span><span class="p">),</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">max_score_drop</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">)</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">assert</span> <span class="n">comparison</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="n">comparison</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<h2 id="two-signals">Two signals<a class="headerlink" href="#two-signals" title="Permanent link">&para;</a></h2>
+<p><code>assert_no_loops</code> flags a run when either appears:</p>
+<ul>
+<li><strong>Repeated tool calls</strong> — the same <code>(tool_name, tool_args)</code> recorded more than
+  <code>max_tool_repeats</code> times. An agent that calls <code>search({"q": "x"})</code> five times
+  in a run is almost certainly oscillating.</li>
+<li><strong>Repeated step outputs</strong> — the same LLM/agent-step output recorded more than
+  <code>max_step_repeats</code> times.</li>
+</ul>
+<p><code>max_*_repeats</code> is the maximum number of times a call/output may appear before
+it is flagged — with the default of <code>2</code>, a <strong>3rd identical occurrence</strong> trips it.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># tighten or loosen the thresholds independently</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">assert_no_loops</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">max_tool_repeats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_step_repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </span></code></pre></div>
-<p>Or save the current result and gate from the CLI:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>evalcraft<span class="w"> </span>live-eval<span class="w"> </span>current.json<span class="w"> </span>--baseline<span class="w"> </span>live-baseline.json<span class="w"> </span>--max-drop<span class="w"> </span><span class="m">0</span>.1
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># exits non-zero if any case&#39;s score dropped by more than 0.1</span>
+<h2 id="catching-near-duplicates">Catching near-duplicates<a class="headerlink" href="#catching-near-duplicates" title="Permanent link">&para;</a></h2>
+<p>A real loop rarely repeats <em>byte-for-byte</em> — the agent rewords the same idea.
+Set <code>similarity</code> below <code>1.0</code> to treat step outputs that overlap by at least that
+fraction of tokens (Jaccard) as the "same":</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># &quot;The answer is 42 today&quot; / &quot;...42 now&quot; / &quot;...42 here&quot; -&gt; one loop</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">assert</span> <span class="n">assert_no_loops</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">similarity</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span><span class="o">.</span><span class="n">passed</span> <span class="ow">is</span> <span class="kc">False</span>
 </span></code></pre></div>
-<p>A case missing from the baseline is reported as <strong>new</strong> (never a regression); a
-case missing from the current run is reported as <strong>removed</strong>.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Live-eval makes real model calls. Keep it out of the <code>$0</code> per-commit path —
-run it on a schedule or as a release gate.</p>
-</div>
+<p><code>similarity=1.0</code> (the default) means exact match only, after whitespace
+normalisation.</p>
+<h2 id="just-the-tool-calls">Just the tool calls<a class="headerlink" href="#just-the-tool-calls" title="Permanent link">&para;</a></h2>
+<p>When you only care about tool oscillation:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">assert_no_repeated_tool_calls</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">assert</span> <span class="n">assert_no_repeated_tool_calls</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">max_repeats</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">passed</span>
+</span></code></pre></div>
+<p>Tool arguments are compared order-insensitively, so
+<code>{"a": 1, "b": 2}</code> and <code>{"b": 2, "a": 1}</code> count as the same call.</p>
+<h2 id="inspecting-the-findings">Inspecting the findings<a class="headerlink" href="#inspecting-the-findings" title="Permanent link">&para;</a></h2>
+<p><code>detect_loops</code> returns a structured <code>LoopReport</code> if you want the details rather
+than a pass/fail:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">detect_loops</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">report</span> <span class="o">=</span> <span class="n">detect_loops</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">max_tool_repeats</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">if</span> <span class="n">report</span><span class="o">.</span><span class="n">has_loops</span><span class="p">:</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">findings</span><span class="p">:</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">signature</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;×</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> (max </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">max_allowed</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># repeated_tool_call  search({&quot;q&quot;: &quot;x&quot;})  ×5 (max 2)</span>
+</span></code></pre></div>
+<h2 id="its-automatic-in-generate-tests">It's automatic in <code>generate-tests</code><a class="headerlink" href="#its-automatic-in-generate-tests" title="Permanent link">&para;</a></h2>
+<p>When you scaffold tests from a known-good cassette that has tool calls and no
+loops of its own, <code>evalcraft generate-tests</code> adds an <code>assert_no_loops</code> test —
+locking that clean run against future repetition regressions. (If the baseline
+<em>itself</em> loops, the guard is skipped so the generated test never fails on its
+own cassette.)</p>
+<h2 id="why-it-belongs-in-the-0-path">Why it belongs in the <code>$0</code> path<a class="headerlink" href="#why-it-belongs-in-the-0-path" title="Permanent link">&para;</a></h2>
+<p>Loop pathology is about the agent's <strong>control flow</strong>, not the quality of its
+prose — so it needs no judge model. It's deterministic, runs in milliseconds on
+the committed cassette, and turns "is my agent silently wasting tokens in a
+loop?" into a regression gate that runs on every commit for free.</p>
 
 
 
