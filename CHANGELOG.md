@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-06-16
+
+### Added
+- **Deterministic loop / repetition detection** — catch an agent stuck burning tokens on the same work, **offline and `$0`** (reads only the recorded spans, never calls a model):
+  - `assert_no_loops` / `detect_loops` — flag the same `(tool_name, tool_args)` called more than `max_tool_repeats` times, or the same (or, with `similarity < 1.0`, a near-duplicate by token overlap) step output recorded more than `max_step_repeats` times. `detect_loops` returns a `LoopReport` of `LoopFinding`s for richer use.
+  - `assert_no_repeated_tool_calls` — focused check on repeated identical tool calls.
+- **`generate-tests` now emits a loop guard** (`assert_no_loops`) when the recorded baseline has tool calls and no loops of its own — locking the known-good run against future repetition regressions.
+
 ## [0.4.0] — 2026-06-16
 
 ### Added

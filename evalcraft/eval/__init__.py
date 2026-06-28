@@ -30,6 +30,15 @@ from evalcraft.eval.llm_judge import (
     assert_tone,
 )
 
+# Loop / repetition detection (deterministic, $0)
+from evalcraft.eval.loops import (
+    LoopFinding,
+    LoopReport,
+    assert_no_loops,
+    assert_no_repeated_tool_calls,
+    detect_loops,
+)
+
 # Pairwise comparison
 from evalcraft.eval.pairwise import pairwise_compare, pairwise_rank
 
@@ -107,6 +116,12 @@ __all__ = [
     # Hallucination
     "assert_no_hallucination",
     "detect_hallucinations",
+    # Loop / repetition detection (deterministic, $0)
+    "assert_no_loops",
+    "assert_no_repeated_tool_calls",
+    "detect_loops",
+    "LoopFinding",
+    "LoopReport",
     # Live eval
     "LiveEvalCase",
     "LiveCaseResult",

@@ -172,6 +172,19 @@ assert assert_tool_args_match_schema(run, "get_weather", {
 Uses a pure-stdlib JSON-Schema subset by default; `pip install "evalcraft[schema]"`
 for full Draft 2020-12. See [Structured Output](https://beyhangl.github.io/evalcraft/docs/user-guide/structured-output/).
 
+And catch an agent stuck **looping** — burning tokens repeating the same tool
+call or output — also deterministically and for `$0`:
+
+```python
+from evalcraft import replay, assert_no_loops
+
+run = replay("tests/cassettes/agent.json")
+assert assert_no_loops(run).passed                       # exact repeats
+assert assert_no_loops(run, similarity=0.6).passed       # also near-duplicate steps
+```
+
+See [Loop Detection](https://beyhangl.github.io/evalcraft/docs/user-guide/loop-detection/).
+
 ### 5. LLM-as-Judge evaluation
 
 > ⚠️ **These are live scorers.** Unlike replay + the structural scorers (which are
@@ -351,8 +364,9 @@ An honest comparison against the closest tools. ✅ first-class · ⚠️ partia
 | **Replay** | Re-run cassettes deterministically — no API calls, zero cost |
 | **Mock LLM** | Substitute real LLMs with deterministic mocks (exact / pattern / wildcard) |
 | **Mock Tools** | Mock any tool with static, dynamic, sequential, or error-simulating responses |
-| **Scorers** | 27 built-in assertions: tool calls, output, cost, latency, tokens, **structured output / JSON-Schema**, LLM-as-Judge, RAG metrics |
+| **Scorers** | 30 built-in assertions: tool calls, output, cost, latency, tokens, **structured output / JSON-Schema**, **loop detection**, LLM-as-Judge, RAG metrics |
 | **Structured Output** | Deterministic, `$0` shape checks — valid JSON, JSON-Schema conformance, required keys, enum, range, regex capture groups, and **tool-call-argument schema validation** — no model call |
+| **Loop Detection** | Deterministic, `$0` — flag an agent stuck repeating the same tool call or step output (exact or near-duplicate); no model call |
 | **LLM-as-Judge** | Semantic evaluation, factual consistency, tone, custom criteria — via OpenAI or Anthropic |
 | **RAG Metrics** | Faithfulness, context relevance, answer relevance, context recall |
 | **Pairwise A/B** | Arena-style comparison — LLM judge picks winner with position-bias mitigation |

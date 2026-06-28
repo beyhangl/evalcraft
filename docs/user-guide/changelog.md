@@ -7,6 +7,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
+## [0.5.0] — 2026-06-16
+
+### Added
+- **Deterministic loop / repetition detection** ($0, offline, no model call): `assert_no_loops` / `detect_loops` flag an agent stuck repeating the same tool call (same `tool_args`) or the same/near-duplicate step output; `assert_no_repeated_tool_calls` is the focused tool-only check. See [Loop Detection](loop-detection.md).
+- `generate-tests` auto-emits an `assert_no_loops` guard when the recorded baseline has tool calls and no loops of its own.
+
+---
+
 ## [0.4.0] — 2026-06-16
 
 ### Added

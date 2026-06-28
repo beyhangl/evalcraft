@@ -4,7 +4,7 @@ Record agent runs as cassettes and replay them deterministically in CI for $0;
 mock LLMs/tools, score runs, and catch real model drift with live-eval.
 """
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 from evalcraft.capture.recorder import CaptureContext, capture
 from evalcraft.cloud.client import EvalcraftCloud
@@ -17,6 +17,9 @@ from evalcraft.eval import (
     LiveEvalCase,
     LiveEvalComparison,
     LiveEvalResult,
+    # Loop / repetition detection
+    LoopFinding,
+    LoopReport,
     assert_answer_relevance,
     assert_context_recall,
     assert_context_relevance,
@@ -30,6 +33,9 @@ from evalcraft.eval import (
     assert_match_groups,
     # Hallucination
     assert_no_hallucination,
+    # Loop / repetition detection
+    assert_no_loops,
+    assert_no_repeated_tool_calls,
     assert_no_tool_called,
     assert_output_contains,
     assert_output_field,
@@ -49,6 +55,7 @@ from evalcraft.eval import (
     assert_tool_order,
     compare_to_baseline,
     detect_hallucinations,
+    detect_loops,
     # Statistical
     eval_n,
     # Pairwise
@@ -100,6 +107,11 @@ __all__ = [
     "JuryScorer",
     "assert_no_hallucination",
     "detect_hallucinations",
+    "assert_no_loops",
+    "assert_no_repeated_tool_calls",
+    "detect_loops",
+    "LoopFinding",
+    "LoopReport",
     "LiveEvalCase",
     "LiveCaseResult",
     "LiveEvalResult",

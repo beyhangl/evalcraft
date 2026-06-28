@@ -14,6 +14,7 @@ from __future__ import annotations
 import re
 
 from evalcraft.core.models import Cassette
+from evalcraft.eval.loops import detect_loops
 from evalcraft.eval.scorers.structured import _extract_json
 
 
@@ -41,6 +42,9 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
     has_cost = cassette.total_cost_usd > 0
     has_tokens = cassette.total_tokens > 0
     has_latency = cassette.total_duration_ms > 0
+    # Only guard against loops if this known-good baseline has none itself — else
+    # the generated test would fail on its own cassette.
+    emit_loop_guard = bool(tool_calls) and not detect_loops(cassette).has_loops
 
     # Build import set based on what we'll assert
     imports = ["replay"]
@@ -48,6 +52,8 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
         imports.append("assert_tool_called")
     if len(unique_tools) > 1:
         imports.append("assert_tool_order")
+    if emit_loop_guard:
+        imports.append("assert_no_loops")
     if has_output:
         imports.extend(["assert_output_contains", "assert_output_matches"])
     if output_is_json_object:
@@ -126,6 +132,16 @@ def generate_test_code(cassette: Cassette, cassette_path: str) -> str:
         lines.append('    """Assert tools were called in the expected order."""')
         lines.append("    run = _replay()")
         lines.append(f"    result = assert_tool_order(run, {unique_tools!r})")
+        lines.append("    assert result.passed, result.message")
+        lines.append("")
+        lines.append("")
+
+    # Test: the agent did not get stuck in a repetition loop (deterministic, $0)
+    if emit_loop_guard:
+        lines.append(f"def test_{safe_name}_no_loops():")
+        lines.append('    """Assert the agent did not get stuck repeating tool calls or output."""')
+        lines.append("    run = _replay()")
+        lines.append("    result = assert_no_loops(run)")
         lines.append("    assert result.passed, result.message")
         lines.append("")
         lines.append("")

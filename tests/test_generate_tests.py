@@ -191,6 +191,24 @@ class TestGenerateTestCode:
         code = generate_test_code(weather_cassette, "cassettes/w.json")
         assert "assert_output_json" not in code
 
+    def test_clean_baseline_emits_loop_guard(self, weather_cassette):
+        # weather baseline has a single tool call and no loops -> guard is emitted
+        code = generate_test_code(weather_cassette, "cassettes/w.json")
+        compile(code, "<test>", "exec")
+        assert "def test_weather_agent_no_loops" in code
+        assert "assert_no_loops(run)" in code
+
+    def test_looping_baseline_omits_loop_guard(self):
+        # if the baseline itself loops, a loop guard would fail on its own cassette
+        c = Cassette(name="loopy_agent")
+        for _ in range(4):
+            c.add_span(Span(kind=SpanKind.TOOL_CALL, name="tool:search",
+                            tool_name="search", tool_args={"q": "x"}))
+        c.output_text = "stuck"
+        code = generate_test_code(c, "cassettes/l.json")
+        compile(code, "<test>", "exec")
+        assert "assert_no_loops" not in code
+
     def test_sanitises_name_with_special_chars(self):
         c = Cassette(name="my-agent.v2 (test)")
         c.output_text = "Output"
