@@ -27,7 +27,7 @@ from __future__ import annotations
 from typing import Any
 
 from evalcraft.core.models import AgentRun, AssertionResult, Cassette
-from evalcraft.eval._utils import call_llm_judge, get_cassette, normalize_pass_key
+from evalcraft.eval._utils import call_llm_judge, normalize_pass_key, output_or_fail
 
 _JUDGE_SYSTEM_PROMPT = (
     "You are an evaluation judge.  You receive an agent output and "
@@ -60,6 +60,17 @@ def _call_judge(
     return normalize_pass_key(result)
 
 
+def _pass_reason_result(
+    name: str, result: dict[str, Any], expected: Any, output: str
+) -> AssertionResult:
+    """Build the standard AssertionResult from a ``{pass, reason}`` judge result."""
+    passed = bool(result["pass"])
+    return AssertionResult(
+        name=name, passed=passed, expected=expected,
+        actual=output[:200], message="" if passed else result.get("reason", ""),
+    )
+
+
 # ---------------------------------------------------------------------------
 # Public scorers
 # ---------------------------------------------------------------------------
@@ -85,17 +96,10 @@ def assert_output_semantic(
     Returns:
         AssertionResult with ``passed=True`` if the judge says the criteria are met.
     """
-    c = get_cassette(cassette)
-    output = c.output_text
-
-    if not output:
-        return AssertionResult(
-            name=f"assert_output_semantic({criteria!r})",
-            passed=False,
-            expected=criteria,
-            actual="<empty output>",
-            message="Agent produced no output to evaluate.",
-        )
+    name = f"assert_output_semantic({criteria!r})"
+    output, fail = output_or_fail(cassette, name, criteria)
+    if fail:
+        return fail
 
     prompt = (
         f"## Agent output\n{output}\n\n"
@@ -104,14 +108,7 @@ def assert_output_semantic(
     )
 
     result = _call_judge(prompt, provider=provider, model=model, api_key=api_key)
-
-    return AssertionResult(
-        name=f"assert_output_semantic({criteria!r})",
-        passed=bool(result["pass"]),
-        expected=criteria,
-        actual=output[:200],
-        message=result.get("reason", "") if not result["pass"] else "",
-    )
+    return _pass_reason_result(name, result, criteria, output)
 
 
 def assert_factual_consistency(
@@ -123,17 +120,10 @@ def assert_factual_consistency(
     api_key: str | None = None,
 ) -> AssertionResult:
     """Assert that the agent output is factually consistent with *ground_truth*."""
-    c = get_cassette(cassette)
-    output = c.output_text
-
-    if not output:
-        return AssertionResult(
-            name="assert_factual_consistency",
-            passed=False,
-            expected=ground_truth[:100],
-            actual="<empty output>",
-            message="Agent produced no output to evaluate.",
-        )
+    expected = ground_truth[:200]
+    output, fail = output_or_fail(cassette, "assert_factual_consistency", expected)
+    if fail:
+        return fail
 
     prompt = (
         f"## Agent output\n{output}\n\n"
@@ -144,14 +134,7 @@ def assert_factual_consistency(
     )
 
     result = _call_judge(prompt, provider=provider, model=model, api_key=api_key)
-
-    return AssertionResult(
-        name="assert_factual_consistency",
-        passed=bool(result["pass"]),
-        expected=ground_truth[:200],
-        actual=output[:200],
-        message=result.get("reason", "") if not result["pass"] else "",
-    )
+    return _pass_reason_result("assert_factual_consistency", result, expected, output)
 
 
 def assert_tone(
@@ -163,17 +146,10 @@ def assert_tone(
     api_key: str | None = None,
 ) -> AssertionResult:
     """Assert that the agent output has the *expected* tone."""
-    c = get_cassette(cassette)
-    output = c.output_text
-
-    if not output:
-        return AssertionResult(
-            name=f"assert_tone({expected!r})",
-            passed=False,
-            expected=expected,
-            actual="<empty output>",
-            message="Agent produced no output to evaluate.",
-        )
+    name = f"assert_tone({expected!r})"
+    output, fail = output_or_fail(cassette, name, expected)
+    if fail:
+        return fail
 
     prompt = (
         f"## Agent output\n{output}\n\n"
@@ -182,14 +158,7 @@ def assert_tone(
     )
 
     result = _call_judge(prompt, provider=provider, model=model, api_key=api_key)
-
-    return AssertionResult(
-        name=f"assert_tone({expected!r})",
-        passed=bool(result["pass"]),
-        expected=expected,
-        actual=output[:200],
-        message=result.get("reason", "") if not result["pass"] else "",
-    )
+    return _pass_reason_result(name, result, expected, output)
 
 
 def assert_custom_criteria(
@@ -202,17 +171,9 @@ def assert_custom_criteria(
     api_key: str | None = None,
 ) -> AssertionResult:
     """Assert that the agent output meets a list of custom evaluation criteria."""
-    c = get_cassette(cassette)
-    output = c.output_text
-
-    if not output:
-        return AssertionResult(
-            name="assert_custom_criteria",
-            passed=False,
-            expected=criteria,
-            actual="<empty output>",
-            message="Agent produced no output to evaluate.",
-        )
+    output, fail = output_or_fail(cassette, "assert_custom_criteria", criteria)
+    if fail:
+        return fail
 
     criteria_block = "\n".join(f"  {i + 1}. {crit}" for i, crit in enumerate(criteria))
     mode_instruction = (
@@ -229,11 +190,4 @@ def assert_custom_criteria(
     )
 
     result = _call_judge(prompt, provider=provider, model=model, api_key=api_key)
-
-    return AssertionResult(
-        name="assert_custom_criteria",
-        passed=bool(result["pass"]),
-        expected=criteria,
-        actual=output[:200],
-        message=result.get("reason", "") if not result["pass"] else "",
-    )
+    return _pass_reason_result("assert_custom_criteria", result, criteria, output)

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from evalcraft.core.models import AgentRun, Cassette
+from evalcraft.core.models import AgentRun, AssertionResult, Cassette
 
 
 def get_cassette(obj: Cassette | AgentRun) -> Cassette:
@@ -13,6 +13,22 @@ def get_cassette(obj: Cassette | AgentRun) -> Cassette:
     if isinstance(obj, AgentRun):
         return obj.cassette
     return obj
+
+
+def output_or_fail(
+    cassette: Cassette | AgentRun, name: str, expected: Any
+) -> tuple[str, AssertionResult | None]:
+    """Return ``(output_text, None)`` for a run that produced output, or
+    ``(None, failing_AssertionResult)`` when the agent produced no output —
+    the empty-output guard shared by every output-judging scorer."""
+    output = get_cassette(cassette).output_text
+    if output:
+        return output, None
+    fail = AssertionResult(
+        name=name, passed=False, expected=expected,
+        actual="<empty output>", message="Agent produced no output to evaluate.",
+    )
+    return "", fail  # sentinel output; callers return `fail` before reading it
 
 
 def call_llm_judge(

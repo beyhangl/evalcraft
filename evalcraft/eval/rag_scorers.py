@@ -34,7 +34,12 @@ from evalcraft.core.models import (
     AssertionResult,
     Cassette,
 )
-from evalcraft.eval._utils import call_llm_judge, get_cassette, normalize_pass_key
+from evalcraft.eval._utils import (
+    call_llm_judge,
+    get_cassette,
+    normalize_pass_key,
+    output_or_fail,
+)
 
 _RAG_SYSTEM_PROMPT = (
     "You are a RAG evaluation judge. You evaluate retrieval-augmented "
@@ -93,17 +98,9 @@ def assert_faithfulness(
         model: Override the judge model.
         api_key: Optional API key override.
     """
-    c = get_cassette(cassette)
-    output = c.output_text
-
-    if not output:
-        return AssertionResult(
-            name="assert_faithfulness",
-            passed=False,
-            expected=f"faithfulness >= {threshold}",
-            actual="<empty output>",
-            message="Agent produced no output to evaluate.",
-        )
+    output, fail = output_or_fail(cassette, "assert_faithfulness", f"faithfulness >= {threshold}")
+    if fail:
+        return fail
 
     if not contexts:
         return AssertionResult(
@@ -243,17 +240,11 @@ def assert_answer_relevance(
         model: Override the judge model.
         api_key: Optional API key override.
     """
-    c = get_cassette(cassette)
-    output = c.output_text
-
-    if not output:
-        return AssertionResult(
-            name="assert_answer_relevance",
-            passed=False,
-            expected=f"answer_relevance >= {threshold}",
-            actual="<empty output>",
-            message="Agent produced no output to evaluate.",
-        )
+    output, fail = output_or_fail(
+        cassette, "assert_answer_relevance", f"answer_relevance >= {threshold}"
+    )
+    if fail:
+        return fail
 
     prompt = (
         f"## User Query\n{query}\n\n"
