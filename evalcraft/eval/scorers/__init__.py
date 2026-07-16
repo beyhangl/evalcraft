@@ -14,6 +14,7 @@ Usage:
 from __future__ import annotations
 
 import re
+from collections import Counter
 
 from evalcraft.core.models import (
     AgentRun,
@@ -208,6 +209,72 @@ def assert_no_tool_called(
     return AssertionResult(
         name=f"assert_no_tool_called({tool_name})",
         passed=True,
+    )
+
+
+_TRAJECTORY_MODES = ("strict", "unordered", "subset", "superset")
+
+
+def assert_tool_trajectory(
+    cassette: Cassette | AgentRun,
+    expected_tools: list[str],
+    *,
+    mode: str = "strict",
+) -> AssertionResult:
+    """Assert the tool-call trajectory matches a reference under one of four modes.
+
+    Complements ``assert_tool_order`` (strict / ordered-subsequence) with the
+    set/multiset comparisons agent trajectories are usually judged by:
+
+    - ``"strict"``    — exact same tools in exact same order (list equality).
+    - ``"unordered"`` — same tools with the same counts, any order (multiset equality).
+    - ``"subset"``    — every tool called is in the reference (no unexpected tools;
+      the agent may skip some). Set-based: ``set(actual) <= set(expected)``.
+    - ``"superset"``  — every reference tool was called (all required present; the
+      agent may add more). Set-based: ``set(expected) <= set(actual)``.
+
+    Args:
+        cassette: The cassette or agent run to check.
+        expected_tools: Reference sequence/set of tool names.
+        mode: One of ``strict`` / ``unordered`` / ``subset`` / ``superset``.
+    """
+    if mode not in _TRAJECTORY_MODES:
+        raise ValueError(f"mode must be one of {_TRAJECTORY_MODES}, got {mode!r}")
+
+    c = _get_cassette(cassette)
+    actual = c.get_tool_sequence()
+    expected = list(expected_tools)
+    name = f"assert_tool_trajectory({mode})"
+
+    detail = ""
+    if mode == "strict":
+        passed = actual == expected
+        if not passed:
+            detail = "sequence differs"
+    elif mode == "unordered":
+        passed = Counter(actual) == Counter(expected)
+        if not passed:
+            over = sorted((Counter(actual) - Counter(expected)).elements())
+            under = sorted((Counter(expected) - Counter(actual)).elements())
+            detail = f"extra={over}, missing={under}"
+    elif mode == "subset":
+        extra = sorted(set(actual) - set(expected))
+        passed = not extra
+        if not passed:
+            detail = f"unexpected tool(s)={extra}"
+    else:  # superset
+        missing = sorted(set(expected) - set(actual))
+        passed = not missing
+        if not passed:
+            detail = f"missing required tool(s)={missing}"
+
+    return AssertionResult(
+        name=name,
+        passed=passed,
+        expected=expected,
+        actual=actual,
+        message="" if passed
+        else f"Tool trajectory ({mode}) mismatch — {detail}. Expected {expected}, got {actual}",
     )
 
 

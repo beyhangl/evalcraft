@@ -7,6 +7,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
+## [0.6.0] — 2026-06-16
+
+### Added
+- **`assert_tool_trajectory(cassette, expected_tools, mode=...)`** — deterministic, `$0` tool-trajectory matching in four modes: `strict` (exact order), `unordered` (same multiset, any order), `subset` (no unexpected tools), `superset` (all required tools present). Complements `assert_tool_order`.
+
+---
+
 ## [0.5.0] — 2026-06-16
 
 ### Added

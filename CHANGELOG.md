@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-06-16
+
+### Added
+- **`assert_tool_trajectory`** — deterministic, `$0` tool-trajectory matching against a reference, in four modes: `strict` (exact tools, exact order), `unordered` (same tools with the same counts, any order — multiset equality), `subset` (every tool called is in the reference — no unexpected tools; the agent may skip some), and `superset` (every reference tool was called — all required present; the agent may add more). Complements `assert_tool_order` (which covers strict + ordered-subsequence) with the set/multiset comparisons agent trajectories are usually judged by. Reads only the recorded tool spans — no model call.
+
 ## [0.5.0] — 2026-06-16
 
 ### Added

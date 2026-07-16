@@ -364,7 +364,7 @@ An honest comparison against the closest tools. ✅ first-class · ⚠️ partia
 | **Replay** | Re-run cassettes deterministically — no API calls, zero cost |
 | **Mock LLM** | Substitute real LLMs with deterministic mocks (exact / pattern / wildcard) |
 | **Mock Tools** | Mock any tool with static, dynamic, sequential, or error-simulating responses |
-| **Scorers** | 30 built-in assertions: tool calls, output, cost, latency, tokens, **structured output / JSON-Schema**, **loop detection**, LLM-as-Judge, RAG metrics |
+| **Scorers** | 31 built-in assertions: tool calls, **tool trajectory** (strict/unordered/subset/superset), output, cost, latency, tokens, **structured output / JSON-Schema**, **loop detection**, LLM-as-Judge, RAG metrics |
 | **Structured Output** | Deterministic, `$0` shape checks — valid JSON, JSON-Schema conformance, required keys, enum, range, regex capture groups, and **tool-call-argument schema validation** — no model call |
 | **Loop Detection** | Deterministic, `$0` — flag an agent stuck repeating the same tool call or step output (exact or near-duplicate); no model call |
 | **LLM-as-Judge** | Semantic evaluation, factual consistency, tone, custom criteria — via OpenAI or Anthropic |

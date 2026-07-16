@@ -59,6 +59,7 @@ from evalcraft.eval.scorers import (
     assert_token_count_under,
     assert_tool_called,
     assert_tool_order,
+    assert_tool_trajectory,
 )
 
 # Structured-output / tool-arg shape scorers (deterministic, $0)
@@ -80,6 +81,7 @@ __all__ = [
     # Core
     "assert_tool_called",
     "assert_tool_order",
+    "assert_tool_trajectory",
     "assert_no_tool_called",
     "assert_output_contains",
     "assert_output_matches",

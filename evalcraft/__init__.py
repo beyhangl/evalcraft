@@ -4,7 +4,7 @@ Record agent runs as cassettes and replay them deterministically in CI for $0;
 mock LLMs/tools, score runs, and catch real model drift with live-eval.
 """
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 from evalcraft.capture.recorder import CaptureContext, capture
 from evalcraft.cloud.client import EvalcraftCloud
@@ -53,6 +53,7 @@ from evalcraft.eval import (
     assert_tool_args_match_schema,
     assert_tool_called,
     assert_tool_order,
+    assert_tool_trajectory,
     compare_to_baseline,
     detect_hallucinations,
     detect_loops,
@@ -79,6 +80,7 @@ __all__ = [
     "MockTool",
     "assert_tool_called",
     "assert_tool_order",
+    "assert_tool_trajectory",
     "assert_no_tool_called",
     "assert_output_contains",
     "assert_output_matches",

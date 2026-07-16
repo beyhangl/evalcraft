@@ -30,7 +30,7 @@ Evalcraft has **two kinds** of scorers, and the difference matters: only the
 Evaluated entirely against the recorded cassette — no model is called. These run
 fine inside replay's `NetworkGuard`:
 
-- `assert_tool_called`, `assert_tool_order`, `assert_no_tool_called`
+- `assert_tool_called`, `assert_tool_order`, `assert_tool_trajectory`, `assert_no_tool_called`
 - `assert_output_contains`, `assert_output_matches`
 - `assert_cost_under`, `assert_latency_under`, `assert_token_count_under`
 
@@ -151,6 +151,37 @@ result = assert_no_tool_called(run, "send_email")
 assert result.passed, result.message
 # If failed: "Tool 'send_email' was called 1 times, expected 0"
 ```
+
+### `assert_tool_trajectory(cassette, expected_tools, *, mode="strict")`
+
+Match the whole tool-call trajectory against a reference under one of four
+modes. Where `assert_tool_order` covers *strict* and *ordered-subsequence*,
+this adds the set/multiset comparisons trajectories are usually judged by.
+
+```python
+from evalcraft import assert_tool_trajectory
+
+ref = ["search", "summarize", "send_email"]
+
+# exact tools, exact order
+assert assert_tool_trajectory(run, ref, mode="strict").passed
+# same tools & counts, any order
+assert assert_tool_trajectory(run, ref, mode="unordered").passed
+# only allowed tools were used (may skip some, no surprises)
+assert assert_tool_trajectory(run, ref, mode="subset").passed
+# every required tool was used (extras allowed)
+assert assert_tool_trajectory(run, ref, mode="superset").passed
+```
+
+| Mode | Passes when | Use it to check |
+|------|-------------|-----------------|
+| `strict` | `actual == expected` | exact tools in exact order |
+| `unordered` | same multiset (`Counter`) | same tools & counts, order doesn't matter |
+| `subset` | `set(actual) ⊆ set(expected)` | the agent used **no unexpected tools** (may skip some) |
+| `superset` | `set(expected) ⊆ set(actual)` | **all required tools** were used (extras allowed) |
+
+The failure message names the exact diff — e.g. `unexpected tool(s)=['delete_db']`
+for `subset`, or `missing required tool(s)=['send_email']` for `superset`.
 
 ---
 
