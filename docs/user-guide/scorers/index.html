@@ -804,6 +804,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#assert_tool_trajectorycassette-expected_tools-modestrict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        assert_tool_trajectory(cassette, expected_tools, *, mode="strict")
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1363,7 +1374,7 @@
 <p>Evaluated entirely against the recorded cassette — no model is called. These run
 fine inside replay's <code>NetworkGuard</code>:</p>
 <ul>
-<li><code>assert_tool_called</code>, <code>assert_tool_order</code>, <code>assert_no_tool_called</code></li>
+<li><code>assert_tool_called</code>, <code>assert_tool_order</code>, <code>assert_tool_trajectory</code>, <code>assert_no_tool_called</code></li>
 <li><code>assert_output_contains</code>, <code>assert_output_matches</code></li>
 <li><code>assert_cost_under</code>, <code>assert_latency_under</code>, <code>assert_token_count_under</code></li>
 </ul>
@@ -1516,33 +1527,83 @@ env var) — at the cost of a frozen judgment that only updates when you re-reco
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">message</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># If failed: &quot;Tool &#39;send_email&#39; was called 1 times, expected 0&quot;</span>
 </span></code></pre></div>
+<h3 id="assert_tool_trajectorycassette-expected_tools-modestrict"><code>assert_tool_trajectory(cassette, expected_tools, *, mode="strict")</code><a class="headerlink" href="#assert_tool_trajectorycassette-expected_tools-modestrict" title="Permanent link">&para;</a></h3>
+<p>Match the whole tool-call trajectory against a reference under one of four
+modes. Where <code>assert_tool_order</code> covers <em>strict</em> and <em>ordered-subsequence</em>,
+this adds the set/multiset comparisons trajectories are usually judged by.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">assert_tool_trajectory</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">ref</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;search&quot;</span><span class="p">,</span> <span class="s2">&quot;summarize&quot;</span><span class="p">,</span> <span class="s2">&quot;send_email&quot;</span><span class="p">]</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># exact tools, exact order</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">assert</span> <span class="n">assert_tool_trajectory</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">passed</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># same tools &amp; counts, any order</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="k">assert</span> <span class="n">assert_tool_trajectory</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;unordered&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">passed</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="c1"># only allowed tools were used (may skip some, no surprises)</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="k">assert</span> <span class="n">assert_tool_trajectory</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;subset&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">passed</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="c1"># every required tool was used (extras allowed)</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="k">assert</span> <span class="n">assert_tool_trajectory</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;superset&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">passed</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Passes when</th>
+<th>Use it to check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>strict</code></td>
+<td><code>actual == expected</code></td>
+<td>exact tools in exact order</td>
+</tr>
+<tr>
+<td><code>unordered</code></td>
+<td>same multiset (<code>Counter</code>)</td>
+<td>same tools &amp; counts, order doesn't matter</td>
+</tr>
+<tr>
+<td><code>subset</code></td>
+<td><code>set(actual) ⊆ set(expected)</code></td>
+<td>the agent used <strong>no unexpected tools</strong> (may skip some)</td>
+</tr>
+<tr>
+<td><code>superset</code></td>
+<td><code>set(expected) ⊆ set(actual)</code></td>
+<td><strong>all required tools</strong> were used (extras allowed)</td>
+</tr>
+</tbody>
+</table>
+<p>The failure message names the exact diff — e.g. <code>unexpected tool(s)=['delete_db']</code>
+for <code>subset</code>, or <code>missing required tool(s)=['send_email']</code> for <code>superset</code>.</p>
 <hr />
 <h2 id="output-assertions">Output assertions<a class="headerlink" href="#output-assertions" title="Permanent link">&para;</a></h2>
 <h3 id="assert_output_containscassette-substring-case_sensitivetrue"><code>assert_output_contains(cassette, substring, case_sensitive=True)</code><a class="headerlink" href="#assert_output_containscassette-substring-case_sensitivetrue" title="Permanent link">&para;</a></h3>
 <p>Assert the agent's output contains a substring.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_output_contains</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;Paris&quot;</span><span class="p">)</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Case-insensitive</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_output_contains</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;paris&quot;</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_output_contains</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;Paris&quot;</span><span class="p">)</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Case-insensitive</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_output_contains</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;paris&quot;</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
 </span></code></pre></div>
 <h3 id="assert_output_matchescassette-pattern"><code>assert_output_matches(cassette, pattern)</code><a class="headerlink" href="#assert_output_matchescassette-pattern" title="Permanent link">&para;</a></h3>
 <p>Assert the agent's output matches a regex pattern.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_output_matches</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\d+°C&quot;</span><span class="p">)</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">message</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1"># If failed: &quot;Output does not match pattern &#39;\\d+°C&#39;&quot;</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_output_matches</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;(sunny|cloudy|rainy)&quot;</span><span class="p">)</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_output_matches</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\d+°C&quot;</span><span class="p">)</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">message</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1"># If failed: &quot;Output does not match pattern &#39;\\d+°C&#39;&quot;</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_output_matches</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;(sunny|cloudy|rainy)&quot;</span><span class="p">)</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
 </span></code></pre></div>
 <hr />
 <h2 id="cost-and-performance-assertions">Cost and performance assertions<a class="headerlink" href="#cost-and-performance-assertions" title="Permanent link">&para;</a></h2>
 <h3 id="assert_cost_undercassette-max_usd"><code>assert_cost_under(cassette, max_usd)</code><a class="headerlink" href="#assert_cost_undercassette-max_usd" title="Permanent link">&para;</a></h3>
 <p>Assert the total estimated cost is under a threshold.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_cost_under</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">max_usd</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1"># If failed: &quot;Cost $0.0823 exceeds limit $0.0500&quot;</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_cost_under</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">max_usd</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1"># If failed: &quot;Cost $0.0823 exceeds limit $0.0500&quot;</span>
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1550,53 +1611,53 @@ env var) — at the cost of a frozen judgment that only updates when you re-reco
 </div>
 <h3 id="assert_latency_undercassette-max_ms"><code>assert_latency_under(cassette, max_ms)</code><a class="headerlink" href="#assert_latency_undercassette-max_ms" title="Permanent link">&para;</a></h3>
 <p>Assert total wall-clock time is under a threshold (in milliseconds).</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_latency_under</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">max_ms</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1"># If failed: &quot;Latency 6234.0ms exceeds limit 5000.0ms&quot;</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_latency_under</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">max_ms</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c1"># If failed: &quot;Latency 6234.0ms exceeds limit 5000.0ms&quot;</span>
 </span></code></pre></div>
 <h3 id="assert_token_count_undercassette-max_tokens"><code>assert_token_count_under(cassette, max_tokens)</code><a class="headerlink" href="#assert_token_count_undercassette-max_tokens" title="Permanent link">&para;</a></h3>
 <p>Assert total token count is under a threshold.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_token_count_under</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c1"># If failed: &quot;Token count 2341 exceeds limit 2000&quot;</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">assert_token_count_under</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1"># If failed: &quot;Token count 2341 exceeds limit 2000&quot;</span>
 </span></code></pre></div>
 <hr />
 <h2 id="evaluator">Evaluator<a class="headerlink" href="#evaluator" title="Permanent link">&para;</a></h2>
 <p>The <code>Evaluator</code> class lets you compose multiple assertions into a single evaluation.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span> <span class="nn">evalcraft.eval.scorers</span> <span class="kn">import</span> <span class="n">Evaluator</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">assert_tool_called</span><span class="p">,</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">assert_tool_order</span><span class="p">,</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">assert_cost_under</span><span class="p">,</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="n">assert_token_count_under</span><span class="p">,</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="n">assert_output_contains</span><span class="p">,</span>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    <span class="n">replay</span><span class="p">,</span>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="p">)</span>
-</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>
-</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="n">run</span> <span class="o">=</span> <span class="n">replay</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/agent.json&quot;</span><span class="p">)</span>
-</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
-</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">()</span>
-</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_tool_called</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="s2">&quot;web_search&quot;</span><span class="p">)</span>
-</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_tool_order</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;web_search&quot;</span><span class="p">,</span> <span class="s2">&quot;summarize&quot;</span><span class="p">])</span>
-</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_cost_under</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">max_usd</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
-</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_token_count_under</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
-</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_output_contains</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">)</span>
-</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>
-</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="n">result</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</span><span id="__span-11-21"><a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>
-</span><span id="__span-11-22"><a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">)</span>          <span class="c1"># True if all pass</span>
-</span><span id="__span-11-23"><a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">score</span><span class="p">)</span>           <span class="c1"># e.g. 0.8 = 4/5 passed</span>
-</span><span id="__span-11-24"><a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">assertions</span><span class="p">))</span> <span class="c1"># 5</span>
-</span><span id="__span-11-25"><a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>
-</span><span id="__span-11-26"><a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a><span class="k">for</span> <span class="n">assertion</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">assertions</span><span class="p">:</span>
-</span><span id="__span-11-27"><a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>    <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;PASS&quot;</span> <span class="k">if</span> <span class="n">assertion</span><span class="o">.</span><span class="n">passed</span> <span class="k">else</span> <span class="s2">&quot;FAIL&quot;</span>
-</span><span id="__span-11-28"><a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">assertion</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-11-29"><a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">assertion</span><span class="o">.</span><span class="n">passed</span><span class="p">:</span>
-</span><span id="__span-11-30"><a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;       </span><span class="si">{</span><span class="n">assertion</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span> <span class="nn">evalcraft.eval.scorers</span> <span class="kn">import</span> <span class="n">Evaluator</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">assert_tool_called</span><span class="p">,</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">assert_tool_order</span><span class="p">,</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="n">assert_cost_under</span><span class="p">,</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="n">assert_token_count_under</span><span class="p">,</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="n">assert_output_contains</span><span class="p">,</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    <span class="n">replay</span><span class="p">,</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="p">)</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="n">run</span> <span class="o">=</span> <span class="n">replay</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/agent.json&quot;</span><span class="p">)</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">()</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_tool_called</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="s2">&quot;web_search&quot;</span><span class="p">)</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_tool_order</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;web_search&quot;</span><span class="p">,</span> <span class="s2">&quot;summarize&quot;</span><span class="p">])</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_cost_under</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">max_usd</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_token_count_under</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_output_contains</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">)</span>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="n">result</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">)</span>          <span class="c1"># True if all pass</span>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">score</span><span class="p">)</span>           <span class="c1"># e.g. 0.8 = 4/5 passed</span>
+</span><span id="__span-12-24"><a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">assertions</span><span class="p">))</span> <span class="c1"># 5</span>
+</span><span id="__span-12-25"><a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>
+</span><span id="__span-12-26"><a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="k">for</span> <span class="n">assertion</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">assertions</span><span class="p">:</span>
+</span><span id="__span-12-27"><a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a>    <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;PASS&quot;</span> <span class="k">if</span> <span class="n">assertion</span><span class="o">.</span><span class="n">passed</span> <span class="k">else</span> <span class="s2">&quot;FAIL&quot;</span>
+</span><span id="__span-12-28"><a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">assertion</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-12-29"><a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">assertion</span><span class="o">.</span><span class="n">passed</span><span class="p">:</span>
+</span><span id="__span-12-30"><a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;       </span><span class="si">{</span><span class="n">assertion</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <h4 id="evaluatoraddassertion_fn-args-kwargs"><code>Evaluator.add(assertion_fn, *args, **kwargs)</code><a class="headerlink" href="#evaluatoraddassertion_fn-args-kwargs" title="Permanent link">&para;</a></h4>
 <p>Add an assertion to run.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_cost_under</span><span class="p">,</span> <span class="n">cassette</span><span class="p">,</span> <span class="n">max_usd</span><span class="o">=</span><span class="mf">0.10</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_cost_under</span><span class="p">,</span> <span class="n">cassette</span><span class="p">,</span> <span class="n">max_usd</span><span class="o">=</span><span class="mf">0.10</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Returns <code>self</code> for chaining.</p>
 <h4 id="evaluatorrun"><code>Evaluator.run()</code><a class="headerlink" href="#evaluatorrun" title="Permanent link">&para;</a></h4>
@@ -1633,57 +1694,57 @@ env var) — at the cost of a frozen judgment that only updates when you re-reco
 </tr>
 </tbody>
 </table>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">:</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">failed_assertions</span><span class="p">:</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FAIL: </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">:</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">failed_assertions</span><span class="p">:</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FAIL: </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <hr />
 <h2 id="complete-example">Complete example<a class="headerlink" href="#complete-example" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">import</span> <span class="nn">pytest</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">replay</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">assert_tool_called</span><span class="p">,</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">assert_tool_order</span><span class="p">,</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="n">assert_no_tool_called</span><span class="p">,</span>
-</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="n">assert_output_contains</span><span class="p">,</span>
-</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    <span class="n">assert_cost_under</span><span class="p">,</span>
-</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>    <span class="n">assert_token_count_under</span><span class="p">,</span>
-</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>    <span class="n">assert_latency_under</span><span class="p">,</span>
-</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="p">)</span>
-</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="kn">from</span> <span class="nn">evalcraft.eval.scorers</span> <span class="kn">import</span> <span class="n">Evaluator</span>
-</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>
-</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>
-</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
-</span><span id="__span-14-16"><a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
-</span><span id="__span-14-17"><a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>    <span class="k">return</span> <span class="n">replay</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/research_agent.json&quot;</span><span class="p">)</span>
-</span><span id="__span-14-18"><a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>
-</span><span id="__span-14-19"><a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>
-</span><span id="__span-14-20"><a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="k">def</span> <span class="nf">test_searches_before_summarizing</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
-</span><span id="__span-14-21"><a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">assert_tool_called</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;web_search&quot;</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;summarize&quot;</span><span class="p">)</span>
-</span><span id="__span-14-22"><a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">message</span>
-</span><span id="__span-14-23"><a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a>
-</span><span id="__span-14-24"><a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a>
-</span><span id="__span-14-25"><a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="k">def</span> <span class="nf">test_no_email_sent</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
-</span><span id="__span-14-26"><a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">assert_no_tool_called</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;send_email&quot;</span><span class="p">)</span>
-</span><span id="__span-14-27"><a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">message</span>
-</span><span id="__span-14-28"><a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a>
-</span><span id="__span-14-29"><a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a>
-</span><span id="__span-14-30"><a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a><span class="k">def</span> <span class="nf">test_output_is_informative</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
-</span><span id="__span-14-31"><a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">assert_output_contains</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="__span-14-32"><a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">message</span>
-</span><span id="__span-14-33"><a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a>
-</span><span id="__span-14-34"><a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a>
-</span><span id="__span-14-35"><a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a><span class="k">def</span> <span class="nf">test_budget</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
-</span><span id="__span-14-36"><a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a>    <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">()</span>
-</span><span id="__span-14-37"><a id="__codelineno-14-37" name="__codelineno-14-37" href="#__codelineno-14-37"></a>    <span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_cost_under</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">max_usd</span><span class="o">=</span><span class="mf">0.10</span><span class="p">)</span>
-</span><span id="__span-14-38"><a id="__codelineno-14-38" name="__codelineno-14-38" href="#__codelineno-14-38"></a>    <span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_token_count_under</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
-</span><span id="__span-14-39"><a id="__codelineno-14-39" name="__codelineno-14-39" href="#__codelineno-14-39"></a>    <span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_latency_under</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">max_ms</span><span class="o">=</span><span class="mi">10_000</span><span class="p">)</span>
-</span><span id="__span-14-40"><a id="__codelineno-14-40" name="__codelineno-14-40" href="#__codelineno-14-40"></a>
-</span><span id="__span-14-41"><a id="__codelineno-14-41" name="__codelineno-14-41" href="#__codelineno-14-41"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</span><span id="__span-14-42"><a id="__codelineno-14-42" name="__codelineno-14-42" href="#__codelineno-14-42"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-</span><span id="__span-14-43"><a id="__codelineno-14-43" name="__codelineno-14-43" href="#__codelineno-14-43"></a>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">failed_assertions</span>
-</span><span id="__span-14-44"><a id="__codelineno-14-44" name="__codelineno-14-44" href="#__codelineno-14-44"></a>    <span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span> <span class="nn">pytest</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">replay</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="n">assert_tool_called</span><span class="p">,</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="n">assert_tool_order</span><span class="p">,</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="n">assert_no_tool_called</span><span class="p">,</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="n">assert_output_contains</span><span class="p">,</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    <span class="n">assert_cost_under</span><span class="p">,</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>    <span class="n">assert_token_count_under</span><span class="p">,</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    <span class="n">assert_latency_under</span><span class="p">,</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="p">)</span>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="kn">from</span> <span class="nn">evalcraft.eval.scorers</span> <span class="kn">import</span> <span class="n">Evaluator</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
+</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>    <span class="k">return</span> <span class="n">replay</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/research_agent.json&quot;</span><span class="p">)</span>
+</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>
+</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>
+</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="k">def</span> <span class="nf">test_searches_before_summarizing</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
+</span><span id="__span-15-21"><a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">assert_tool_called</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;web_search&quot;</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;summarize&quot;</span><span class="p">)</span>
+</span><span id="__span-15-22"><a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">message</span>
+</span><span id="__span-15-23"><a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>
+</span><span id="__span-15-24"><a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>
+</span><span id="__span-15-25"><a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="k">def</span> <span class="nf">test_no_email_sent</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
+</span><span id="__span-15-26"><a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">assert_no_tool_called</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;send_email&quot;</span><span class="p">)</span>
+</span><span id="__span-15-27"><a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">message</span>
+</span><span id="__span-15-28"><a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a>
+</span><span id="__span-15-29"><a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a>
+</span><span id="__span-15-30"><a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a><span class="k">def</span> <span class="nf">test_output_is_informative</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
+</span><span id="__span-15-31"><a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">assert_output_contains</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="__span-15-32"><a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">message</span>
+</span><span id="__span-15-33"><a id="__codelineno-15-33" name="__codelineno-15-33" href="#__codelineno-15-33"></a>
+</span><span id="__span-15-34"><a id="__codelineno-15-34" name="__codelineno-15-34" href="#__codelineno-15-34"></a>
+</span><span id="__span-15-35"><a id="__codelineno-15-35" name="__codelineno-15-35" href="#__codelineno-15-35"></a><span class="k">def</span> <span class="nf">test_budget</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
+</span><span id="__span-15-36"><a id="__codelineno-15-36" name="__codelineno-15-36" href="#__codelineno-15-36"></a>    <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">()</span>
+</span><span id="__span-15-37"><a id="__codelineno-15-37" name="__codelineno-15-37" href="#__codelineno-15-37"></a>    <span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_cost_under</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">max_usd</span><span class="o">=</span><span class="mf">0.10</span><span class="p">)</span>
+</span><span id="__span-15-38"><a id="__codelineno-15-38" name="__codelineno-15-38" href="#__codelineno-15-38"></a>    <span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_token_count_under</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
+</span><span id="__span-15-39"><a id="__codelineno-15-39" name="__codelineno-15-39" href="#__codelineno-15-39"></a>    <span class="n">evaluator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assert_latency_under</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">max_ms</span><span class="o">=</span><span class="mi">10_000</span><span class="p">)</span>
+</span><span id="__span-15-40"><a id="__codelineno-15-40" name="__codelineno-15-40" href="#__codelineno-15-40"></a>
+</span><span id="__span-15-41"><a id="__codelineno-15-41" name="__codelineno-15-41" href="#__codelineno-15-41"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</span><span id="__span-15-42"><a id="__codelineno-15-42" name="__codelineno-15-42" href="#__codelineno-15-42"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+</span><span id="__span-15-43"><a id="__codelineno-15-43" name="__codelineno-15-43" href="#__codelineno-15-43"></a>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">failed_assertions</span>
+</span><span id="__span-15-44"><a id="__codelineno-15-44" name="__codelineno-15-44" href="#__codelineno-15-44"></a>    <span class="p">)</span>
 </span></code></pre></div>
 
 
