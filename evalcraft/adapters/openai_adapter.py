@@ -38,6 +38,11 @@ from typing import Any
 
 from evalcraft.capture.recorder import get_active_context
 from evalcraft.core.models import Span, SpanKind
+from evalcraft.core.pricing import (
+    OPENAI_CACHE_READ,
+    OPENAI_CACHE_WRITE,
+    cache_adjusted_cost,
+)
 
 # ---------------------------------------------------------------------------
 # Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
@@ -94,8 +99,19 @@ _UNKNOWN_MODEL = "unknown"
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float | None:
-    """Return an estimated USD cost or *None* if the model is not in the table."""
+def _estimate_cost(
+    model: str,
+    prompt_tokens: int,
+    completion_tokens: int,
+    cache_read_tokens: int = 0,
+) -> float | None:
+    """Return an estimated USD cost or *None* if the model is not in the table.
+
+    ``prompt_tokens`` must already be fresh (uncached) input — the caller
+    subtracts ``cached_tokens``, because OpenAI reports ``prompt_tokens``
+    *inclusive* of the cached portion. Cached input is discounted, so billing it
+    at the full input rate overstates cache-heavy runs.
+    """
     pricing = _MODEL_PRICING.get(model)
     if pricing is None:
         # Prefix-match for dated model variants not listed explicitly.
@@ -106,7 +122,25 @@ def _estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> fl
     if pricing is None:
         return None
     input_usd, output_usd = pricing
-    return (prompt_tokens * input_usd + completion_tokens * output_usd) / 1_000_000
+    return cache_adjusted_cost(
+        input_usd_per_mtok=input_usd,
+        output_usd_per_mtok=output_usd,
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        cache_read_tokens=cache_read_tokens,
+        cache_read_multiplier=OPENAI_CACHE_READ,
+        cache_write_multiplier=OPENAI_CACHE_WRITE,
+    )
+
+
+def _int_or_zero(value: Any) -> int:
+    """Coerce a usage attribute to a plain int, defaulting to 0.
+
+    SDK usage objects vary across versions and users routinely mock them in
+    their own tests; anything that is not a real int must not leak into a
+    cassette as a token count.
+    """
+    return value if isinstance(value, int) and not isinstance(value, bool) else 0
 
 
 def _messages_to_str(messages: list[Any]) -> str:
@@ -295,15 +329,26 @@ class OpenAIAdapter:
 
         prompt_tokens = 0
         completion_tokens = 0
+        cache_read_tokens = 0
         try:
             usage = response.usage
             if usage:
                 prompt_tokens = usage.prompt_tokens or 0
                 completion_tokens = usage.completion_tokens or 0
+                # OpenAI reports `prompt_tokens` INCLUSIVE of the cached portion,
+                # so subtract it to reach evalcraft's "fresh input" convention.
+                details = getattr(usage, "prompt_tokens_details", None)
+                if details is not None:
+                    cache_read_tokens = _int_or_zero(getattr(details, "cached_tokens", 0))
+                    if isinstance(prompt_tokens, int):
+                        prompt_tokens = max(0, prompt_tokens - cache_read_tokens)
         except AttributeError:
             pass
 
-        cost_usd = _estimate_cost(model, prompt_tokens, completion_tokens)
+        cost_usd = _estimate_cost(
+            model, prompt_tokens, completion_tokens,
+            cache_read_tokens=cache_read_tokens,
+        )
 
         # Record tool call spans when the LLM requests tool use
         try:
@@ -329,6 +374,7 @@ class OpenAIAdapter:
             duration_ms=duration_ms,
             prompt_tokens=prompt_tokens,
             completion_tokens=completion_tokens,
+            cache_read_tokens=cache_read_tokens,
             cost_usd=cost_usd,
             metadata={"finish_reason": _get_finish_reason(response)},
         )

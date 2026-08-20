@@ -37,17 +37,17 @@ Example::
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Union
+from typing import Any
 
 from evalcraft.core.models import AgentRun, AssertionResult, Cassette
 
 # A scorer takes the (live) cassette and returns an AssertionResult.
 Scorer = Callable[[Cassette], AssertionResult]
 # A runner executes the real agent for a case and returns its output.
-Runner = Callable[["LiveEvalCase"], Union[Cassette, AgentRun, str]]
+Runner = Callable[["LiveEvalCase"], Cassette | AgentRun | str]
 
 
 @dataclass

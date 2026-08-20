@@ -20,9 +20,9 @@ Usage:
 from __future__ import annotations
 
 import copy
-from collections.abc import Collection
+from collections.abc import Callable, Collection
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from evalcraft.core.models import (
     AgentRun,

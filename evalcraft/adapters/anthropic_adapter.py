@@ -38,6 +38,12 @@ from typing import Any
 
 from evalcraft.capture.recorder import get_active_context
 from evalcraft.core.models import Span, SpanKind
+from evalcraft.core.pricing import (
+    ANTHROPIC_CACHE_READ,
+    ANTHROPIC_CACHE_WRITE,
+    cache_adjusted_cost,
+)
+from evalcraft.core.reasoning import REASONING_METADATA_KEY
 
 # ---------------------------------------------------------------------------
 # Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
@@ -70,8 +76,19 @@ _UNKNOWN_MODEL = "unknown"
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float | None:
-    """Return an estimated USD cost or *None* if the model is not in the table."""
+def _estimate_cost(
+    model: str,
+    input_tokens: int,
+    output_tokens: int,
+    cache_read_tokens: int = 0,
+    cache_write_tokens: int = 0,
+) -> float | None:
+    """Return an estimated USD cost or *None* if the model is not in the table.
+
+    Cache tiers are priced separately: Anthropic bills cache reads at 0.1x input
+    and 5-minute cache writes at 1.25x. Pricing them as ordinary input would
+    overstate a cache-heavy agent loop by up to an order of magnitude.
+    """
     pricing = _MODEL_PRICING.get(model)
     if pricing is None:
         # Prefix-match for dated model variants not listed explicitly.
@@ -82,7 +99,26 @@ def _estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float |
     if pricing is None:
         return None
     input_usd, output_usd = pricing
-    return (input_tokens * input_usd + output_tokens * output_usd) / 1_000_000
+    return cache_adjusted_cost(
+        input_usd_per_mtok=input_usd,
+        output_usd_per_mtok=output_usd,
+        prompt_tokens=input_tokens,
+        completion_tokens=output_tokens,
+        cache_read_tokens=cache_read_tokens,
+        cache_write_tokens=cache_write_tokens,
+        cache_read_multiplier=ANTHROPIC_CACHE_READ,
+        cache_write_multiplier=ANTHROPIC_CACHE_WRITE,
+    )
+
+
+def _int_or_zero(value: Any) -> int:
+    """Coerce a usage attribute to a plain int, defaulting to 0.
+
+    SDK usage objects vary across versions and users routinely mock them in
+    their own tests; anything that is not a real int (``None``, a ``MagicMock``,
+    a nested object) must not leak into a cassette as a token count.
+    """
+    return value if isinstance(value, int) and not isinstance(value, bool) else 0
 
 
 def _messages_to_str(messages: list[dict[str, Any]]) -> str:
@@ -121,6 +157,49 @@ def _response_to_str(response: Any) -> str:
         return " ".join(parts).strip()
     except (AttributeError, TypeError):
         return str(response)
+
+
+def _extract_reasoning_blocks(response: Any) -> list[dict[str, Any]]:
+    """Capture opaque reasoning blocks verbatim from a Message response.
+
+    Extended-thinking responses carry ``thinking`` blocks with a cryptographic
+    ``signature`` (and ``redacted_thinking`` blocks holding opaque ``data``).
+    The API requires these to be passed back **unmodified** on subsequent turns,
+    so a cassette that drops them cannot be replayed faithfully — the turn is
+    rejected or silently degraded. They are preserved verbatim rather than
+    stringified into the output text, which would corrupt output assertions.
+    """
+    blocks: list[dict[str, Any]] = []
+    try:
+        for block in response.content or []:
+            block_type = getattr(block, "type", None)
+            if block_type == "thinking":
+                blocks.append({
+                    "type": "thinking",
+                    "thinking": getattr(block, "thinking", ""),
+                    "signature": getattr(block, "signature", ""),
+                })
+            elif block_type == "redacted_thinking":
+                blocks.append({
+                    "type": "redacted_thinking",
+                    "data": getattr(block, "data", ""),
+                })
+    except (AttributeError, TypeError):
+        return []
+    # Drop anything whose fields did not come back as plain strings (mocked or
+    # unexpected SDK shapes) so junk never lands in a cassette.
+    return [
+        b for b in blocks
+        if all(isinstance(v, str) for k, v in b.items() if k != "type")
+    ]
+
+
+def _with_reasoning(metadata: dict[str, Any], response: Any) -> dict[str, Any]:
+    """Attach captured reasoning blocks to span metadata when present."""
+    blocks = _extract_reasoning_blocks(response)
+    if blocks:
+        metadata[REASONING_METADATA_KEY] = blocks
+    return metadata
 
 
 def _get_stop_reason(response: Any) -> str:
@@ -255,15 +334,27 @@ class AnthropicAdapter:
 
         input_tokens = 0
         output_tokens = 0
+        cache_read_tokens = 0
+        cache_write_tokens = 0
         try:
             usage = response.usage
             if usage:
+                # Anthropic's `input_tokens` already EXCLUDES cached tokens, which
+                # matches evalcraft's "prompt_tokens = fresh input" convention.
                 input_tokens = getattr(usage, "input_tokens", 0) or 0
                 output_tokens = getattr(usage, "output_tokens", 0) or 0
+                cache_read_tokens = _int_or_zero(getattr(usage, "cache_read_input_tokens", 0))
+                cache_write_tokens = _int_or_zero(
+                    getattr(usage, "cache_creation_input_tokens", 0)
+                )
         except AttributeError:
             pass
 
-        cost_usd = _estimate_cost(model, input_tokens, output_tokens)
+        cost_usd = _estimate_cost(
+            model, input_tokens, output_tokens,
+            cache_read_tokens=cache_read_tokens,
+            cache_write_tokens=cache_write_tokens,
+        )
 
         ctx.record_llm_call(
             model=model,
@@ -272,8 +363,12 @@ class AnthropicAdapter:
             duration_ms=duration_ms,
             prompt_tokens=input_tokens,
             completion_tokens=output_tokens,
+            cache_read_tokens=cache_read_tokens,
+            cache_write_tokens=cache_write_tokens,
             cost_usd=cost_usd,
-            metadata={"stop_reason": _get_stop_reason(response)},
+            metadata=_with_reasoning(
+                {"stop_reason": _get_stop_reason(response)}, response
+            ),
         )
 
     def _record_error(self, kwargs: dict[str, Any], duration_ms: float, error: str) -> None:

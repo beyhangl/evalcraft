@@ -20,8 +20,9 @@ import asyncio
 import contextvars
 import functools
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from evalcraft.core.models import Cassette, Span, SpanKind, TokenUsage
 
@@ -162,8 +163,15 @@ class CaptureContext:
         completion_tokens: int = 0,
         cost_usd: float | None = None,
         metadata: dict | None = None,
+        cache_read_tokens: int = 0,
+        cache_write_tokens: int = 0,
     ) -> Span:
-        """Convenience method to record an LLM call."""
+        """Convenience method to record an LLM call.
+
+        ``prompt_tokens`` is fresh (uncached) input; cached input is reported
+        separately via ``cache_read_tokens`` / ``cache_write_tokens`` so cost can
+        be priced per tier. See :class:`~evalcraft.core.models.TokenUsage`.
+        """
         span = Span(
             kind=SpanKind.LLM_RESPONSE,
             name=f"llm:{model}",
@@ -174,7 +182,12 @@ class CaptureContext:
             token_usage=TokenUsage(
                 prompt_tokens=prompt_tokens,
                 completion_tokens=completion_tokens,
-                total_tokens=prompt_tokens + completion_tokens,
+                total_tokens=(
+                    prompt_tokens + completion_tokens
+                    + cache_read_tokens + cache_write_tokens
+                ),
+                cache_read_tokens=cache_read_tokens,
+                cache_write_tokens=cache_write_tokens,
             ),
             cost_usd=cost_usd,
             metadata=metadata or {},

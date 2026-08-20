@@ -29,16 +29,41 @@ class SpanKind(str, Enum):
 
 @dataclass
 class TokenUsage:
-    """Token usage for an LLM call."""
+    """Token usage for an LLM call, segmented by prompt-cache tier.
+
+    Prompt caching makes a flat prompt/completion split wrong — often by an
+    order of magnitude on agent loops, where most of the input is re-sent every
+    turn. Providers bill the tiers very differently (cache *reads* are heavily
+    discounted; cache *writes* carry a premium), so the tiers are recorded
+    separately and priced separately.
+
+    Convention: ``prompt_tokens`` is always **fresh, uncached** input — tokens
+    billed at the full input rate. Cached tokens live in ``cache_read_tokens``
+    and ``cache_write_tokens``. Adapters normalise to this, because providers
+    disagree: Anthropic reports ``input_tokens`` already exclusive of cache
+    fields, while OpenAI's ``prompt_tokens`` *includes* ``cached_tokens``.
+
+    Cassettes recorded before cache segmentation simply carry 0 in the cache
+    fields, so their totals and costs are unchanged.
+    """
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
+    cache_read_tokens: int = 0
+    cache_write_tokens: int = 0
+
+    @property
+    def cached_tokens(self) -> int:
+        """Total tokens that went through the cache (read + write)."""
+        return self.cache_read_tokens + self.cache_write_tokens
 
     def to_dict(self) -> dict:
         return {
             "prompt_tokens": self.prompt_tokens,
             "completion_tokens": self.completion_tokens,
             "total_tokens": self.total_tokens,
+            "cache_read_tokens": self.cache_read_tokens,
+            "cache_write_tokens": self.cache_write_tokens,
         }
 
     @classmethod
@@ -47,6 +72,8 @@ class TokenUsage:
             prompt_tokens=data.get("prompt_tokens", 0),
             completion_tokens=data.get("completion_tokens", 0),
             total_tokens=data.get("total_tokens", 0),
+            cache_read_tokens=data.get("cache_read_tokens", 0),
+            cache_write_tokens=data.get("cache_write_tokens", 0),
         )
 
 
@@ -297,7 +324,7 @@ class Cassette:
         self.compute_metrics()
         self.compute_fingerprint()
         return {
-            "evalcraft_version": "0.6.0",
+            "evalcraft_version": "0.7.0",
             "cassette": {
                 "id": self.id,
                 "name": self.name,

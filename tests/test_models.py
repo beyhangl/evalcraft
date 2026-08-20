@@ -45,7 +45,10 @@ class TestTokenUsage:
     def test_to_dict(self):
         usage = TokenUsage(prompt_tokens=10, completion_tokens=20, total_tokens=30)
         d = usage.to_dict()
-        assert d == {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}
+        assert d == {
+            "prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30,
+            "cache_read_tokens": 0, "cache_write_tokens": 0,
+        }
 
     def test_from_dict(self):
         d = {"prompt_tokens": 5, "completion_tokens": 15, "total_tokens": 20}
@@ -98,7 +101,10 @@ class TestSpan:
         usage = TokenUsage(prompt_tokens=10, completion_tokens=5, total_tokens=15)
         span = Span(kind=SpanKind.LLM_RESPONSE, token_usage=usage)
         d = span.to_dict()
-        assert d["token_usage"] == {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15}
+        assert d["token_usage"] == {
+            "prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15,
+            "cache_read_tokens": 0, "cache_write_tokens": 0,
+        }
 
     def test_to_dict_no_token_usage(self):
         span = Span()

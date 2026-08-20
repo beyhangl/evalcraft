@@ -314,3 +314,62 @@ def test_no_new_tool_calls():
             f"  After:  {diff.new_tool_sequence}"
         )
 ```
+
+---
+
+## What replay does and doesn't test
+
+This is the most important page in the docs to read honestly, because replay is
+easy to over-trust.
+
+**`replay()` does not run your agent.** It reads the recorded spans back and
+returns them (`ReplayEngine._run_spans` deep-copies each span, applying any
+overrides). Your agent function is never invoked, and no model is called. So:
+
+> **If you change your agent's code and re-run `replay()` on an old cassette,
+> the test still passes.** The cassette has not changed, so the assertions
+> against it have not changed.
+
+That is not a bug — it is what a recorded fixture *is*. But it means a green
+replay is **not** proof that your current code works.
+
+### The three layers, and what each one actually proves
+
+| Layer | Runs your code? | Calls a model? | Catches |
+|---|---|---|---|
+| **`replay()` + scorers** | ❌ | ❌ ($0) | Changes to the *recorded artifact* — regressions in a committed baseline, budget/shape/trajectory contracts |
+| **`MockLLM` / `MockTool`** | ✅ | ❌ ($0) | **Your code breaking** — wrong tool args, bad control flow, broken parsing |
+| **Re-record + `diff` / `golden` / `regression`** | ✅ | ✅ (paid) | Behaviour changes against the *real* model and tools |
+| **`live-eval`** | ✅ | ✅ (paid) | Quality and drift |
+
+**So: "how do I know I didn't break my agent?"** Not from `replay()` alone. Use
+**mocks** — they execute your real code against deterministic responses, so a
+refactor that renames a tool argument fails the test. Or **re-record and diff**
+against the committed golden cassette.
+
+### What replay can never tell you
+
+Replay is a regression fixture, not a capability measurement. It cannot judge
+whether an answer is *good*, and a recorded trajectory can look perfect while
+the underlying behaviour is wrong. This is not a limitation specific to
+evalcraft — research on computer-use agents found that a script blindly
+replaying a recorded action sequence, never observing the screen at all, can
+outperform frontier models on static benchmarks. A replay reproduces a past run;
+it does not demonstrate present capability.
+
+Replay also cannot see:
+
+- **Model, prompt, or retrieval drift** — the recording is frozen. Use
+  [`check-stale`](check-stale.md) to detect when the world moved on, and
+  [live-eval](live-eval.md) to measure it.
+- **Untraced side effects** — anything your agent did that wasn't recorded.
+- **Non-determinism baked into the recording** — timestamps, UUIDs, and temp
+  paths captured at record time become fixed values on replay.
+
+### Use it for what it's good at
+
+Committed cassettes are excellent at one thing: **locking the deterministic glue
+of an agent** — which tools ran, in what order, with what arguments, producing
+what shape, within what budget — and re-checking it in milliseconds for $0 on
+every commit. Pair that with mocks for code-level correctness and a scheduled
+live-eval for quality, and each layer does the job it can actually do.

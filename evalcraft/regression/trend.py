@@ -321,7 +321,8 @@ class TrendDetector:
         mean_x = sum(xs) / n
         mean_y = sum(values) / n
 
-        num = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, values))
+        # xs is range(len(values)), so the lengths are equal by construction.
+        num = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, values, strict=True))
         den = sum((x - mean_x) ** 2 for x in xs)
 
         return num / den if den != 0 else 0.0

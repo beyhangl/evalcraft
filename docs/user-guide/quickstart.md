@@ -8,7 +8,7 @@ By the end of this guide you will have:
 - Added a CI gate that blocks regressions on every PR
 - Created a golden set baseline for your agent
 
-**Prerequisites:** Python 3.9+, pip, and optionally an OpenAI or Anthropic API key (not needed for replay or mock mode).
+**Prerequisites:** Python 3.10+, pip, and optionally an OpenAI or Anthropic API key (not needed for replay or mock mode).
 
 ---
 

@@ -9,6 +9,9 @@ test keeps "passing" against a reality that no longer exists.
 ``StalenessChecker`` compares a cassette's provenance against the *current*
 model set / prompt and reports findings by severity:
 
+- ``reasoning_state_missing`` (CRITICAL) — spans recorded from a reasoning model
+  carry no opaque reasoning state, so replaying them is invalid (the provider
+  requires the signed reasoning block verbatim).
 - ``model_retired`` (CRITICAL) — a recorded model is absent from the current set
   (retired or swapped); the cassette may now exercise an API that errors live.
 - ``prompt_drift`` (WARNING) — the current prompt hash differs from the recording.
@@ -34,6 +37,7 @@ from pathlib import Path
 from typing import Any
 
 from evalcraft.core.models import Cassette, compute_prompt_hash
+from evalcraft.core.reasoning import find_degraded_reasoning_spans
 from evalcraft.regression.detector import Severity
 
 _DAY_SECONDS = 86400
@@ -127,6 +131,28 @@ class StalenessChecker:
         ``no_provenance`` finding.
         """
         report = StalenessReport(cassette_name=cassette.name)
+
+        # 0. Missing opaque reasoning state (CRITICAL — replay is *invalid*, not
+        # merely lossy: the provider rejects or degrades a turn whose signed
+        # reasoning block was dropped). Checked before provenance, because a
+        # legacy cassette can be degraded this way too.
+        degraded = find_degraded_reasoning_spans(cassette)
+        if degraded:
+            models = sorted({s.model for s in degraded if s.model})
+            report.findings.append(
+                StalenessFinding(
+                    category="reasoning_state_missing",
+                    severity=Severity.CRITICAL,
+                    message=(
+                        f"{len(degraded)} span(s) recorded from reasoning model(s) "
+                        f"{models} carry no reasoning state. Replaying them is "
+                        "invalid — the provider requires the signed reasoning "
+                        "block verbatim. Re-record with an adapter that captures it."
+                    ),
+                    recorded_value=models,
+                )
+            )
+
         prov = cassette.provenance
 
         if prov is None:

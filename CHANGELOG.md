@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] — 2026-07-28
+
+Correctness release. Two recorded values were wrong for modern agent runs, and
+both are fixed here. **Existing cassettes are unaffected** — they carry zeros in
+the new fields and price exactly as before.
+
+### Fixed
+- **Cost was overstated for cache-heavy runs — by up to an order of magnitude.**
+  `TokenUsage` now segments prompt-cache tiers (`cache_read_tokens`,
+  `cache_write_tokens`) and each tier is priced separately: providers bill cache
+  *reads* at a steep discount and charge a premium to *write* the cache, so
+  pricing every input token at the full rate badly overstated agent loops, where
+  most of the prompt is re-sent each turn. On a realistic 100k-context loop this
+  was ~6x. The OpenAI and Anthropic adapters now extract cache counts, and
+  normalise a provider disagreement: `prompt_tokens` always means **fresh,
+  uncached** input (Anthropic reports it that way already; OpenAI's includes the
+  cached portion, so it is subtracted). New: `evalcraft.core.pricing`.
+  *Note:* newly-recorded cache-heavy cassettes will report lower `cost_usd` than
+  the same run recorded on ≤0.6.0 — the old number was wrong, not the new one.
+- **Replay was invalid, not merely lossy, for reasoning models.** Extended-thinking
+  responses carry opaque blocks (a signed `thinking` block; `redacted_thinking`
+  data) that the provider requires back verbatim, and they were being dropped.
+  The Anthropic adapter now captures them, and `check-stale` reports a new
+  **CRITICAL** `reasoning_state_missing` finding for cassettes recorded from a
+  reasoning model without them. New: `evalcraft.core.reasoning`.
+- Token counts from mocked or unexpected SDK usage objects are coerced to plain
+  ints, so a `MagicMock` can never land in a cassette as a token count.
+
+### Changed
+- **Dropped end-of-life Python 3.9** (EOL Oct 2025); minimum is now **3.10**.
+  The `pytest` extra requires **pytest ≥ 8** — with `>=3.9` / `pytest>=7.0` an
+  install could silently resolve to pytest 7, which pytest 9 no longer supports.
+  CI now also tests 3.13 and 3.14.
+
+### Documentation
+- **[What replay does and doesn't test](https://beyhangl.github.io/evalcraft/docs/user-guide/replay/)** —
+  the README linked to this for two releases; now it exists. States plainly that
+  `replay()` does not run your agent, so a green replay is not proof your current
+  code works, and lays out which layer (replay / mocks / re-record + diff /
+  live-eval) actually catches what.
+
 ## [0.6.0] — 2026-06-16
 
 ### Added
