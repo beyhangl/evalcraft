@@ -7,19 +7,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
-## [0.7.0] — 2026-07-28
+## [0.7.0] — 2026-09-21
 
-Correctness release. Existing cassettes are unaffected.
+Correctness and repositioning release. Existing cassettes are unaffected.
 
 ### Fixed
 - **Cache-aware cost.** `TokenUsage` now segments prompt-cache tiers (`cache_read_tokens` / `cache_write_tokens`) and prices each separately. Billing cached input at the full rate overstated cache-heavy agent loops by up to an order of magnitude (~6x on a realistic 100k-context loop). `prompt_tokens` now consistently means **fresh, uncached** input across providers.
 - **Opaque reasoning state.** Anthropic extended-thinking blocks (signed `thinking` / `redacted_thinking`) are captured instead of dropped, and `check-stale` reports a CRITICAL `reasoning_state_missing` when a reasoning-model cassette lacks them — replaying those is invalid, not just lossy.
 
 ### Changed
-- Dropped EOL Python 3.9 (minimum **3.10**); `pytest` extra now requires **pytest ≥ 8**; CI tests 3.10–3.14.
+- Dropped EOL Python 3.9 (minimum **3.10**); `pytest` extra now requires **pytest ≥ 8**.
+- **Repositioned** — the docs lead with the failure this catches (an agent that returns `200 OK`, reports "task completed", and skips the tool call) plus cost budgets, rather than the record/replay mechanism.
+- **Honest caveats expanded** — recorded-run tooling is not unique (Docker `cagent`, EvalView `model-check`); a committed baseline is only trustworthy if nothing rewrites it.
 
 ### Documentation
-- [What replay does and doesn't test](replay.md#what-replay-does-and-doesnt-test) — `replay()` does not run your agent, so a green replay is not proof your current code works. Explains which layer catches what.
+- [What replay does and doesn't test](replay.md#what-replay-does-and-doesnt-test) — `replay()` does not run your agent, so a green replay is not proof your current code works.
 
 ---
 

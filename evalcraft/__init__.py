@@ -1,7 +1,11 @@
-"""Evalcraft — VCR for AI agents.
+"""Evalcraft — deterministic, $0 tests for AI agents.
 
-Record agent runs as cassettes and replay them deterministically in CI for $0;
-mock LLMs/tools, score runs, and catch real model drift with live-eval.
+Agents fail silently: they return 200 OK, report "task completed", and skip the
+tool call that did the work. Evalcraft locks the deterministic parts — which
+tools ran, in what order, with which arguments, the output shape, loops, and the
+cost budget — as ordinary pytest assertions that read an already-recorded run,
+so they execute offline in milliseconds for $0. Mock LLMs/tools for code-level
+tests, and use live-eval on a schedule for questions that need a real model.
 """
 
 __version__ = "0.7.0"

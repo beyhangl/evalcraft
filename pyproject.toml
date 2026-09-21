@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "evalcraft"
 version = "0.7.0"
-description = "VCR for AI agents — record agent runs as cassettes and replay them deterministically in CI for $0."
+description = "Deterministic $0 pytest assertions for AI agents — lock tool calls, arguments, output shape, loops and cost budgets in CI."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"

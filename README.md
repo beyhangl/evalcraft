@@ -1,8 +1,8 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/beyhangl/evalcraft/main/site/logo.png" alt="Evalcraft" width="400" />
 </p>
-<p align="center"><strong>Deterministic tests for AI agents — generated from one real run.</strong></p>
-<p align="center">Capture an agent run and evalcraft writes a <strong>pytest</strong> that locks its tool calls, output shape, and cost — then replays it in CI for <strong>$0</strong>. Like VCR for HTTP, but it writes the agent tests for you.</p>
+<p align="center"><strong>Catch the agent that quietly stopped calling its tools — and the one that tripled your bill.</strong></p>
+<p align="center">Agents rarely crash. They return <code>200 OK</code>, report "task completed", and skip the tool call that did the actual work. Evalcraft locks your agent's <strong>tool calls, arguments, output shape and cost budget</strong> as ordinary <strong>pytest</strong> assertions that run offline in CI for <strong>$0</strong> — no model call, no LLM judge, no flaky reruns.</p>
 
 [![CI](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg)](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/evalcraft)](https://pypi.org/project/evalcraft/)
@@ -25,13 +25,13 @@ That's it. Your first cassette is recorded, committed to git, and replays for fr
 
 ## The problem
 
-Agent testing is broken:
+**Agents fail silently.** They return `200 OK`, report "task completed", and never call the tool that did the work. A crash is the good outcome — it's loud and it stops. The quiet ones sit there looking green.
 
-- **Expensive.** Running 200 tests against GPT-4.1 costs real money. Every commit.
-- **Non-deterministic.** Tests fail randomly because LLMs aren't functions.
-- **No CI/CD story.** You can't gate deploys on eval results if evals take 10 minutes and cost $5.
+**Output-only evals miss it.** If you score the final text, an agent that quietly stopped calling `lookup_order` still passes. Tool-call frequency can drop 30% after a model swap while every eval stays green.
 
-Evalcraft records agent runs as **cassettes** (like VCR for HTTP) and replays them deterministically — so the tests that exercise your agent's *plumbing* (tool wiring, control flow, output shape, cost/latency budgets) drop from 10 minutes + $5 to **200ms + $0**. For the questions that genuinely need a live model — quality, drift, LLM-judge, RAG — run [live-eval](#catching-drift-live-eval) on a schedule.
+**And the bill climbs.** Judge-based evals on every commit cost real money, so the gate gets disabled — or teams keep self-grading evals precisely because the alternative costs more.
+
+Evalcraft asserts the parts of an agent that *are* deterministic: which tools ran, in what order, with which arguments, what shape came back, whether it looped, and what it cost. Those assertions read a run you already recorded, so they execute in milliseconds for **$0** on every commit — no model call, no LLM judge, no flaky reruns. For the questions that genuinely need a live model (quality, drift, RAG), run [live-eval](#catching-drift-live-eval) on a schedule.
 
 ---
 
@@ -348,7 +348,9 @@ An honest comparison against the closest tools. ✅ first-class · ⚠️ partia
 - *Zero-cost CI is not unique* — Promptfoo (disk cache, on by default) and DeepEval (`-c`) already make re-runs free. Evalcraft's angle is *deterministic replay of a committed artifact*, not a lower bill per se.
 - *Replay only re-checks a recorded run.* It does not re-execute the live model, so on its own it can't catch model/prompt/retrieval drift — see [what replay does and doesn't test](docs/user-guide/replay.md). For drift, re-record or run a live eval.
 - *The LLM-as-Judge, RAG, and pairwise scorers make real, paid model calls at test time* — they are **not** part of the $0 deterministic path.
-- Other strong OSS/self-hostable options not shown: **Langfuse**, **Arize Phoenix**, **Inspect AI**.
+- *Recorded-run tooling is not unique either* — Docker's `cagent` ships git-committable session cassettes with `--record`/`--fake` replay, baseline regression gating and recorded-session diffing. **EvalView** ships `model-check`, a canary suite that detects closed-model drift against the live provider. Evalcraft's narrower claim is that `check-stale` inspects the *saved artifact* and tells you it references a model that was retired or swapped.
+- *A recorded baseline is only trustworthy if nothing rewrites it.* Coding agents have been observed editing tests and golden fixtures to make them pass. Review cassette diffs in PRs like any other committed artifact.
+- Other strong OSS/self-hostable options not shown: **Langfuse**, **Arize Phoenix**, **Inspect AI**, **Docker cagent**, **EvalView**.
 
 > Evalcraft is a **testing** tool for your agent's deterministic glue + budgets — not an observability platform. Use Braintrust / LangSmith / Langfuse for production tracing; use Evalcraft to keep that layer of your suite fast and committed to git.
 

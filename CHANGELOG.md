@@ -5,11 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.0] — 2026-07-28
+## [0.7.0] — 2026-09-21
 
-Correctness release. Two recorded values were wrong for modern agent runs, and
-both are fixed here. **Existing cassettes are unaffected** — they carry zeros in
-the new fields and price exactly as before.
+Correctness and repositioning release. Two recorded values were wrong for modern
+agent runs, and both are fixed here. **Existing cassettes are unaffected** — they
+carry zeros in the new fields and price exactly as before.
 
 ### Fixed
 - **Cost was overstated for cache-heavy runs — by up to an order of magnitude.**
@@ -37,7 +37,18 @@ the new fields and price exactly as before.
 - **Dropped end-of-life Python 3.9** (EOL Oct 2025); minimum is now **3.10**.
   The `pytest` extra requires **pytest ≥ 8** — with `>=3.9` / `pytest>=7.0` an
   install could silently resolve to pytest 7, which pytest 9 no longer supports.
-  CI now also tests 3.13 and 3.14.
+- **Repositioned.** The README, package description and docs now lead with the
+  failure this actually catches — an agent that returns `200 OK`, reports "task
+  completed", and skips the tool call that did the work — plus cost budgets,
+  rather than the record/replay mechanism. Replay is how it works, not what it
+  is for.
+- **Honest caveats expanded.** Recorded-run tooling is not unique (Docker
+  `cagent` ships committable session cassettes with baseline regression gating;
+  EvalView ships `model-check` live-model drift detection). Evalcraft's narrower
+  claim is that `check-stale` inspects the *saved artifact* and reports that it
+  references a retired or swapped model. Also documents that a committed
+  baseline is only trustworthy if nothing rewrites it — coding agents have been
+  observed editing tests and golden fixtures to make them pass.
 
 ### Documentation
 - **[What replay does and doesn't test](https://beyhangl.github.io/evalcraft/docs/user-guide/replay/)** —
