@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="VCR for AI agents — record agent runs as cassettes and replay them deterministically in CI for $0.">
+        <meta name="description" content="Deterministic $0 pytest assertions for AI agents — lock tool calls, arguments, output shape, loops and cost budgets in CI.">
       
       
       
@@ -1053,6 +1053,56 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#070-2026-09-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.7.0] — 2026-09-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.7.0] — 2026-09-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#060-2026-06-16" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1149,7 +1199,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -1366,6 +1416,24 @@
 <p>The format follows <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a> and
 <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <hr />
+<h2 id="070-2026-09-21">[0.7.0] — 2026-09-21<a class="headerlink" href="#070-2026-09-21" title="Permanent link">&para;</a></h2>
+<p>Correctness and repositioning release. Existing cassettes are unaffected.</p>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Cache-aware cost.</strong> <code>TokenUsage</code> now segments prompt-cache tiers (<code>cache_read_tokens</code> / <code>cache_write_tokens</code>) and prices each separately. Billing cached input at the full rate overstated cache-heavy agent loops by up to an order of magnitude (~6x on a realistic 100k-context loop). <code>prompt_tokens</code> now consistently means <strong>fresh, uncached</strong> input across providers.</li>
+<li><strong>Opaque reasoning state.</strong> Anthropic extended-thinking blocks (signed <code>thinking</code> / <code>redacted_thinking</code>) are captured instead of dropped, and <code>check-stale</code> reports a CRITICAL <code>reasoning_state_missing</code> when a reasoning-model cassette lacks them — replaying those is invalid, not just lossy.</li>
+</ul>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Dropped EOL Python 3.9 (minimum <strong>3.10</strong>); <code>pytest</code> extra now requires <strong>pytest ≥ 8</strong>.</li>
+<li><strong>Repositioned</strong> — the docs lead with the failure this catches (an agent that returns <code>200 OK</code>, reports "task completed", and skips the tool call) plus cost budgets, rather than the record/replay mechanism.</li>
+<li><strong>Honest caveats expanded</strong> — recorded-run tooling is not unique (Docker <code>cagent</code>, EvalView <code>model-check</code>); a committed baseline is only trustworthy if nothing rewrites it.</li>
+</ul>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="../replay/#what-replay-does-and-doesnt-test">What replay does and doesn't test</a> — <code>replay()</code> does not run your agent, so a green replay is not proof your current code works.</li>
+</ul>
+<hr />
 <h2 id="060-2026-06-16">[0.6.0] — 2026-06-16<a class="headerlink" href="#060-2026-06-16" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1387,7 +1455,7 @@
 </ul>
 <hr />
 <h2 id="031-2026-06-16">[0.3.1] — 2026-06-16<a class="headerlink" href="#031-2026-06-16" title="Permanent link">&para;</a></h2>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>README logo now renders on the PyPI project page (switched from a repo-relative image path to an absolute URL). No SDK or docs behavior changes.</li>
 </ul>

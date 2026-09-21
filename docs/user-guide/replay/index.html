@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="VCR for AI agents — record agent runs as cassettes and replay them deterministically in CI for $0.">
+        <meta name="description" content="Deterministic $0 pytest assertions for AI agents — lock tool calls, arguments, output shape, loops and cost budgets in CI.">
       
       
       
@@ -942,6 +942,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#what-replay-does-and-doesnt-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What replay does and doesn't test
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What replay does and doesn&#39;t test">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-three-layers-and-what-each-one-actually-proves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The three layers, and what each one actually proves
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-replay-can-never-tell-you" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What replay can never tell you
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-it-for-what-its-good-at" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use it for what it's good at
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1744,6 +1794,84 @@ model / prompt / retrieval drift you must re-record against the live model
 </span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>            <span class="sa">f</span><span class="s2">&quot;  After:  </span><span class="si">{</span><span class="n">diff</span><span class="o">.</span><span class="n">new_tool_sequence</span><span class="si">}</span><span class="s2">&quot;</span>
 </span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>        <span class="p">)</span>
 </span></code></pre></div>
+<hr />
+<h2 id="what-replay-does-and-doesnt-test">What replay does and doesn't test<a class="headerlink" href="#what-replay-does-and-doesnt-test" title="Permanent link">&para;</a></h2>
+<p>This is the most important page in the docs to read honestly, because replay is
+easy to over-trust.</p>
+<p><strong><code>replay()</code> does not run your agent.</strong> It reads the recorded spans back and
+returns them (<code>ReplayEngine._run_spans</code> deep-copies each span, applying any
+overrides). Your agent function is never invoked, and no model is called. So:</p>
+<blockquote>
+<p><strong>If you change your agent's code and re-run <code>replay()</code> on an old cassette,
+the test still passes.</strong> The cassette has not changed, so the assertions
+against it have not changed.</p>
+</blockquote>
+<p>That is not a bug — it is what a recorded fixture <em>is</em>. But it means a green
+replay is <strong>not</strong> proof that your current code works.</p>
+<h3 id="the-three-layers-and-what-each-one-actually-proves">The three layers, and what each one actually proves<a class="headerlink" href="#the-three-layers-and-what-each-one-actually-proves" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Runs your code?</th>
+<th>Calls a model?</th>
+<th>Catches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>replay()</code> + scorers</strong></td>
+<td>❌</td>
+<td>❌ ($0)</td>
+<td>Changes to the <em>recorded artifact</em> — regressions in a committed baseline, budget/shape/trajectory contracts</td>
+</tr>
+<tr>
+<td><strong><code>MockLLM</code> / <code>MockTool</code></strong></td>
+<td>✅</td>
+<td>❌ ($0)</td>
+<td><strong>Your code breaking</strong> — wrong tool args, bad control flow, broken parsing</td>
+</tr>
+<tr>
+<td><strong>Re-record + <code>diff</code> / <code>golden</code> / <code>regression</code></strong></td>
+<td>✅</td>
+<td>✅ (paid)</td>
+<td>Behaviour changes against the <em>real</em> model and tools</td>
+</tr>
+<tr>
+<td><strong><code>live-eval</code></strong></td>
+<td>✅</td>
+<td>✅ (paid)</td>
+<td>Quality and drift</td>
+</tr>
+</tbody>
+</table>
+<p><strong>So: "how do I know I didn't break my agent?"</strong> Not from <code>replay()</code> alone. Use
+<strong>mocks</strong> — they execute your real code against deterministic responses, so a
+refactor that renames a tool argument fails the test. Or <strong>re-record and diff</strong>
+against the committed golden cassette.</p>
+<h3 id="what-replay-can-never-tell-you">What replay can never tell you<a class="headerlink" href="#what-replay-can-never-tell-you" title="Permanent link">&para;</a></h3>
+<p>Replay is a regression fixture, not a capability measurement. It cannot judge
+whether an answer is <em>good</em>, and a recorded trajectory can look perfect while
+the underlying behaviour is wrong. This is not a limitation specific to
+evalcraft — research on computer-use agents found that a script blindly
+replaying a recorded action sequence, never observing the screen at all, can
+outperform frontier models on static benchmarks. A replay reproduces a past run;
+it does not demonstrate present capability.</p>
+<p>Replay also cannot see:</p>
+<ul>
+<li><strong>Model, prompt, or retrieval drift</strong> — the recording is frozen. Use
+  <a href="../check-stale/"><code>check-stale</code></a> to detect when the world moved on, and
+  <a href="../live-eval/">live-eval</a> to measure it.</li>
+<li><strong>Untraced side effects</strong> — anything your agent did that wasn't recorded.</li>
+<li><strong>Non-determinism baked into the recording</strong> — timestamps, UUIDs, and temp
+  paths captured at record time become fixed values on replay.</li>
+</ul>
+<h3 id="use-it-for-what-its-good-at">Use it for what it's good at<a class="headerlink" href="#use-it-for-what-its-good-at" title="Permanent link">&para;</a></h3>
+<p>Committed cassettes are excellent at one thing: <strong>locking the deterministic glue
+of an agent</strong> — which tools ran, in what order, with what arguments, producing
+what shape, within what budget — and re-checking it in milliseconds for $0 on
+every commit. Pair that with mocks for code-level correctness and a scheduled
+live-eval for quality, and each layer does the job it can actually do.</p>
 
 
 
