@@ -971,6 +971,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#-evalcraft-missing-what" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --evalcraft-missing WHAT
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1349,7 +1360,7 @@
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">mock_llm</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="s2">&quot;What is 2+2?&quot;</span><span class="p">)</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">assert</span> <span class="n">capture_context</span><span class="o">.</span><span class="n">cassette</span><span class="o">.</span><span class="n">llm_call_count</span> <span class="o">==</span> <span class="mi">1</span>
 </span></code></pre></div>
-<p>When combined with <code>@pytest.mark.evalcraft_capture(save=True)</code> (the default), the cassette is written to disk in <code>evalcraft_cassette_dir</code> after the test finishes — even on failure.</p>
+<p>When combined with <code>@pytest.mark.evalcraft_capture(save=True)</code> (the default), the cassette is written to <code>evalcraft_cassette_dir</code> after the test finishes — <strong>but only if the record mode allows it</strong> (see <a href="#-evalcraft-record-mode"><code>--evalcraft-record</code></a>). A plain <code>pytest</code> run never writes or overwrites a cassette.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">evalcraft_capture</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;math_agent_test&quot;</span><span class="p">)</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">def</span> <span class="nf">test_math</span><span class="p">(</span><span class="n">capture_context</span><span class="p">,</span> <span class="n">mock_llm</span><span class="p">):</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">mock_llm</span><span class="o">.</span><span class="n">add_response</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">)</span>
@@ -1392,7 +1403,7 @@
 </span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>    <span class="n">email</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="n">to</span><span class="o">=</span><span class="s2">&quot;user@example.com&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="cassette"><code>cassette</code><a class="headerlink" href="#cassette" title="Permanent link">&para;</a></h3>
-<p>Load a <code>Cassette</code> from the path given in <code>@pytest.mark.evalcraft_cassette</code>. Skips the test if the cassette file is not found (in <code>none</code> record mode).</p>
+<p>Load a <code>Cassette</code> from the path given in <code>@pytest.mark.evalcraft_cassette</code>. If the file is missing in <code>none</code> record mode, the test <strong>fails in CI</strong> and is skipped locally (see <a href="#-evalcraft-missing-what"><code>--evalcraft-missing</code></a>).</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">evalcraft_cassette</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/search_agent.json&quot;</span><span class="p">)</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">def</span> <span class="nf">test_replay</span><span class="p">(</span><span class="n">cassette</span><span class="p">):</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="k">assert</span> <span class="n">cassette</span><span class="o">.</span><span class="n">output_text</span> <span class="o">==</span> <span class="s2">&quot;Here are the results.&quot;</span>
@@ -1481,11 +1492,11 @@
 <tbody>
 <tr>
 <td><code>none</code> (default)</td>
-<td>Replay-only. Skip test if cassette is missing.</td>
+<td>Replay-only. <strong>Never writes a cassette.</strong> A missing cassette fails in CI, skips locally.</td>
 </tr>
 <tr>
 <td><code>new</code></td>
-<td>Record cassettes that don't exist yet.</td>
+<td>Record cassettes that don't exist yet. Existing cassettes are never modified.</td>
 </tr>
 <tr>
 <td><code>all</code></td>
@@ -1493,12 +1504,38 @@
 </tr>
 </tbody>
 </table>
+<p>Because the default never writes, running the suite cannot quietly change a
+committed recording. Re-recording is always an explicit decision, and the
+result shows up in the diff for review.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Record new cassettes for tests that don&#39;t have one yet</span>
 </span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>pytest<span class="w"> </span>--evalcraft-record<span class="o">=</span>new
 </span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
 </span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Re-record all cassettes</span>
 </span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>pytest<span class="w"> </span>--evalcraft-record<span class="o">=</span>all
 </span></code></pre></div>
+<h3 id="-evalcraft-missing-what"><code>--evalcraft-missing WHAT</code><a class="headerlink" href="#-evalcraft-missing-what" title="Permanent link">&para;</a></h3>
+<p>What happens when a test's cassette file is missing in <code>none</code> mode:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fail</code></td>
+<td>The test fails. <strong>Default when the <code>CI</code> environment variable is set.</strong></td>
+</tr>
+<tr>
+<td><code>skip</code></td>
+<td>The test is skipped with a hint to record it. Default locally.</td>
+</tr>
+</tbody>
+</table>
+<p>Failing in CI stops a deleted recording from turning a red test into a skip,
+which would otherwise leave CI green. Pass <code>--evalcraft-missing=skip</code> if you
+genuinely want the old behaviour.</p>
 <hr />
 <h2 id="terminal-summary">Terminal summary<a class="headerlink" href="#terminal-summary" title="Permanent link">&para;</a></h2>
 <p>After each test run, Evalcraft appends a compact agent-run metrics table to the terminal output:</p>

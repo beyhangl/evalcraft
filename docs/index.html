@@ -1138,21 +1138,18 @@
 
 
 <h1 id="evalcraft">Evalcraft<a class="headerlink" href="#evalcraft" title="Permanent link">&para;</a></h1>
-<p><strong>Deterministic tests for AI agents — generated from one real run.</strong></p>
-<p>Capture an agent run and evalcraft writes a <strong>pytest</strong> that locks its tool calls, output shape, and cost — then replays it in CI for <strong>$0</strong>. Like VCR for HTTP, but it writes the agent tests for you.</p>
+<p><strong>Catch the agent that quietly stopped calling its tools — and the one that tripled your bill.</strong></p>
+<p>Agents rarely crash. They return <code>200 OK</code>, report "task completed", and skip the tool call that did the actual work. Evalcraft locks your agent's <strong>tool calls, arguments, output shape and cost budget</strong> as ordinary <strong>pytest</strong> assertions that run offline in CI for <strong>$0</strong> — no model call, no LLM judge, no flaky reruns.</p>
 <p><a href="https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg" /></a>
 <a href="https://pypi.org/project/evalcraft/"><img alt="PyPI" src="https://img.shields.io/pypi/v/evalcraft" /></a>
 <a href="https://pypi.org/project/evalcraft/"><img alt="Python" src="https://img.shields.io/pypi/pyversions/evalcraft" /></a>
 <a href="https://github.com/beyhangl/evalcraft/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/beyhangl/evalcraft" /></a></p>
 <hr />
 <h2 id="the-problem">The problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h2>
-<p>Agent testing is broken:</p>
-<ul>
-<li><strong>Expensive.</strong> Running 200 tests against GPT-4 costs real money. Every commit.</li>
-<li><strong>Non-deterministic.</strong> Tests fail randomly because LLMs aren't functions.</li>
-<li><strong>No CI/CD story.</strong> You can't gate deploys on eval results if evals take 10 minutes and cost $5.</li>
-</ul>
-<p>Evalcraft records agent runs as <strong>cassettes</strong> (like VCR for HTTP) and replays them deterministically — so the tests that exercise your agent's <em>plumbing</em> (tool wiring, control flow, output shape, cost/latency budgets) drop from 10 minutes + $5 to <strong>200ms + $0</strong>. For the questions that genuinely need a live model — quality, drift, LLM-judge, RAG — run <a href="user-guide/live-eval/">live-eval</a> on a schedule.</p>
+<p><strong>Agents fail silently.</strong> They return <code>200 OK</code>, report "task completed", and never call the tool that did the work. A crash is the good outcome — it's loud and it stops. The quiet ones sit there looking green.</p>
+<p><strong>Output-only evals miss it.</strong> If you score the final text, an agent that quietly stopped calling <code>lookup_order</code> still passes.</p>
+<p><strong>And the bill climbs.</strong> Judge-based evals on every commit cost real money, so the gate gets disabled.</p>
+<p>Evalcraft asserts the parts of an agent that <em>are</em> deterministic: which tools ran, in what order, with which arguments, what shape came back, whether it looped, and what it cost. Those assertions read a run you already recorded, so they execute in milliseconds for <strong>$0</strong> on every commit. For the questions that genuinely need a live model — quality, drift, LLM-judge, RAG — run <a href="user-guide/live-eval/">live-eval</a> on a schedule.</p>
 <hr />
 <h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>  Your Agent

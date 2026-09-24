@@ -1053,6 +1053,56 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#080-2026-09-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.8.0] — 2026-09-24
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.8.0] — 2026-09-24">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed-behaviour" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed (behaviour)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#070-2026-09-21" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1065,7 +1115,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -1115,7 +1165,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1143,7 +1193,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1171,7 +1221,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_2" class="md-nav__link">
+  <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1199,7 +1249,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fixed_1" class="md-nav__link">
+  <a href="#fixed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -1227,7 +1277,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_3" class="md-nav__link">
+  <a href="#added_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1255,7 +1305,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_4" class="md-nav__link">
+  <a href="#added_5" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1416,9 +1466,25 @@
 <p>The format follows <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a> and
 <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <hr />
+<h2 id="080-2026-09-24">[0.8.0] — 2026-09-24<a class="headerlink" href="#080-2026-09-24" title="Permanent link">&para;</a></h2>
+<h3 id="changed-behaviour">Changed (behaviour)<a class="headerlink" href="#changed-behaviour" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>A plain <code>pytest</code> never writes a cassette.</strong> Capture writes now follow <code>--evalcraft-record</code>: <code>none</code> (default) never writes, <code>new</code> writes only missing cassettes, <code>all</code> overwrites.</li>
+<li><strong>A missing cassette fails in CI</strong> instead of skipping, so deleting a recording can't leave CI green. <code>--evalcraft-missing=fail|skip</code> overrides. See <a href="../pytest-plugin/">pytest plugin</a>.</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The quickstart's <code>pytest --evalcraft</code> flag did not exist; the scaffold failed on its first run (<code>add_span</code> did not update metrics); its replay tests could never pass (mismatched cassette names); <code>init</code> aborted without a terminal. All fixed. <code>init</code> now ships a sample recording, so a fresh scaffold is fully green.</li>
+<li><code>check-stale</code> now treats Claude Opus 5.5 (always-on thinking) recordings without thinking blocks as CRITICAL.</li>
+</ul>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li>An Agent Skill inside the package (<code>uvx library-skills --claude --skill evalcraft</code>), <code>py.typed</code>, the <code>examples/silent_tool_failure.py</code> demo, <code>AGENTS.md</code> and <code>SECURITY.md</code>.</li>
+</ul>
+<hr />
 <h2 id="070-2026-09-21">[0.7.0] — 2026-09-21<a class="headerlink" href="#070-2026-09-21" title="Permanent link">&para;</a></h2>
 <p>Correctness and repositioning release. Existing cassettes are unaffected.</p>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Cache-aware cost.</strong> <code>TokenUsage</code> now segments prompt-cache tiers (<code>cache_read_tokens</code> / <code>cache_write_tokens</code>) and prices each separately. Billing cached input at the full rate overstated cache-heavy agent loops by up to an order of magnitude (~6x on a realistic 100k-context loop). <code>prompt_tokens</code> now consistently means <strong>fresh, uncached</strong> input across providers.</li>
 <li><strong>Opaque reasoning state.</strong> Anthropic extended-thinking blocks (signed <code>thinking</code> / <code>redacted_thinking</code>) are captured instead of dropped, and <code>check-stale</code> reports a CRITICAL <code>reasoning_state_missing</code> when a reasoning-model cassette lacks them — replaying those is invalid, not just lossy.</li>
@@ -1435,40 +1501,40 @@
 </ul>
 <hr />
 <h2 id="060-2026-06-16">[0.6.0] — 2026-06-16<a class="headerlink" href="#060-2026-06-16" title="Permanent link">&para;</a></h2>
-<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>assert_tool_trajectory(cassette, expected_tools, mode=...)</code></strong> — deterministic, <code>$0</code> tool-trajectory matching in four modes: <code>strict</code> (exact order), <code>unordered</code> (same multiset, any order), <code>subset</code> (no unexpected tools), <code>superset</code> (all required tools present). Complements <code>assert_tool_order</code>.</li>
 </ul>
 <hr />
 <h2 id="050-2026-06-16">[0.5.0] — 2026-06-16<a class="headerlink" href="#050-2026-06-16" title="Permanent link">&para;</a></h2>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Deterministic loop / repetition detection</strong> ($0, offline, no model call): <code>assert_no_loops</code> / <code>detect_loops</code> flag an agent stuck repeating the same tool call (same <code>tool_args</code>) or the same/near-duplicate step output; <code>assert_no_repeated_tool_calls</code> is the focused tool-only check. See <a href="../loop-detection/">Loop Detection</a>.</li>
 <li><code>generate-tests</code> auto-emits an <code>assert_no_loops</code> guard when the recorded baseline has tool calls and no loops of its own.</li>
 </ul>
 <hr />
 <h2 id="040-2026-06-16">[0.4.0] — 2026-06-16<a class="headerlink" href="#040-2026-06-16" title="Permanent link">&para;</a></h2>
-<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Deterministic structured-output &amp; tool-call-argument scorers</strong> ($0, offline, no model call): <code>assert_output_json</code>, <code>assert_output_json_schema</code> (dict / <code>.json</code> path / inline JSON / pydantic model; pure-stdlib subset validator that upgrades to full Draft 2020-12 when <code>jsonschema</code> is installed), <code>assert_output_has_keys</code>, <code>assert_output_field</code>, <code>assert_output_value_in</code>, <code>assert_output_value_in_range</code>, <code>assert_match_groups</code> (regex capture groups), and <code>assert_tool_args_match_schema</code> (validate recorded tool-call arguments against a schema). See <a href="../structured-output/">Structured Output</a>.</li>
 <li><code>generate-tests</code> auto-emits <code>assert_output_json</code> + <code>assert_output_has_keys</code> tests when a recorded output is JSON.</li>
 </ul>
 <hr />
 <h2 id="031-2026-06-16">[0.3.1] — 2026-06-16<a class="headerlink" href="#031-2026-06-16" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>README logo now renders on the PyPI project page (switched from a repo-relative image path to an absolute URL). No SDK or docs behavior changes.</li>
 </ul>
 <hr />
 <h2 id="030-2026-06-01">[0.3.0] — 2026-06-01<a class="headerlink" href="#030-2026-06-01" title="Permanent link">&para;</a></h2>
-<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
+<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>evalcraft check-stale</code> — detect cassettes recorded against a retired/swapped model (CRITICAL, non-zero exit for CI) or a drifted prompt (WARNING), by activating the provenance each cassette records. See <a href="../check-stale/">Check Stale</a>.</li>
 </ul>
 <hr />
 <h2 id="010-2026-03-05"><a href="https://github.com/beyhangl/evalcraft/releases/tag/v0.1.0">0.1.0</a> — 2026-03-05<a class="headerlink" href="#010-2026-03-05" title="Permanent link">&para;</a></h2>
 <p>Initial public release of Evalcraft — the pytest for AI agents.</p>
-<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
+<h3 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h3>
 <h4 id="core-data-model">Core data model<a class="headerlink" href="#core-data-model" title="Permanent link">&para;</a></h4>
 <ul>
 <li><strong><code>Span</code></strong> — atomic unit of capture, recording every LLM call, tool invocation, agent step, user input, and output with timing, token usage, and cost metadata</li>
