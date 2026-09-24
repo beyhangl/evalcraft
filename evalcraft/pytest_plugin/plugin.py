@@ -23,13 +23,20 @@ Markers:
 CLI options:
     --cassette-dir DIR       Where to store/load cassettes (default: tests/cassettes)
     --evalcraft-record MODE  none | new | all  (default: none)
-                             none — replay-only; skip if cassette missing
+                             none — replay-only; never writes a cassette
                              new  — record cassettes that don't exist yet
                              all  — always re-record (overwrite existing)
+    --evalcraft-missing WHAT fail | skip  (default: fail when the CI
+                             environment variable is set, skip otherwise)
+
+A plain ``pytest`` run never modifies committed cassettes: writing requires
+``--evalcraft-record=new`` or ``all``. In CI a missing cassette fails rather
+than skips, so deleting a recording cannot quietly turn a red test into a skip.
 """
 
 from __future__ import annotations
 
+import os
 from collections.abc import Generator
 from pathlib import Path
 from typing import Any
@@ -93,6 +100,17 @@ def pytest_addoption(parser: pytest.Parser) -> None:
             "all=always re-record"
         ),
     )
+    group.addoption(
+        "--evalcraft-missing",
+        default=None,
+        dest="evalcraft_missing",
+        choices=["fail", "skip"],
+        metavar="WHAT",
+        help=(
+            "What to do when a cassette is missing in replay-only mode: "
+            "fail or skip (default: fail if the CI env var is set, else skip)"
+        ),
+    )
 
 
 # ─────────────────────────────────────────────────────
@@ -150,7 +168,9 @@ def capture_context(request: pytest.FixtureRequest) -> Generator[CaptureContext,
 
         if marker.kwargs.get("save", True):
             cassette_dir: Path = request.getfixturevalue("evalcraft_cassette_dir")
-            save_path = cassette_dir / f"{_safe_filename(name)}.json"
+            candidate = cassette_dir / f"{_safe_filename(name)}.json"
+            if _may_write_cassette(request.config, candidate):
+                save_path = candidate
 
     ctx = CaptureContext(
         name=name,
@@ -332,6 +352,29 @@ def pytest_terminal_summary(
 # ─────────────────────────────────────────────────────
 
 
+def _may_write_cassette(config: pytest.Config, path: Path) -> bool:
+    """Whether the active record mode allows writing ``path``.
+
+    ``none`` never writes, so an ordinary test run cannot rewrite a committed
+    cassette. ``new`` writes only cassettes that do not exist yet. ``all``
+    overwrites.
+    """
+    mode: str = config.getoption("evalcraft_record", default="none")
+    if mode == "all":
+        return True
+    if mode == "new":
+        return not path.exists()
+    return False
+
+
+def _missing_is_failure(config: pytest.Config) -> bool:
+    """Whether a missing cassette should fail the test instead of skipping it."""
+    choice: str | None = config.getoption("evalcraft_missing", default=None)
+    if choice is not None:
+        return choice == "fail"
+    return os.environ.get("CI", "").strip().lower() not in ("", "0", "false", "no")
+
+
 def _safe_filename(name: str) -> str:
     """Convert a test name / marker argument into a safe filesystem name."""
     for ch in r"""/\ []():;,"'""":
@@ -365,10 +408,14 @@ def _load_cassette_from_marker(request: pytest.FixtureRequest) -> Cassette | Non
     if not path.exists():
         record_mode: str = request.config.getoption("evalcraft_record", default="none")
         if record_mode == "none":
-            pytest.skip(
+            message = (
                 f"Cassette not found: {path}  "
                 f"(run with --evalcraft-record=new to record it)"
             )
+            if _missing_is_failure(request.config):
+                pytest.fail(message + "  [missing cassettes fail in CI; "
+                            "pass --evalcraft-missing=skip to allow]", pytrace=False)
+            pytest.skip(message)
         # For "new" / "all" modes the caller is responsible for live execution;
         # returning None signals "no recorded cassette available".
         return None

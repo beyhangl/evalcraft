@@ -14,12 +14,45 @@
 ## Get Started in 60 Seconds
 
 ```bash
-pip install evalcraft
-evalcraft init                # scaffolds tests/cassettes/ and a sample test
-pytest --evalcraft            # run with recording
+pip install "evalcraft[pytest]"
+evalcraft init --framework generic   # scaffolds tests/ with a runnable sample suite
+pytest                               # green, offline, no API key
 ```
 
-That's it. Your first cassette is recorded, committed to git, and replays for free on every future run. See the [5-minute quickstart](https://beyhangl.github.io/evalcraft/docs/user-guide/quickstart/) for the full walkthrough.
+That's it. Swap `generic` for `openai`, `anthropic`, `langgraph` or `crewai` to scaffold for your framework, and add `--evalcraft-record=new` to record real cassettes from a live run. See the [5-minute quickstart](https://beyhangl.github.io/evalcraft/docs/user-guide/quickstart/) for the full walkthrough.
+
+---
+
+## What it catches
+
+A model swap. The agent still answers "shipped" and the run still succeeds, but
+it stopped calling `lookup_order` and the bill tripled. An eval that scores the
+final text passes. These don't ([runnable example](examples/silent_tool_failure.py),
+no API key needed):
+
+```text
+$ python examples/silent_tool_failure.py
+After the model swap
+  [PASS] assert_output_contains('shipped')
+  [FAIL] assert_tool_called(lookup_order)  -> Tool 'lookup_order' was never called. Called tools: []
+  [FAIL] assert_tool_args_match_schema(lookup_order)  -> Tool 'lookup_order' was never called. Called: []
+  [FAIL] assert_cost_under($0.002)  -> Cost $0.0036 exceeds limit $0.0020
+```
+
+### Using a coding agent?
+
+evalcraft ships an [Agent Skill](https://agentskills.io) inside the package, so
+Claude Code, Codex, Cursor and other agents can write evalcraft tests correctly.
+After installing evalcraft in your project:
+
+```bash
+uvx library-skills --claude --skill evalcraft
+```
+
+This links the skill into `.agents/skills/` and `.claude/skills/`; it updates
+when evalcraft does. Agents don't always load skills on their own, so it helps
+to add one line to your project's `AGENTS.md`: *"For agent tests, use the
+evalcraft skill."*
 
 ---
 

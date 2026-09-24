@@ -5,6 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] — 2026-09-24
+
+The first run works, and a test run can no longer quietly rewrite its own
+baseline. Most changes here came from running the published quickstart in a
+clean environment and from how comparable open source test tools handle
+recorded fixtures.
+
+### Changed (behaviour)
+- **A plain `pytest` never writes a cassette.** `@pytest.mark.evalcraft_capture`
+  used to write its cassette on every run, whatever the record mode, so the
+  documented "replay-only" default silently overwrote committed recordings.
+  Writes now follow `--evalcraft-record`: `none` (default) never writes, `new`
+  writes only cassettes that don't exist yet and never touches existing ones,
+  `all` overwrites. To record, pass `--evalcraft-record=new`.
+- **A missing cassette fails in CI.** In replay-only mode a missing cassette
+  used to skip the test, so deleting a recording turned a red test into a skip
+  and left CI green. When the `CI` environment variable is set it now fails.
+  Locally it still skips with a hint. New `--evalcraft-missing=fail|skip`
+  overrides either default.
+
+### Fixed
+- **The quickstart's first commands were broken.** The README told new users to
+  run `pytest --evalcraft`, a flag that does not exist. It now shows
+  `evalcraft init --framework generic` then `pytest`.
+- **The scaffold `evalcraft init` generates failed on its first run.**
+  `Cassette.add_span` promised to update metrics but did not, so counters like
+  `llm_call_count` read 0 until the capture finished. It now updates them as
+  spans arrive, sharing one code path with `compute_metrics()`.
+- **The scaffold's replay tests could never pass.** In every framework template
+  they loaded a cassette under a different name from the one the capture test
+  saved. `init` now writes a small, deterministic sample recording, so record,
+  replay and assert all go green on the first run, locally and in CI, with
+  nothing skipped.
+- **`evalcraft init` aborted without a terminal.** In CI or under a coding
+  agent it now uses the default framework instead of aborting. Piped answers
+  and real terminals still prompt.
+- **Claude Opus 5.5 recordings are now checked for reasoning state.** Opus 5.5
+  (released 2026-09-22) thinks on every turn, so a recording without its
+  thinking blocks cannot be replayed faithfully. `check-stale` now reports that
+  as CRITICAL. Claude 4.x stays excluded, because thinking is optional there.
+
+### Added
+- **An Agent Skill ships inside the package** at
+  `evalcraft/.agents/skills/evalcraft/`, so coding agents can write evalcraft
+  tests correctly. Install it with
+  `uvx library-skills --claude --skill evalcraft`. It tells agents never to edit
+  or re-record a cassette to make a failing test pass.
+- `py.typed`, so type checkers use evalcraft's annotations, plus the
+  `Framework :: Pytest` and `Typing :: Typed` classifiers.
+- `examples/silent_tool_failure.py`, a runnable, no-API-key demo of an output-only
+  eval passing a regression that the tool-call and cost assertions catch.
+- `AGENTS.md` for agents working on the repo, and `SECURITY.md`.
+
+### Tests
+- The quickstart path, every framework scaffold (local and CI mode, zero
+  skips), every example, the README's quoted output and every name the Agent
+  Skill mentions are now all tested, so none of them can drift out of date
+  unnoticed.
+
 ## [0.7.0] — 2026-09-21
 
 Correctness and repositioning release. Two recorded values were wrong for modern

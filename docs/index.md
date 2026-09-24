@@ -1,8 +1,8 @@
 # Evalcraft
 
-**Deterministic tests for AI agents — generated from one real run.**
+**Catch the agent that quietly stopped calling its tools — and the one that tripled your bill.**
 
-Capture an agent run and evalcraft writes a **pytest** that locks its tool calls, output shape, and cost — then replays it in CI for **$0**. Like VCR for HTTP, but it writes the agent tests for you.
+Agents rarely crash. They return `200 OK`, report "task completed", and skip the tool call that did the actual work. Evalcraft locks your agent's **tool calls, arguments, output shape and cost budget** as ordinary **pytest** assertions that run offline in CI for **$0** — no model call, no LLM judge, no flaky reruns.
 
 [![CI](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml/badge.svg)](https://github.com/beyhangl/evalcraft/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/evalcraft)](https://pypi.org/project/evalcraft/)
@@ -13,13 +13,13 @@ Capture an agent run and evalcraft writes a **pytest** that locks its tool calls
 
 ## The problem
 
-Agent testing is broken:
+**Agents fail silently.** They return `200 OK`, report "task completed", and never call the tool that did the work. A crash is the good outcome — it's loud and it stops. The quiet ones sit there looking green.
 
-- **Expensive.** Running 200 tests against GPT-4 costs real money. Every commit.
-- **Non-deterministic.** Tests fail randomly because LLMs aren't functions.
-- **No CI/CD story.** You can't gate deploys on eval results if evals take 10 minutes and cost $5.
+**Output-only evals miss it.** If you score the final text, an agent that quietly stopped calling `lookup_order` still passes.
 
-Evalcraft records agent runs as **cassettes** (like VCR for HTTP) and replays them deterministically — so the tests that exercise your agent's *plumbing* (tool wiring, control flow, output shape, cost/latency budgets) drop from 10 minutes + $5 to **200ms + $0**. For the questions that genuinely need a live model — quality, drift, LLM-judge, RAG — run [live-eval](user-guide/live-eval.md) on a schedule.
+**And the bill climbs.** Judge-based evals on every commit cost real money, so the gate gets disabled.
+
+Evalcraft asserts the parts of an agent that *are* deterministic: which tools ran, in what order, with which arguments, what shape came back, whether it looped, and what it cost. Those assertions read a run you already recorded, so they execute in milliseconds for **$0** on every commit. For the questions that genuinely need a live model — quality, drift, LLM-judge, RAG — run [live-eval](user-guide/live-eval.md) on a schedule.
 
 ---
 

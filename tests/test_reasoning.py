@@ -174,3 +174,20 @@ class TestAnthropicCapture:
         bad = MagicMock()
         bad.content = None
         assert _extract_reasoning_blocks(bad) == []
+
+
+class TestAlwaysThinkingModels:
+    """Models that think on every turn: a recording without the blocks is degraded."""
+
+    @pytest.mark.parametrize("model", ["claude-opus-5-5", "claude-opus-5-5-20260922"])
+    def test_opus_5_5_is_recognised(self, model):
+        assert is_reasoning_model(model)
+
+    @pytest.mark.parametrize("model", ["claude-opus-4-1-20250805", "claude-sonnet-4-5"])
+    def test_opt_in_thinking_models_are_not_flagged(self, model):
+        # Thinking is optional on Claude 4.x, so its absence proves nothing.
+        assert not is_reasoning_model(model)
+
+    def test_opus_5_5_cassette_without_thinking_is_critical(self):
+        report = StalenessChecker().check(_cassette(_llm_span("claude-opus-5-5")))
+        assert report.has_critical

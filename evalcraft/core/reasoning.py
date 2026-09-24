@@ -32,6 +32,11 @@ REASONING_MODEL_MARKERS: tuple[str, ...] = (
     "gpt-5",                       # GPT-5 family (reasoning-capable)
     "thinking",                    # explicit extended-thinking variants
     "reasoner",                    # DeepSeek-style naming
+    # Claude Opus 5.5 (2026-09-22) thinks on every turn and cannot disable it,
+    # so a recording without its thinking blocks is always degraded. Claude 4.x
+    # is deliberately NOT listed: thinking is opt-in there, so its absence is
+    # not evidence of a lossy recording and flagging it would be a false alarm.
+    "claude-opus-5-5",
 )
 
 

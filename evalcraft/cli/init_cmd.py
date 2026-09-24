@@ -121,6 +121,13 @@ def scaffold_project(
     cassettes_key = str((cassettes_dir / ".gitkeep").relative_to(project_dir))
     results[cassettes_key] = True
 
+    # 2b. a sample recording, so the replay tests pass on the very first run
+    sample_name, sample_json = _sample_cassette_json(framework)
+    sample_path = cassettes_dir / sample_name
+    results[str(sample_path.relative_to(project_dir))] = _write_file(
+        sample_path, sample_json, overwrite=overwrite
+    )
+
     # 3. evalcraft.toml
     toml_template = _load_template("evalcraft.toml")
     toml_content = _render_template(toml_template, tests_dir_rel, framework)
@@ -141,6 +148,54 @@ def scaffold_project(
 
 
 # ─── CLI entry-point (called from main.py) ────────────────────────────────────
+
+
+# Sample recordings shipped by ``init`` so the scaffold's replay tests have a
+# real cassette to read on the first run. Keys match each template's
+# ``@pytest.mark.evalcraft_cassette`` path; tools match what those tests assert.
+_SAMPLE_CASSETTES: dict[str, tuple[str, list[str], str]] = {
+    "generic": ("my_run.json", ["lookup"], "Order 4521 has shipped."),
+    "openai": ("openai_weather.json", ["get_weather"], "It is 18C and cloudy in Paris."),
+    "anthropic": ("anthropic_search.json", ["web_search"], "Here is what I found."),
+    "langgraph": ("langgraph_search.json", ["tavily_search"], "Here is what I found."),
+    "crewai": ("crewai_research.json", ["web_search", "file_write"], "Report written."),
+}
+
+
+def _sample_cassette_json(framework: str) -> tuple[str, str]:
+    """Build the deterministic sample cassette for ``framework``.
+
+    Fixed ids and timestamps keep it byte-identical across runs, and the model
+    name is deliberately generic so ``check-stale`` never flags the sample as a
+    reasoning model with missing reasoning state.
+    """
+    import json
+
+    from evalcraft.core.models import Cassette, Span, SpanKind, TokenUsage
+
+    filename, tools, output = _SAMPLE_CASSETTES[framework]
+    c = Cassette(
+        id="sample-" + framework, name=filename.removesuffix(".json"),
+        created_at=0.0, agent_name=f"{framework}_example", framework=framework,
+        metadata={"sample": True, "note": (
+            "Example recording written by `evalcraft init`. Replace it by "
+            "recording your own agent: pytest --evalcraft-record=new"
+        )},
+    )
+    c.input_text = "Example request"
+    for i, tool in enumerate(tools):
+        c.add_span(Span(id=f"tool-{i}", kind=SpanKind.TOOL_CALL, name=f"tool:{tool}",
+                        timestamp=0.0, tool_name=tool, tool_args={"query": "example"},
+                        tool_result={"ok": True}))
+    c.add_span(Span(id="llm-0", kind=SpanKind.LLM_RESPONSE, name="llm:example-model",
+                    timestamp=0.0, model="example-model", input="Example request",
+                    output=output, cost_usd=0.0001,
+                    token_usage=TokenUsage(prompt_tokens=20, completion_tokens=10,
+                                           total_tokens=30)))
+    c.output_text = output
+    c.compute_fingerprint()
+    return filename, json.dumps(c.to_dict(), indent=2, sort_keys=True) + "\n"
+
 
 def run_init(
     framework: str | None,
@@ -164,11 +219,19 @@ def run_init(
             click.echo(f"  {click.style(str(i), bold=True, fg='cyan')}.  {label}")
 
         click.echo()
-        raw = click.prompt(
-            "  Select",
-            default="5",
-            show_default=True,
-        ).strip()
+        try:
+            raw = click.prompt(
+                "  Select",
+                default="5",
+                show_default=True,
+            ).strip()
+        except click.exceptions.Abort:
+            # stdin closed with no answer (CI, a coding agent, `< /dev/null`):
+            # nobody can answer the prompt, so take the default rather than
+            # aborting. Piped answers and real terminals still prompt normally.
+            raw = "5"
+            click.echo("\n  No input available — using the generic scaffold "
+                       "(pass --framework to choose).")
 
         # Accept a numeric choice (1-5) or the framework name directly
         if raw.isdigit():

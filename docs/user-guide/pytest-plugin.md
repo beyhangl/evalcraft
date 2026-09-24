@@ -25,7 +25,7 @@ def test_agent(capture_context, mock_llm):
     assert capture_context.cassette.llm_call_count == 1
 ```
 
-When combined with `@pytest.mark.evalcraft_capture(save=True)` (the default), the cassette is written to disk in `evalcraft_cassette_dir` after the test finishes — even on failure.
+When combined with `@pytest.mark.evalcraft_capture(save=True)` (the default), the cassette is written to `evalcraft_cassette_dir` after the test finishes — **but only if the record mode allows it** (see [`--evalcraft-record`](#-evalcraft-record-mode)). A plain `pytest` run never writes or overwrites a cassette.
 
 ```python
 @pytest.mark.evalcraft_capture(name="math_agent_test")
@@ -83,7 +83,7 @@ def test_multi_tool(mock_tool, capture_context):
 
 ### `cassette`
 
-Load a `Cassette` from the path given in `@pytest.mark.evalcraft_cassette`. Skips the test if the cassette file is not found (in `none` record mode).
+Load a `Cassette` from the path given in `@pytest.mark.evalcraft_cassette`. If the file is missing in `none` record mode, the test **fails in CI** and is skipped locally (see [`--evalcraft-missing`](#-evalcraft-missing-what)).
 
 ```python
 @pytest.mark.evalcraft_cassette("tests/cassettes/search_agent.json")
@@ -208,9 +208,13 @@ Control cassette recording behavior:
 
 | Mode | Behavior |
 |------|----------|
-| `none` (default) | Replay-only. Skip test if cassette is missing. |
-| `new` | Record cassettes that don't exist yet. |
+| `none` (default) | Replay-only. **Never writes a cassette.** A missing cassette fails in CI, skips locally. |
+| `new` | Record cassettes that don't exist yet. Existing cassettes are never modified. |
 | `all` | Always re-record (overwrite existing cassettes). |
+
+Because the default never writes, running the suite cannot quietly change a
+committed recording. Re-recording is always an explicit decision, and the
+result shows up in the diff for review.
 
 ```bash
 # Record new cassettes for tests that don't have one yet
@@ -219,6 +223,19 @@ pytest --evalcraft-record=new
 # Re-record all cassettes
 pytest --evalcraft-record=all
 ```
+
+### `--evalcraft-missing WHAT`
+
+What happens when a test's cassette file is missing in `none` mode:
+
+| Value | Behavior |
+|-------|----------|
+| `fail` | The test fails. **Default when the `CI` environment variable is set.** |
+| `skip` | The test is skipped with a hint to record it. Default locally. |
+
+Failing in CI stops a deleted recording from turning a red test into a skip,
+which would otherwise leave CI green. Pass `--evalcraft-missing=skip` if you
+genuinely want the old behaviour.
 
 ---
 

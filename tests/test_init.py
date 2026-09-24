@@ -36,8 +36,8 @@ def _run_init(runner: CliRunner, args: list[str]) -> object:
 class TestScaffoldProject:
     """Unit tests for scaffold_project() without invoking the CLI."""
 
-    def test_creates_all_four_artifacts(self, tmp_path):
-        """scaffold_project creates test file, cassettes dir, toml, conftest."""
+    def test_creates_all_artifacts(self, tmp_path):
+        """scaffold_project creates test file, cassettes dir + sample, toml, conftest."""
         results = scaffold_project(
             framework="generic",
             tests_dir=Path("tests"),
@@ -47,10 +47,28 @@ class TestScaffoldProject:
         expected_keys = {
             "tests/test_agent.py",
             "tests/cassettes/.gitkeep",
+            "tests/cassettes/my_run.json",
             "evalcraft.toml",
             "conftest.py",
         }
         assert set(results.keys()) == expected_keys
+
+    def test_sample_cassette_is_a_valid_deterministic_recording(self, tmp_path):
+        """The shipped sample loads, satisfies the replay tests, and never flags."""
+        from evalcraft.core.models import Cassette
+        from evalcraft.staleness import StalenessChecker
+
+        scaffold_project(framework="generic", tests_dir=Path("tests"), project_dir=tmp_path)
+        path = tmp_path / "tests" / "cassettes" / "my_run.json"
+        c = Cassette.load(path)
+        assert "lookup" in c.get_tool_sequence()
+        assert c.output_text
+        assert c.metadata.get("sample") is True
+        assert not StalenessChecker().check(c).has_critical
+        first = path.read_text()
+        scaffold_project(framework="generic", tests_dir=Path("tests"),
+                         project_dir=tmp_path, overwrite=True)
+        assert path.read_text() == first  # byte-identical: no churn on re-init
 
     def test_all_files_written_first_run(self, tmp_path):
         """All results are True (written) on a fresh project directory."""

@@ -7,6 +7,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
+## [0.8.0] — 2026-09-24
+
+### Changed (behaviour)
+- **A plain `pytest` never writes a cassette.** Capture writes now follow `--evalcraft-record`: `none` (default) never writes, `new` writes only missing cassettes, `all` overwrites.
+- **A missing cassette fails in CI** instead of skipping, so deleting a recording can't leave CI green. `--evalcraft-missing=fail|skip` overrides. See [pytest plugin](pytest-plugin.md).
+
+### Fixed
+- The quickstart's `pytest --evalcraft` flag did not exist; the scaffold failed on its first run (`add_span` did not update metrics); its replay tests could never pass (mismatched cassette names); `init` aborted without a terminal. All fixed. `init` now ships a sample recording, so a fresh scaffold is fully green.
+- `check-stale` now treats Claude Opus 5.5 (always-on thinking) recordings without thinking blocks as CRITICAL.
+
+### Added
+- An Agent Skill inside the package (`uvx library-skills --claude --skill evalcraft`), `py.typed`, the `examples/silent_tool_failure.py` demo, `AGENTS.md` and `SECURITY.md`.
+
+---
+
 ## [0.7.0] — 2026-09-21
 
 Correctness and repositioning release. Existing cassettes are unaffected.

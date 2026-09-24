@@ -294,19 +294,28 @@ class Cassette:
         self.tool_call_count = 0
 
         for span in self.spans:
-            self.total_duration_ms += span.duration_ms
-            if span.token_usage:
-                self.total_tokens += span.token_usage.total_tokens
-            if span.cost_usd:
-                self.total_cost_usd += span.cost_usd
-            if span.kind in (SpanKind.LLM_REQUEST, SpanKind.LLM_RESPONSE):
-                self.llm_call_count += 1
-            if span.kind == SpanKind.TOOL_CALL:
-                self.tool_call_count += 1
+            self._accumulate(span)
+
+    def _accumulate(self, span: Span) -> None:
+        """Fold one span into the aggregate metrics."""
+        self.total_duration_ms += span.duration_ms
+        if span.token_usage:
+            self.total_tokens += span.token_usage.total_tokens
+        if span.cost_usd:
+            self.total_cost_usd += span.cost_usd
+        if span.kind in (SpanKind.LLM_REQUEST, SpanKind.LLM_RESPONSE):
+            self.llm_call_count += 1
+        if span.kind == SpanKind.TOOL_CALL:
+            self.tool_call_count += 1
 
     def add_span(self, span: Span) -> None:
-        """Add a span and recompute metrics."""
+        """Add a span and update the aggregate metrics.
+
+        Metrics are updated incrementally so they are correct while a capture is
+        still in progress, not only after :meth:`compute_metrics` runs at exit.
+        """
         self.spans.append(span)
+        self._accumulate(span)
 
     def get_tool_calls(self) -> list[Span]:
         """Get all tool call spans."""
@@ -324,7 +333,7 @@ class Cassette:
         self.compute_metrics()
         self.compute_fingerprint()
         return {
-            "evalcraft_version": "0.7.0",
+            "evalcraft_version": "0.8.0",
             "cassette": {
                 "id": self.id,
                 "name": self.name,

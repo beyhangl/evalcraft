@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "evalcraft"
-version = "0.7.0"
+version = "0.8.0"
 description = "Deterministic $0 pytest assertions for AI agents — lock tool calls, arguments, output shape, loops and cost budgets in CI."
 readme = "README.md"
 license = "MIT"
@@ -23,6 +23,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Framework :: Pytest",
+    "Typing :: Typed",
     "Topic :: Software Development :: Testing",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
