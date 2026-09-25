@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#check-stale-catch-cassettes-recorded-against-a-retired-model" class="md-skip">
+        <a href="#check-stale-catch-recordings-that-no-longer-mirror-what-you-ship" class="md-skip">
           Skip to content
         </a>
       
@@ -693,6 +693,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tool-definitions-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tool definitions (--tools)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-time-values-in-a-recording" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run-time values in a recording
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model aliases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#wire-it-into-ci" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1151,7 +1184,7 @@
   
 
 
-<h1 id="check-stale-catch-cassettes-recorded-against-a-retired-model">Check Stale — catch cassettes recorded against a retired model<a class="headerlink" href="#check-stale-catch-cassettes-recorded-against-a-retired-model" title="Permanent link">&para;</a></h1>
+<h1 id="check-stale-catch-recordings-that-no-longer-mirror-what-you-ship">Check Stale — catch recordings that no longer mirror what you ship<a class="headerlink" href="#check-stale-catch-recordings-that-no-longer-mirror-what-you-ship" title="Permanent link">&para;</a></h1>
 <p>A replayed cassette is a <em>deterministic</em> test: it passes as long as the recording
 is unchanged. But that's exactly the trap — a green replay says nothing about
 whether the recording still mirrors reality. In 2026, models get <strong>hard
@@ -1187,6 +1220,12 @@ into a CI gate.</p>
 </thead>
 <tbody>
 <tr>
+<td><code>reasoning_state_missing</code></td>
+<td><strong>CRITICAL</strong></td>
+<td>Spans from a reasoning model carry no signed reasoning block, so replaying them is invalid.</td>
+<td><strong>Yes (exit 1)</strong></td>
+</tr>
+<tr>
 <td><code>model_retired</code></td>
 <td><strong>CRITICAL</strong></td>
 <td>A recorded model is absent from the current <code>--models</code> set (retired or swapped) — the cassette may now exercise an API that errors live.</td>
@@ -1196,6 +1235,30 @@ into a CI gate.</p>
 <td><code>prompt_drift</code></td>
 <td>WARNING</td>
 <td>The current prompt hash (<code>--prompts</code>) differs from the recorded one — still replays, but no longer mirrors the live prompt.</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>tool_drift</code></td>
+<td>WARNING</td>
+<td>A tool definition differs from <code>--tools</code>: added, removed, description changed, or parameters changed. The sharpest case is parameters that changed while the description did not.</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>volatile_content</code></td>
+<td>WARNING</td>
+<td>A UUID, timestamp or temp path generated at run time was recorded in what the agent sent. Always checked.</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>model_alias_moved</code></td>
+<td>WARNING</td>
+<td>Across the cassettes you pass, the same requested model id was served by different snapshots. Always checked.</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>floating_model_alias</code></td>
+<td>INFO</td>
+<td>The recording asked for a floating alias (<code>gpt-4o</code>, <code>*-latest</code>) rather than a pinned snapshot.</td>
 <td>No</td>
 </tr>
 <tr>
@@ -1210,10 +1273,17 @@ into a CI gate.</p>
 <td>A legacy / hand-built cassette with no provenance — re-record to enable checks.</td>
 <td>No</td>
 </tr>
+<tr>
+<td><code>no_tool_definitions</code></td>
+<td>INFO</td>
+<td><code>--tools</code> was given but the cassette predates tool recording (0.9).</td>
+<td>No</td>
+</tr>
 </tbody>
 </table>
-<p>Only a <strong>retired model</strong> blocks the build — it's the one signal that means "your
-deterministic test is lying." Prompt drift and age are visible but non-blocking.</p>
+<p>Only a <strong>retired model</strong> or <strong>missing reasoning state</strong> blocks the build. Those
+are the signals that mean "your deterministic test is lying." Everything else is
+visible but non-blocking.</p>
 <h2 id="flags">Flags<a class="headerlink" href="#flags" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1232,17 +1302,26 @@ deterministic test is lying." Prompt drift and age are visible but non-blocking.
 <td>A file of your current prompts; its hash is compared to the recorded <code>prompt_hash</code>. Omit to skip.</td>
 </tr>
 <tr>
+<td><code>--tools &lt;file&gt;</code></td>
+<td>The tool definitions your code ships today, as JSON. Each difference from the recorded definitions → WARNING. Omit to skip.</td>
+</tr>
+<tr>
 <td><code>--max-age-days N</code></td>
 <td>Recorded-at age over <code>N</code> days → INFO. Defaults to <code>30</code> if no other check is given.</td>
 </tr>
 <tr>
 <td><code>--json</code></td>
-<td>Emit <code>{"cassettes": [report, ...]}</code> (severity strings <code>CRITICAL</code>/<code>WARNING</code>/<code>INFO</code>). Still exits 1 on any CRITICAL.</td>
+<td>Emit <code>{"cassettes": [report, ...], "across_cassettes": [finding, ...]}</code> (severity strings <code>CRITICAL</code>/<code>WARNING</code>/<code>INFO</code>). Still exits 1 on any CRITICAL.</td>
 </tr>
 </tbody>
 </table>
 <p>Matching is <strong>exact and case-sensitive</strong> — a swap from <code>gpt-5.1</code> to <code>gpt-5.1-mini</code>
-<em>should</em> fire. No fuzzy family matching.</p>
+<em>should</em> fire. No fuzzy family matching. Cassettes recorded with 0.9 or later
+are judged on the model id the code <em>asked for</em>. When it asked for an alias you
+still list (<code>--models gpt-4o</code>) and the provider served a dated snapshot, nothing
+is retired, and the <code>floating_model_alias</code> note covers it. Listing the snapshot
+itself works too. Older cassettes only know the served model and keep exact
+matching.</p>
 <h3 id="-prompts-file-shape"><code>--prompts</code> file shape<a class="headerlink" href="#-prompts-file-shape" title="Permanent link">&para;</a></h3>
 <p>The hash basis is identical to what was recorded at capture time, so a file that
 reproduces the prompts matches byte-for-byte. Accepted shapes:</p>
@@ -1254,24 +1333,71 @@ reproduces the prompts matches byte-for-byte. Accepted shapes:</p>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>// 3. anything else → treated as input_text
 </span></code></pre></div>
+<h2 id="tool-definitions-tools">Tool definitions (<code>--tools</code>)<a class="headerlink" href="#tool-definitions-tools" title="Permanent link">&para;</a></h2>
+<p>The model chooses a tool from its name and description. Change the parameters
+and forget the description, and the model keeps calling the tool the old way.
+Since 0.9 the OpenAI and Anthropic adapters record each tool's name, description
+and a short hash of its parameter schema. <code>--tools</code> diffs them against what your
+code ships now:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import json, myagent; print(json.dumps(myagent.TOOLS))&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>tools.json
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>evalcraft<span class="w"> </span>check-stale<span class="w"> </span>tests/cassettes/*.json<span class="w"> </span>--tools<span class="w"> </span>tools.json
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>  WARNING   [tool_drift] tool &#39;search&#39; parameters changed but its description did not;
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>            the model may keep calling it the old way
+</span></code></pre></div>
+<p>The file holds a list of tool definitions in OpenAI (<code>{"type": "function",
+"function": {...}}</code>), OpenAI Responses (flat), Anthropic (<code>input_schema</code>) or MCP
+(<code>inputSchema</code>) format, or an object with a <code>tools</code> list, so a saved request body
+works as is. Everything besides the name and description counts as the schema,
+including <code>strict</code> and a hosted tool's version. Only the OpenAI and Anthropic
+adapters record tool definitions today.</p>
+<h2 id="run-time-values-in-a-recording">Run-time values in a recording<a class="headerlink" href="#run-time-values-in-a-recording" title="Permanent link">&para;</a></h2>
+<p>If the agent sends something generated fresh on every run, such as a request id,
+the current time or a temporary path, the recording can't match a rerun. Mocks
+generated with <code>evalcraft mock</code> key on the prompt, so they miss, and every
+re-record churns the diff. <code>check-stale</code> scans what the agent <em>sent</em> (LLM inputs
+and tool arguments, never outputs) for UUIDs, timestamps with a time of day and
+temp paths, and warns. Content that was only passed along is skipped: tool
+results and earlier assistant turns fed back into a prompt, and any value that
+also shows up in a recorded output. An order id a tool returned is replayed data,
+not a leak.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>  WARNING   [volatile_content] Run-time values were recorded in what the agent sent:
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>            timestamp &#39;2026-09-24T17:12:03Z&#39; (llm input #1). ...
+</span></code></pre></div>
+<p>The fix is in the agent's test setup: inject a fixed clock, id factory or
+directory. A bare date or a long number is never flagged, since those are
+usually real content. The patterns are heuristics, so a fixed timestamp typed
+into a prompt by hand will still be reported.</p>
+<h2 id="model-aliases">Model aliases<a class="headerlink" href="#model-aliases" title="Permanent link">&para;</a></h2>
+<p>Asking for <code>gpt-4o</code> gets you whichever snapshot the alias points at today. Since
+0.9 the adapters record the id you asked for when the provider served a
+different one. Each such recording gets an INFO <code>floating_model_alias</code>. When the
+cassettes you check together (or a single cassette) show one id served by
+different snapshots, you get a
+WARNING <code>model_alias_moved</code> under "across cassettes": the model behind an
+unchanged id changed between those recordings.</p>
 <h2 id="wire-it-into-ci">Wire it into CI<a class="headerlink" href="#wire-it-into-ci" title="Permanent link">&para;</a></h2>
 <p>Add it as a fast, deterministic gate next to your other checks — no API key, no
 network:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fail if any cassette was recorded against a retired model</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">evalcraft check-stale tests/cassettes/*.json --models &quot;${{ vars.CURRENT_MODELS }}&quot;</span>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fail if any cassette was recorded against a retired model</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">evalcraft check-stale tests/cassettes/*.json --models &quot;${{ vars.CURRENT_MODELS }}&quot;</span>
 </span></code></pre></div>
 <p>When a model is retired, the gate goes red — <strong>re-record the affected cassettes</strong>
 (which refreshes their provenance), review the new behavior, and commit.</p>
 <h2 id="python-api">Python API<a class="headerlink" href="#python-api" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">StalenessChecker</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span> <span class="nn">evalcraft.core.models</span> <span class="kn">import</span> <span class="n">Cassette</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">report</span> <span class="o">=</span> <span class="n">StalenessChecker</span><span class="p">(</span><span class="n">max_age_days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">Cassette</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/refund_flow.json&quot;</span><span class="p">),</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">current_models</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gpt-5.1&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-sonnet-4-5&quot;</span><span class="p">],</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">)</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">assert</span> <span class="ow">not</span> <span class="n">report</span><span class="o">.</span><span class="n">has_critical</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span> <span class="nn">evalcraft</span> <span class="kn">import</span> <span class="n">StalenessChecker</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span> <span class="nn">evalcraft.core.models</span> <span class="kn">import</span> <span class="n">Cassette</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">report</span> <span class="o">=</span> <span class="n">StalenessChecker</span><span class="p">(</span><span class="n">max_age_days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">Cassette</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/refund_flow.json&quot;</span><span class="p">),</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">current_models</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gpt-5.1&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-sonnet-4-5&quot;</span><span class="p">],</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="n">current_tools</span><span class="o">=</span><span class="n">load_tool_definitions</span><span class="p">(</span><span class="s2">&quot;tools.json&quot;</span><span class="p">),</span>  <span class="c1"># optional</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="p">)</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="k">assert</span> <span class="ow">not</span> <span class="n">report</span><span class="o">.</span><span class="n">has_critical</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
 </span></code></pre></div>
+<p>with <code>from evalcraft.core.tool_defs import load_tool_definitions</code>. For several
+cassettes, <code>evalcraft.staleness.find_alias_moves([(label, cassette), ...])</code>
+returns the cross-cassette <code>model_alias_moved</code> findings.</p>
 
 
 
