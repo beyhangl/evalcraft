@@ -43,6 +43,7 @@ from evalcraft.core.pricing import (
     OPENAI_CACHE_WRITE,
     cache_adjusted_cost,
 )
+from evalcraft.core.tool_defs import request_metadata
 
 # ---------------------------------------------------------------------------
 # Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
@@ -376,7 +377,10 @@ class OpenAIAdapter:
             completion_tokens=completion_tokens,
             cache_read_tokens=cache_read_tokens,
             cost_usd=cost_usd,
-            metadata={"finish_reason": _get_finish_reason(response)},
+            metadata={
+                "finish_reason": _get_finish_reason(response),
+                **request_metadata(kwargs, model),
+            },
         )
 
     def _record_error(self, kwargs: dict[str, Any], duration_ms: float, error: str) -> None:

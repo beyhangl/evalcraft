@@ -4,7 +4,7 @@ description: Write offline, $0 pytest tests for AI agents with evalcraft. Record
 license: MIT
 compatibility: Requires Python 3.10+ and pytest 8+
 metadata:
-  version: "0.8.0"
+  version: "0.9.0"
 ---
 
 # Testing AI agents with evalcraft
@@ -96,8 +96,12 @@ evalcraft check-stale tests/cassettes/*.json --models "gpt-5.1,claude-sonnet-4-5
 Pass the models the project ships today. It exits non-zero if a cassette was
 recorded against a model not in that list, or from a reasoning model with its
 reasoning blocks missing (a recording that cannot be replayed faithfully). Add
-`--prompts FILE` to flag prompt drift and `--max-age-days N` for age. Put it
-in CI next to the tests.
+`--prompts FILE` to flag prompt drift, `--tools FILE` (a JSON list of the tool
+definitions the code ships) to flag tool definitions that changed since the
+recording, and `--max-age-days N` for age. It always warns about run-time values
+(UUIDs, timestamps, temp paths) baked into a recording and about a model alias
+served by different snapshots across cassettes. Warnings don't fail the run.
+Put it in CI next to the tests.
 
 ## Task 4 — Budgets and tool-call contracts
 

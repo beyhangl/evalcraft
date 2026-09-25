@@ -8,7 +8,7 @@ so they execute offline in milliseconds for $0. Mock LLMs/tools for code-level
 tests, and use live-eval on a schedule for questions that need a real model.
 """
 
-__version__ = "0.8.0"
+__version__ = "0.9.0"
 
 from evalcraft.capture.recorder import CaptureContext, capture
 from evalcraft.cloud.client import EvalcraftCloud

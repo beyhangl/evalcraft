@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "evalcraft"
-version = "0.8.0"
+version = "0.9.0"
 description = "Deterministic $0 pytest assertions for AI agents — lock tool calls, arguments, output shape, loops and cost budgets in CI."
 readme = "README.md"
 license = "MIT"

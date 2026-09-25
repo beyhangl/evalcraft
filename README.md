@@ -555,7 +555,7 @@ evalcraft [command] [options]
 | `evalcraft sanitize <cassette>` | Redact PII and secrets |
 | `evalcraft doctor` | Diagnose setup issues (deps, API keys, cassettes) |
 | `evalcraft live-eval <current> --baseline <b>` | Gate a live-eval run vs a baseline (catch drift) |
-| `evalcraft check-stale <cassettes> --models <set>` | Fail CI when a cassette's recorded model was retired or swapped |
+| `evalcraft check-stale <cassettes> --models <set>` | Fail CI when a cassette's recorded model was retired or swapped; warn on tool-definition drift (`--tools`), run-time values baked into a recording, and moved model aliases |
 
 ---
 

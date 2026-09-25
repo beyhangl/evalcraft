@@ -171,15 +171,28 @@ class Provenance:
     python_version: str = ""
     models: list[str] = field(default_factory=list)
     prompt_hash: str = ""
+    # Tool definitions offered to the model: [{"name", "description", "schema_hash"}].
+    tools: list[dict] = field(default_factory=list)
+    # Model ids the code asked for, which can differ from ``models`` (what answered).
+    requested_models: list[str] = field(default_factory=list)
+    # Requested model id -> the models the provider served for it, when they differ.
+    model_aliases: dict[str, list[str]] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
-        return {
+        data: dict[str, Any] = {
             "recorded_at": self.recorded_at,
             "sdk_version": self.sdk_version,
             "python_version": self.python_version,
             "models": list(self.models),
             "prompt_hash": self.prompt_hash,
         }
+        if self.tools:
+            data["tools"] = [dict(t) for t in self.tools]
+        if self.requested_models and self.requested_models != self.models:
+            data["requested_models"] = list(self.requested_models)
+        if self.model_aliases:
+            data["model_aliases"] = {k: list(v) for k, v in self.model_aliases.items()}
+        return data
 
     @classmethod
     def from_dict(cls, data: dict) -> Provenance:
@@ -187,8 +200,14 @@ class Provenance:
             recorded_at=data.get("recorded_at", 0.0),
             sdk_version=data.get("sdk_version", ""),
             python_version=data.get("python_version", ""),
-            models=list(data.get("models", [])),
-            prompt_hash=data.get("prompt_hash", ""),
+            models=list(data.get("models") or []),
+            prompt_hash=data.get("prompt_hash") or "",
+            tools=[dict(t) for t in data.get("tools") or [] if isinstance(t, dict)],
+            requested_models=list(data.get("requested_models") or []),
+            model_aliases={
+                str(k): [v] if isinstance(v, str) else list(v or [])
+                for k, v in (data.get("model_aliases") or {}).items()
+            },
         )
 
 
@@ -275,6 +294,19 @@ class Cassette:
         prompt_hash = compute_prompt_hash(
             self.input_text, [s.input for s in llm_spans]
         )
+        tools: dict[str, dict] = {}
+        requested_models: set[str] = set()
+        aliases: dict[str, set[str]] = {}
+        for s in llm_spans:
+            meta = s.metadata or {}
+            for t in meta.get("tool_definitions", []) or []:
+                if isinstance(t, dict) and t.get("name"):
+                    tools[t["name"]] = dict(t)
+            requested = meta.get("requested_model") or s.model
+            if requested:
+                requested_models.add(requested)
+            if requested and s.model and requested != s.model:
+                aliases.setdefault(requested, set()).add(s.model)
 
         self.provenance = Provenance(
             recorded_at=time.time(),
@@ -282,6 +314,9 @@ class Cassette:
             python_version=_platform.python_version(),
             models=models,
             prompt_hash=prompt_hash,
+            tools=[tools[n] for n in sorted(tools)],
+            requested_models=sorted(requested_models),
+            model_aliases={k: sorted(v) for k, v in sorted(aliases.items())},
         )
         return self.provenance
 
@@ -333,7 +368,7 @@ class Cassette:
         self.compute_metrics()
         self.compute_fingerprint()
         return {
-            "evalcraft_version": "0.8.0",
+            "evalcraft_version": "0.9.0",
             "cassette": {
                 "id": self.id,
                 "name": self.name,

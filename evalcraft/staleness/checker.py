@@ -15,6 +15,15 @@ model set / prompt and reports findings by severity:
 - ``model_retired`` (CRITICAL) — a recorded model is absent from the current set
   (retired or swapped); the cassette may now exercise an API that errors live.
 - ``prompt_drift`` (WARNING) — the current prompt hash differs from the recording.
+- ``tool_drift`` (WARNING) — a tool definition changed since the recording; the
+  sharpest case is parameters that changed while the description did not.
+- ``volatile_content`` (WARNING) — a UUID, timestamp or temp path generated at
+  run time was baked into what the agent sent, so the recording won't match a
+  rerun byte for byte.
+- ``model_alias_moved`` (WARNING, across cassettes) — the same requested model id
+  was served by different snapshots in different recordings.
+- ``floating_model_alias`` (INFO) — the recording asked for a floating alias
+  rather than a pinned snapshot.
 - ``age`` (INFO) — the recording is older than a threshold.
 - ``no_provenance`` (INFO) — a legacy / hand-built cassette without provenance.
 
@@ -32,13 +41,16 @@ from __future__ import annotations
 
 import json
 import time
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from evalcraft.core.models import Cassette, compute_prompt_hash
 from evalcraft.core.reasoning import find_degraded_reasoning_spans
+from evalcraft.core.tool_defs import diff_tool_definitions
 from evalcraft.regression.detector import Severity
+from evalcraft.staleness.volatile import find_volatile_values
 
 _DAY_SECONDS = 86400
 
@@ -47,7 +59,7 @@ _DAY_SECONDS = 86400
 class StalenessFinding:
     """A single staleness signal for a cassette."""
 
-    category: str  # "model_retired" | "prompt_drift" | "age" | "no_provenance"
+    category: str  # e.g. "model_retired", "prompt_drift", "tool_drift", "age"
     severity: Severity
     message: str
     recorded_value: Any = None
@@ -111,6 +123,7 @@ class StalenessChecker:
         *,
         current_models: list[str] | None = None,
         current_prompt_hash: str | None = None,
+        current_tools: list[dict[str, str]] | None = None,
     ) -> StalenessReport:
         """Build a :class:`StalenessReport` for ``cassette``.
 
@@ -124,8 +137,14 @@ class StalenessChecker:
                 :func:`hash_prompts_file` / :func:`compute_prompt_hash`). A
                 mismatch with the recorded hash yields a WARNING ``prompt_drift``.
                 Omit to skip.
+            current_tools: the tool definitions your code ships today, normalised
+                with :func:`~evalcraft.core.tool_defs.normalize_tool_definitions`
+                (or read with :func:`~evalcraft.core.tool_defs.load_tool_definitions`).
+                Each difference from the recorded definitions yields a WARNING
+                ``tool_drift``. Omit to skip.
 
-        Age is checked against ``max_age_days`` (set on the checker) using the
+        Volatile values in the recorded LLM inputs and tool arguments are always
+        checked. Age is checked against ``max_age_days`` (set on the checker) using the
         provenance ``recorded_at`` timestamp. Never raises on missing/partial
         provenance — a cassette without provenance yields a single INFO
         ``no_provenance`` finding.
@@ -153,6 +172,24 @@ class StalenessChecker:
                 )
             )
 
+        volatile = find_volatile_values(cassette)
+        if volatile:
+            shown = ", ".join(f"{v.kind} {v.value!r} ({v.where})" for v in volatile[:3])
+            more = f" and {len(volatile) - 3} more" if len(volatile) > 3 else ""
+            report.findings.append(
+                StalenessFinding(
+                    category="volatile_content",
+                    severity=Severity.WARNING,
+                    message=(
+                        f"Run-time values were recorded in what the agent sent: "
+                        f"{shown}{more}. A rerun sends different values, so "
+                        "prompt-keyed mocks miss and re-recording churns the diff. "
+                        "Inject a fixed clock, id factory or path in tests."
+                    ),
+                    recorded_value=[v.to_dict() for v in volatile],
+                )
+            )
+
         prov = cassette.provenance
 
         if prov is None:
@@ -171,7 +208,14 @@ class StalenessChecker:
         # 1. Retired / swapped models (CRITICAL — the cassette may now 4xx live).
         if current_models is not None:
             current_set = set(current_models)
-            for model in prov.models:
+            # Judge what the code asked for. A dated snapshot served for an alias
+            # you still ship is not retired (floating_model_alias covers it), and
+            # an alias is fine if every snapshot it was served as is still shipped.
+            # Cassettes from before 0.9 only know the served models.
+            for model in prov.requested_models or prov.models:
+                served = prov.model_aliases.get(model, [])
+                if served and all(m in current_set for m in served):
+                    continue
                 if model not in current_set:
                     report.findings.append(
                         StalenessFinding(
@@ -207,7 +251,64 @@ class StalenessChecker:
                 )
             )
 
-        # 3. Age (INFO — weakest signal; upgrades doctor's mtime check to recorded_at).
+        # 3. Tool-definition drift (WARNING — the model now sees different tools).
+        if current_tools is not None:
+            if prov.tools:
+                for kind, name, message in diff_tool_definitions(prov.tools, current_tools):
+                    report.findings.append(
+                        StalenessFinding(
+                            category="tool_drift",
+                            severity=Severity.WARNING,
+                            message=message,
+                            recorded_value=name,
+                            metadata={"change": kind},
+                        )
+                    )
+            else:
+                report.findings.append(
+                    StalenessFinding(
+                        category="no_tool_definitions",
+                        severity=Severity.INFO,
+                        message=(
+                            "Cassette has no recorded tool definitions. Either the "
+                            "run offered no tools, or it was recorded before 0.9 or "
+                            "through an adapter that doesn't record them (only the "
+                            "OpenAI and Anthropic adapters do)."
+                        ),
+                    )
+                )
+
+        # 4. Floating model aliases (INFO — the id you call can change underneath you).
+        for requested, served in sorted(prov.model_aliases.items()):
+            report.findings.append(
+                StalenessFinding(
+                    category="floating_model_alias",
+                    severity=Severity.INFO,
+                    message=(
+                        f"Requested {requested!r} but {', '.join(map(repr, served))} "
+                        "answered. The alias can move to a new snapshot without "
+                        "notice. Pin the snapshot to keep live runs comparable to "
+                        "this recording."
+                    ),
+                    recorded_value=requested,
+                    current_value=list(served),
+                )
+            )
+        for model in prov.requested_models or prov.models:
+            if "latest" in model.lower() and model not in prov.model_aliases:
+                report.findings.append(
+                    StalenessFinding(
+                        category="floating_model_alias",
+                        severity=Severity.INFO,
+                        message=(
+                            f"Recorded against {model!r}, a floating id. Pin a dated "
+                            "snapshot to keep live runs comparable to this recording."
+                        ),
+                        recorded_value=model,
+                    )
+                )
+
+        # 5. Age (INFO — weakest signal; upgrades doctor's mtime check to recorded_at).
         if self.max_age_days is not None and prov.recorded_at:
             age_days = (time.time() - prov.recorded_at) / _DAY_SECONDS
             if age_days > self.max_age_days:
@@ -226,6 +327,55 @@ class StalenessChecker:
                 )
 
         return report
+
+
+def find_alias_moves(cassettes: Iterable[tuple[str, Cassette]]) -> list[StalenessFinding]:
+    """Flag requested model ids that different recordings saw served by different models.
+
+    Takes ``(label, cassette)`` pairs. When ``gpt-4o`` resolved to one snapshot in
+    one recording and another snapshot in a later one (or two snapshots within
+    one recording), the model behind an
+    unchanged id changed between recordings, so their behaviour is not directly
+    comparable. One WARNING ``model_alias_moved`` is returned per such id.
+    """
+    seen: dict[str, dict[str, list[tuple[float, str]]]] = {}
+    for label, cassette in cassettes:
+        prov = cassette.provenance
+        if prov is None:
+            continue
+        for requested, served_list in prov.model_aliases.items():
+            for served in served_list:
+                seen.setdefault(requested, {}).setdefault(served, []).append(
+                    (prov.recorded_at, label)
+                )
+    findings: list[StalenessFinding] = []
+    for requested in sorted(seen):
+        served_map = seen[requested]
+        if len(served_map) < 2:
+            continue
+        # Order snapshots by when they were first seen.
+        ordered = sorted(served_map.items(), key=lambda kv: min(t for t, _ in kv[1]))
+        parts = [
+            f"{served!r} in {', '.join(sorted(lbl for _, lbl in uses))}"
+            for served, uses in ordered
+        ]
+        findings.append(
+            StalenessFinding(
+                category="model_alias_moved",
+                severity=Severity.WARNING,
+                message=(
+                    f"{requested!r} was served by different models across recordings: "
+                    f"{'; '.join(parts)}. The model behind this id changed, so these "
+                    "recordings are not directly comparable."
+                ),
+                recorded_value=requested,
+                current_value=[served for served, _ in ordered],
+                metadata={
+                    "served": {served: sorted(lbl for _, lbl in uses) for served, uses in ordered}
+                },
+            )
+        )
+    return findings
 
 
 def hash_prompts_file(path: str | Path) -> str:

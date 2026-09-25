@@ -13,13 +13,18 @@ from evalcraft.staleness.checker import (
     StalenessChecker,
     StalenessFinding,
     StalenessReport,
+    find_alias_moves,
     hash_prompts_file,
 )
+from evalcraft.staleness.volatile import VolatileValue, find_volatile_values
 
 __all__ = [
     "StalenessChecker",
     "StalenessFinding",
     "StalenessReport",
+    "VolatileValue",
     "compute_prompt_hash",
+    "find_alias_moves",
+    "find_volatile_values",
     "hash_prompts_file",
 ]

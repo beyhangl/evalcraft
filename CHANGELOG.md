@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] — 2026-09-25
+
+`check-stale` now catches three more ways a recording stops matching what you
+ship. All three are warnings or notes, so existing CI gates keep their exit
+codes. Existing cassettes load unchanged. The tool and alias checks need a
+re-record with 0.9 to have data to compare.
+
+### Added
+- **Tool-definition drift (`--tools FILE`).** The OpenAI and Anthropic adapters
+  now record each tool's name, description and a short hash of its parameter
+  schema (everything but the name and description, so `strict` and a hosted
+  tool's version count). `check-stale --tools tools.json` diffs them against the
+  definitions your code ships (OpenAI, Anthropic or MCP format) and reports
+  added, removed and changed tools as `tool_drift`
+  warnings. The case it calls out by name is parameters that changed while the
+  description did not, which leaves the model calling the tool the old way.
+- **Run-time values baked into a recording.** `check-stale` always scans what
+  the agent sent (LLM inputs and tool arguments, not outputs) for UUIDs,
+  timestamps with a time of day and temp paths, and warns with
+  `volatile_content`. Tool results and earlier assistant turns fed back into a
+  prompt are skipped, as is any value that also appears in a recorded output. A recording like that can't match a rerun, so
+  prompt-keyed mocks miss and every re-record churns the diff.
+- **Model aliases.** The adapters record the model id you asked for when the
+  provider served a different one. Such recordings get an INFO
+  `floating_model_alias`. When the cassettes checked together show one id
+  served by different snapshots, a `model_alias_moved` warning appears under
+  "across cassettes" (and `across_cassettes` in `--json`).
+- Python API: `StalenessChecker.check(..., current_tools=...)`,
+  `evalcraft.staleness.find_alias_moves`, `find_volatile_values`, and
+  `evalcraft.core.tool_defs` (`normalize_tool_definitions`,
+  `load_tool_definitions`, `diff_tool_definitions`).
+
+### Changed
+- For cassettes recorded with 0.9+, `model_retired` judges the model id the code
+  asked for. Asking for `gpt-4o`, being served `gpt-4o-2024-08-06` and passing
+  `--models gpt-4o` used to be a CRITICAL false alarm. It is now the INFO
+  `floating_model_alias`. Older cassettes keep exact matching on the served model.
+- `check-stale --json` output gains a top-level `across_cassettes` list.
+
 ## [0.8.0] — 2026-09-24
 
 The first run works, and a test run can no longer quietly rewrite its own

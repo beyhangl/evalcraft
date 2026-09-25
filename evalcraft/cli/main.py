@@ -58,7 +58,7 @@ _SPAN_COLORS: dict[SpanKind, str] = {
 # ─── CLI root ─────────────────────────────────────────────────────────────────
 
 @click.group()
-@click.version_option(version="0.8.0", prog_name="evalcraft")
+@click.version_option(version="0.9.0", prog_name="evalcraft")
 def cli() -> None:
     """evalcraft — capture, replay, and evaluate AI agent runs."""
 
@@ -897,6 +897,11 @@ def regression_cmd(cassette: str, golden: str, as_json: bool) -> None:
               type=click.Path(exists=True, dir_okay=False),
               help="JSON/text file of current prompts; its hash is compared to the "
                    "recorded prompt_hash (WARNING on drift).")
+@click.option("--tools", "tools_path", default=None,
+              type=click.Path(exists=True, dir_okay=False),
+              help="JSON file of the tool definitions your code ships (OpenAI or "
+                   "Anthropic format, or an object with a 'tools' list). Each change "
+                   "from the recorded definitions is a WARNING.")
 @click.option("--max-age-days", default=None, type=int,
               help="Recorded-at age over N days is INFO. Defaults to 30 if no other check given.")
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON")
@@ -904,20 +909,26 @@ def check_stale_cmd(
     cassettes: tuple[str, ...],
     models_csv: str | None,
     prompts_path: str | None,
+    tools_path: str | None,
     max_age_days: int | None,
     as_json: bool,
 ) -> None:
-    """Flag CASSETTES recorded against a retired model or a drifted prompt.
+    """Flag CASSETTES that no longer mirror the model, prompt or tools you ship.
 
     Activates each cassette's recorded provenance (model set, prompt hash,
     timestamp). Exits non-zero if ANY cassette references a model no longer in
     --models, so CI can block deterministic tests that have silently gone stale.
 
+    Always checks for run-time values (UUIDs, timestamps, temp paths) baked into
+    the recording, and for a model alias served by different snapshots across
+    the given cassettes. Both are warnings.
+
     Example:
 
         evalcraft check-stale tests/cassettes/*.json --models "gpt-5.1,claude-sonnet-4-5"
     """
-    from evalcraft.staleness import StalenessChecker, hash_prompts_file
+    from evalcraft.core.tool_defs import load_tool_definitions
+    from evalcraft.staleness import StalenessChecker, find_alias_moves, hash_prompts_file
 
     current_models = (
         [m.strip() for m in models_csv.split(",") if m.strip()]
@@ -925,31 +936,49 @@ def check_stale_cmd(
         else None
     )
     current_prompt_hash = hash_prompts_file(prompts_path) if prompts_path else None
+    try:
+        current_tools = load_tool_definitions(tools_path) if tools_path else None
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise click.BadParameter(str(exc), param_hint="--tools") from exc
 
     # With no explicit check requested, fall back to an age check (default 30d).
     effective_age = max_age_days
-    if max_age_days is None and current_models is None and current_prompt_hash is None:
+    if (
+        max_age_days is None
+        and current_models is None
+        and current_prompt_hash is None
+        and current_tools is None
+    ):
         effective_age = 30
 
     checker = StalenessChecker(max_age_days=effective_age)
 
     reports = []
+    loaded = []
     for path in cassettes:
         cassette = _load_cassette(path)
         report = checker.check(
             cassette,
             current_models=current_models,
             current_prompt_hash=current_prompt_hash,
+            current_tools=current_tools,
         )
         if not report.cassette_name:
             report.cassette_name = Path(path).stem
         reports.append(report)
+        loaded.append((path, cassette))
 
+    alias_moves = find_alias_moves(loaded)
     any_critical = any(r.has_critical for r in reports)
 
     if as_json:
         click.echo(json.dumps(
-            {"cassettes": [r.to_dict() for r in reports]}, indent=2, default=str
+            {
+                "cassettes": [r.to_dict() for r in reports],
+                "across_cassettes": [f.to_dict() for f in alias_moves],
+            },
+            indent=2,
+            default=str,
         ))
         if any_critical:
             sys.exit(1)
@@ -970,6 +999,15 @@ def check_stale_cmd(
             continue
         click.echo(click.style(f"  {report.cassette_name}", bold=True))
         for f in report.findings:
+            total_findings += 1
+            color = _SEV_COLORS.get(f.severity.value, "white")
+            icon = click.style(f"  {f.severity.value:<8}", fg=color, bold=True)
+            click.echo(f"{icon}  [{f.category}] {f.message}")
+        click.echo()
+
+    if alias_moves:
+        click.echo(click.style("  across cassettes", bold=True))
+        for f in alias_moves:
             total_findings += 1
             color = _SEV_COLORS.get(f.severity.value, "white")
             icon = click.style(f"  {f.severity.value:<8}", fg=color, bold=True)

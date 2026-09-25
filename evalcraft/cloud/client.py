@@ -328,7 +328,7 @@ class EvalcraftCloud:
         body: bytes | None = None
         headers: dict[str, str] = {
             "Accept": "application/json",
-            "User-Agent": "evalcraft-sdk/0.8.0",
+            "User-Agent": "evalcraft-sdk/0.9.0",
         }
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"

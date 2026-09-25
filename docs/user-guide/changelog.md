@@ -7,6 +7,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
+## [0.9.0] — 2026-09-25
+
+### Added
+- **Tool-definition drift.** Adapters record tool names, descriptions and schema hashes. `check-stale --tools tools.json` warns (`tool_drift`) on added, removed or changed tools, and names the case where parameters changed but the description did not.
+- **Run-time values in a recording.** `check-stale` warns (`volatile_content`) when a UUID, timestamp or temp path was recorded in what the agent sent.
+- **Model aliases.** Adapters record the requested model id when a different snapshot answered. INFO `floating_model_alias` per recording, WARNING `model_alias_moved` when one id was served by different snapshots across cassettes. See [Check Stale](check-stale.md).
+
+### Changed
+- For 0.9+ cassettes, `model_retired` judges the model id the code asked for, so a snapshot served for an alias still listed in `--models` is no longer a CRITICAL false alarm.
+- `check-stale --json` adds a top-level `across_cassettes` list.
+
+---
+
 ## [0.8.0] — 2026-09-24
 
 ### Changed (behaviour)

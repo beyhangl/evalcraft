@@ -44,6 +44,7 @@ from evalcraft.core.pricing import (
     cache_adjusted_cost,
 )
 from evalcraft.core.reasoning import REASONING_METADATA_KEY
+from evalcraft.core.tool_defs import request_metadata
 
 # ---------------------------------------------------------------------------
 # Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
@@ -367,7 +368,11 @@ class AnthropicAdapter:
             cache_write_tokens=cache_write_tokens,
             cost_usd=cost_usd,
             metadata=_with_reasoning(
-                {"stop_reason": _get_stop_reason(response)}, response
+                {
+                    "stop_reason": _get_stop_reason(response),
+                    **request_metadata(kwargs, model),
+                },
+                response,
             ),
         )
 
