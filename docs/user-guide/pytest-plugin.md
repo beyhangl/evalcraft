@@ -209,7 +209,7 @@ Control cassette recording behavior:
 | Mode | Behavior |
 |------|----------|
 | `none` (default) | Replay-only. **Never writes a cassette.** A missing cassette fails in CI, skips locally. |
-| `new` | Record cassettes that don't exist yet. Existing cassettes are never modified. |
+| `new` | Record cassettes that don't exist yet, or that have [expired](expiry.md). Other existing cassettes are never modified. |
 | `all` | Always re-record (overwrite existing cassettes). |
 
 Because the default never writes, running the suite cannot quietly change a
@@ -217,7 +217,7 @@ committed recording. Re-recording is always an explicit decision, and the
 result shows up in the diff for review.
 
 ```bash
-# Record new cassettes for tests that don't have one yet
+# Record new cassettes for tests that don't have one yet (and expired ones)
 pytest --evalcraft-record=new
 
 # Re-record all cassettes
@@ -236,6 +236,14 @@ What happens when a test's cassette file is missing in `none` mode:
 Failing in CI stops a deleted recording from turning a red test into a skip,
 which would otherwise leave CI green. Pass `--evalcraft-missing=skip` if you
 genuinely want the old behaviour.
+
+### `--evalcraft-expire-after-days N`
+
+Recordings older than `N` days are expired. A test that replays one fails in CI
+and warns locally (`EvalcraftExpiredCassetteWarning`), and
+`--evalcraft-record=new` records it again. The default comes from
+`expire_after_days` in `[tool.evalcraft]` of `pyproject.toml`; without either,
+nothing expires, and `0` switches a configured policy off for one run. See [Keeping recordings fresh](expiry.md).
 
 ---
 

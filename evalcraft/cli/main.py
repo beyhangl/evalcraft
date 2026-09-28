@@ -58,7 +58,7 @@ _SPAN_COLORS: dict[SpanKind, str] = {
 # ─── CLI root ─────────────────────────────────────────────────────────────────
 
 @click.group()
-@click.version_option(version="0.9.0", prog_name="evalcraft")
+@click.version_option(version="0.10.0", prog_name="evalcraft")
 def cli() -> None:
     """evalcraft — capture, replay, and evaluate AI agent runs."""
 
@@ -904,6 +904,9 @@ def regression_cmd(cassette: str, golden: str, as_json: bool) -> None:
                    "from the recorded definitions is a WARNING.")
 @click.option("--max-age-days", default=None, type=int,
               help="Recorded-at age over N days is INFO. Defaults to 30 if no other check given.")
+@click.option("--expire-after-days", default=None, type=click.IntRange(min=0),
+              help="Recorded-at age over N days is CRITICAL (expired, exit 1). "
+                   "0 turns off a policy set in pyproject.toml.")
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON")
 def check_stale_cmd(
     cassettes: tuple[str, ...],
@@ -911,6 +914,7 @@ def check_stale_cmd(
     prompts_path: str | None,
     tools_path: str | None,
     max_age_days: int | None,
+    expire_after_days: int | None,
     as_json: bool,
 ) -> None:
     """Flag CASSETTES that no longer mirror the model, prompt or tools you ship.
@@ -923,18 +927,45 @@ def check_stale_cmd(
     the recording, and for a model alias served by different snapshots across
     the given cassettes. Both are warnings.
 
+    Defaults for every option can live in [tool.evalcraft] in pyproject.toml
+    (expire_after_days, max_age_days, models, tools, prompts). Flags win.
+
     Example:
 
         evalcraft check-stale tests/cassettes/*.json --models "gpt-5.1,claude-sonnet-4-5"
     """
+    from evalcraft.config import ConfigError, load_config, unknown_keys_message
     from evalcraft.core.tool_defs import load_tool_definitions
     from evalcraft.staleness import StalenessChecker, find_alias_moves, hash_prompts_file
+
+    try:
+        cfg = load_config()
+    except ConfigError as exc:
+        raise click.UsageError(str(exc)) from exc
+    unknown = unknown_keys_message(cfg)
+    if unknown:
+        click.echo(f"warning: {unknown}", err=True)
 
     current_models = (
         [m.strip() for m in models_csv.split(",") if m.strip()]
         if models_csv is not None
-        else None
+        else cfg.models
     )
+    if prompts_path is None and cfg.prompts is not None:
+        if not cfg.prompts.is_file():
+            raise click.UsageError(f"[tool.evalcraft] prompts: file not found: {cfg.prompts}")
+        prompts_path = str(cfg.prompts)
+    if tools_path is None and cfg.tools is not None:
+        if not cfg.tools.is_file():
+            raise click.UsageError(f"[tool.evalcraft] tools: file not found: {cfg.tools}")
+        tools_path = str(cfg.tools)
+    if max_age_days is None:
+        max_age_days = cfg.max_age_days
+    if expire_after_days is None:
+        expire_after_days = cfg.expire_after_days
+    elif expire_after_days == 0:
+        expire_after_days = None  # 0 switches a configured policy off
+
     current_prompt_hash = hash_prompts_file(prompts_path) if prompts_path else None
     try:
         current_tools = load_tool_definitions(tools_path) if tools_path else None
@@ -945,13 +976,16 @@ def check_stale_cmd(
     effective_age = max_age_days
     if (
         max_age_days is None
+        and expire_after_days is None
         and current_models is None
         and current_prompt_hash is None
         and current_tools is None
     ):
         effective_age = 30
 
-    checker = StalenessChecker(max_age_days=effective_age)
+    checker = StalenessChecker(
+        max_age_days=effective_age, expire_after_days=expire_after_days
+    )
 
     reports = []
     loaded = []

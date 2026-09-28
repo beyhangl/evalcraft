@@ -263,6 +263,8 @@ class Cassette:
     # None for hand-built cassettes and cassettes recorded before provenance
     # was added (back-compat).
     provenance: Provenance | None = None
+    # Set by from_dict when the file had no created_at; never serialised.
+    created_at_unknown: bool = field(default=False, repr=False, compare=False)
 
     def compute_fingerprint(self) -> str:
         """Compute a content-based fingerprint for change detection."""
@@ -368,7 +370,7 @@ class Cassette:
         self.compute_metrics()
         self.compute_fingerprint()
         return {
-            "evalcraft_version": "0.9.0",
+            "evalcraft_version": "0.10.0",
             "cassette": {
                 "id": self.id,
                 "name": self.name,
@@ -411,6 +413,10 @@ class Cassette:
             fingerprint=cassette_data.get("fingerprint", ""),
             metadata=cassette_data.get("metadata", {}),
         )
+        if "created_at" not in cassette_data:
+            # The default above is "now", which would make an undated file look
+            # freshly recorded. Remember that its real age is unknown.
+            c.created_at_unknown = True
         prov = cassette_data.get("provenance")
         if prov:
             c.provenance = Provenance.from_dict(prov)

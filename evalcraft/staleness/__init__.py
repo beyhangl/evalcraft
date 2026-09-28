@@ -13,8 +13,11 @@ from evalcraft.staleness.checker import (
     StalenessChecker,
     StalenessFinding,
     StalenessReport,
+    cassette_age_days,
     find_alias_moves,
     hash_prompts_file,
+    is_expired,
+    recorded_at,
 )
 from evalcraft.staleness.volatile import VolatileValue, find_volatile_values
 
@@ -23,8 +26,11 @@ __all__ = [
     "StalenessFinding",
     "StalenessReport",
     "VolatileValue",
+    "cassette_age_days",
     "compute_prompt_hash",
     "find_alias_moves",
     "find_volatile_values",
     "hash_prompts_file",
+    "is_expired",
+    "recorded_at",
 ]

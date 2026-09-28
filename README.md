@@ -379,7 +379,7 @@ An honest comparison against the closest tools. ✅ first-class · ⚠️ partia
 
 **Honest caveats:**
 - *Zero-cost CI is not unique* — Promptfoo (disk cache, on by default) and DeepEval (`-c`) already make re-runs free. Evalcraft's angle is *deterministic replay of a committed artifact*, not a lower bill per se.
-- *Replay only re-checks a recorded run.* It does not re-execute the live model, so on its own it can't catch model/prompt/retrieval drift — see [what replay does and doesn't test](docs/user-guide/replay.md). For drift, re-record or run a live eval.
+- *Replay only re-checks a recorded run.* It does not re-execute the live model, so on its own it can't catch model/prompt/retrieval drift — see [what replay does and doesn't test](docs/user-guide/replay.md). For drift, re-record or run a live eval. An opt-in expiry policy (`expire_after_days` in `[tool.evalcraft]`) fails CI on recordings older than you allow, and `pytest --evalcraft-record=new` re-records just those — see [keeping recordings fresh](docs/user-guide/expiry.md).
 - *The LLM-as-Judge, RAG, and pairwise scorers make real, paid model calls at test time* — they are **not** part of the $0 deterministic path.
 - *Recorded-run tooling is not unique either* — Docker's `cagent` ships git-committable session cassettes with `--record`/`--fake` replay, baseline regression gating and recorded-session diffing. **EvalView** ships `model-check`, a canary suite that detects closed-model drift against the live provider. Evalcraft's narrower claim is that `check-stale` inspects the *saved artifact* and tells you it references a model that was retired or swapped.
 - *A recorded baseline is only trustworthy if nothing rewrites it.* Coding agents have been observed editing tests and golden fixtures to make them pass. Review cassette diffs in PRs like any other committed artifact.
@@ -555,7 +555,7 @@ evalcraft [command] [options]
 | `evalcraft sanitize <cassette>` | Redact PII and secrets |
 | `evalcraft doctor` | Diagnose setup issues (deps, API keys, cassettes) |
 | `evalcraft live-eval <current> --baseline <b>` | Gate a live-eval run vs a baseline (catch drift) |
-| `evalcraft check-stale <cassettes> --models <set>` | Fail CI when a cassette's recorded model was retired or swapped; warn on tool-definition drift (`--tools`), run-time values baked into a recording, and moved model aliases |
+| `evalcraft check-stale <cassettes> --models <set>` | Fail CI when a cassette's recorded model was retired or swapped; warn on tool-definition drift (`--tools`), run-time values baked into a recording, and moved model aliases; `--expire-after-days` fails on recordings past your policy |
 
 ---
 

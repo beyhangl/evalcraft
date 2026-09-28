@@ -33,6 +33,8 @@ evalcraft check-stale tests/cassettes/*.json --models "gpt-5.1,claude-sonnet-4-5
 
 | Finding | Severity | Meaning | Exits CI? |
 |---|---|---|---|
+| `expired` | **CRITICAL** | The recording is older than the `--expire-after-days` / `expire_after_days` policy. See [Keeping recordings fresh](expiry.md). | **Yes (exit 1)** |
+| `unknown_age` | WARNING | An expiry policy is set but the recording has no timestamp. | No |
 | `reasoning_state_missing` | **CRITICAL** | Spans from a reasoning model carry no signed reasoning block, so replaying them is invalid. | **Yes (exit 1)** |
 | `model_retired` | **CRITICAL** | A recorded model is absent from the current `--models` set (retired or swapped) — the cassette may now exercise an API that errors live. | **Yes (exit 1)** |
 | `prompt_drift` | WARNING | The current prompt hash (`--prompts`) differs from the recorded one — still replays, but no longer mirrors the live prompt. | No |
@@ -44,7 +46,7 @@ evalcraft check-stale tests/cassettes/*.json --models "gpt-5.1,claude-sonnet-4-5
 | `no_provenance` | INFO | A legacy / hand-built cassette with no provenance — re-record to enable checks. | No |
 | `no_tool_definitions` | INFO | `--tools` was given but the cassette predates tool recording (0.9). | No |
 
-Only a **retired model** or **missing reasoning state** blocks the build. Those
+Only an **expired recording**, a **retired model** or **missing reasoning state** blocks the build. Those
 are the signals that mean "your deterministic test is lying." Everything else is
 visible but non-blocking.
 
@@ -55,7 +57,9 @@ visible but non-blocking.
 | `--models "a,b,c"` | The model set you ship today. Any recorded model not in this exact set → CRITICAL. Omit to skip the model check. |
 | `--prompts <file>` | A file of your current prompts; its hash is compared to the recorded `prompt_hash`. Omit to skip. |
 | `--tools <file>` | The tool definitions your code ships today, as JSON. Each difference from the recorded definitions → WARNING. Omit to skip. |
+| `--expire-after-days N` | Recorded-at age over `N` days → CRITICAL `expired`. Omit to skip, `0` to switch off a configured policy. |
 | `--max-age-days N` | Recorded-at age over `N` days → INFO. Defaults to `30` if no other check is given. |
+| (config) | Every option above except `--json` can default from `[tool.evalcraft]` in `pyproject.toml` (`expire_after_days`, `max_age_days`, `models`, `tools`, `prompts`). Flags win. |
 | `--json` | Emit `{"cassettes": [report, ...], "across_cassettes": [finding, ...]}` (severity strings `CRITICAL`/`WARNING`/`INFO`). Still exits 1 on any CRITICAL. |
 
 Matching is **exact and case-sensitive** — a swap from `gpt-5.1` to `gpt-5.1-mini`

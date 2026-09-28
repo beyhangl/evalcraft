@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] — 2026-09-28
+
+An opt-in expiry policy for recordings, so a suite can't quietly turn into a
+record of how a model behaved a year ago.
+
+### Added
+- **`[tool.evalcraft]` in `pyproject.toml`.** Holds `expire_after_days`,
+  `max_age_days`, `models`, `tools` and `prompts`, so `check-stale` and the pytest
+  plugin share one policy and the CI step needs no flags. Paths are relative to
+  the file. Evalcraft reads the nearest `pyproject.toml` that has the table,
+  never above the repository root. Flags override it. A wrong type is an error,
+  an unknown key a warning.
+- **Expiry.** With `expire_after_days` set (or `--expire-after-days N`),
+  `check-stale` reports an older recording as CRITICAL `expired` and exits 1.
+  A recording with no timestamp gets an `unknown_age` warning instead of passing
+  as new.
+- **The pytest plugin applies the same policy** (`--evalcraft-expire-after-days
+  N` or the config). Replaying an expired cassette fails in CI and raises an
+  `EvalcraftExpiredCassetteWarning` locally. `--evalcraft-record=new` now treats
+  an expired cassette like a missing one, so one command re-records exactly the
+  stale recordings and leaves the rest alone. `0` switches a configured policy
+  off for one run.
+- Docs: [Keeping recordings fresh](docs/user-guide/expiry.md), with the
+  re-record and review workflow.
+
+### Changed
+- New dependency on `tomli` for Python 3.10 only (3.11+ uses the standard
+  library `tomllib`).
+- Timestamps stored in milliseconds are read correctly for age checks.
+
 ## [0.9.0] — 2026-09-25
 
 `check-stale` now catches three more ways a recording stops matching what you

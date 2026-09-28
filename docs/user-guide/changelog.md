@@ -7,6 +7,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
+## [0.10.0] — 2026-09-28
+
+### Added
+- **Expiry policy.** `expire_after_days` in `[tool.evalcraft]` (or `--expire-after-days`) makes `check-stale` report older recordings as CRITICAL `expired`. The pytest plugin fails replay of an expired cassette in CI, warns locally, and `--evalcraft-record=new` re-records it. See [Keeping recordings fresh](expiry.md).
+- **`[tool.evalcraft]` in `pyproject.toml`** holds defaults for every `check-stale` option (`expire_after_days`, `max_age_days`, `models`, `tools`, `prompts`).
+- `unknown_age` warning for recordings without a timestamp when a policy is set.
+
+### Changed
+- `tomli` is a dependency on Python 3.10 only.
+
+---
+
 ## [0.9.0] — 2026-09-25
 
 ### Added

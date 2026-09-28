@@ -477,8 +477,12 @@ evalcraft check-stale CASSETTES... [OPTIONS]
 |--------|-------------|
 | `--models "a,b,c"` | Current model set; a recorded model not in it is CRITICAL |
 | `--prompts PATH` | Current prompts file; hash drift vs the recording is a WARNING |
+| `--tools PATH` | Current tool definitions (JSON); each change vs the recording is a WARNING |
+| `--expire-after-days N` | Recorded-at age over N days is CRITICAL (`expired`) |
 | `--max-age-days N` | Recorded-at age over N days is INFO (defaults to 30 if no other check) |
 | `--json` | Emit JSON; still exits 1 on any CRITICAL |
+
+Defaults for these options can live in `[tool.evalcraft]` in `pyproject.toml`; see [Keeping recordings fresh](expiry.md).
 
 See [Check Stale](check-stale.md) for the full guide.
 

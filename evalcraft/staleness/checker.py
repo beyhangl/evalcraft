@@ -12,6 +12,9 @@ model set / prompt and reports findings by severity:
 - ``reasoning_state_missing`` (CRITICAL) — spans recorded from a reasoning model
   carry no opaque reasoning state, so replaying them is invalid (the provider
   requires the signed reasoning block verbatim).
+- ``expired`` (CRITICAL) — the recording is older than the ``expire_after_days``
+  policy and must be re-recorded.
+- ``unknown_age`` (WARNING) — a policy is set but the recording has no timestamp.
 - ``model_retired`` (CRITICAL) — a recorded model is absent from the current set
   (retired or swapped); the cassette may now exercise an API that errors live.
 - ``prompt_drift`` (WARNING) — the current prompt hash differs from the recording.
@@ -114,8 +117,14 @@ class StalenessReport:
 class StalenessChecker:
     """Compare a cassette's recorded provenance against current model/prompt config."""
 
-    def __init__(self, *, max_age_days: int | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        max_age_days: int | None = None,
+        expire_after_days: int | None = None,
+    ) -> None:
         self.max_age_days = max_age_days
+        self.expire_after_days = expire_after_days
 
     def check(
         self,
@@ -169,6 +178,44 @@ class StalenessChecker:
                         "block verbatim. Re-record with an adapter that captures it."
                     ),
                     recorded_value=models,
+                )
+            )
+
+        # Expiry applies to every cassette, including ones without provenance.
+        age = cassette_age_days(cassette)
+        age_days = age if age is not None else 0.0
+        expired = self.expire_after_days is not None and age is not None and (
+            age > self.expire_after_days
+        )
+        if (
+            self.expire_after_days is not None
+            and age is None
+            and not (cassette.metadata or {}).get("sample")
+        ):
+            report.findings.append(
+                StalenessFinding(
+                    category="unknown_age",
+                    severity=Severity.WARNING,
+                    message=(
+                        "Recording has no timestamp, so the expiry policy can't be "
+                        "applied. Re-record it, or add created_at to the file."
+                    ),
+                    current_value=self.expire_after_days,
+                )
+            )
+        if expired:
+            report.findings.append(
+                StalenessFinding(
+                    category="expired",
+                    severity=Severity.CRITICAL,
+                    message=(
+                        f"Recorded {age_days:.0f} days ago, past the "
+                        f"{self.expire_after_days}-day expiry policy. Re-record it "
+                        "(pytest --evalcraft-record=new re-records expired cassettes)."
+                    ),
+                    recorded_value=recorded_at(cassette),
+                    current_value=self.expire_after_days,
+                    metadata={"age_days": age_days},
                 )
             )
 
@@ -309,24 +356,63 @@ class StalenessChecker:
                 )
 
         # 5. Age (INFO — weakest signal; upgrades doctor's mtime check to recorded_at).
-        if self.max_age_days is not None and prov.recorded_at:
-            age_days = (time.time() - prov.recorded_at) / _DAY_SECONDS
-            if age_days > self.max_age_days:
-                report.findings.append(
-                    StalenessFinding(
-                        category="age",
-                        severity=Severity.INFO,
-                        message=(
-                            f"Recorded {age_days:.0f} days ago "
-                            f"(threshold {self.max_age_days}) — consider re-recording."
-                        ),
-                        recorded_value=prov.recorded_at,
-                        current_value=self.max_age_days,
-                        metadata={"age_days": age_days},
-                    )
+        if (
+            self.max_age_days is not None
+            and age is not None
+            and prov.recorded_at
+            and not expired
+            and age_days > self.max_age_days
+        ):
+            report.findings.append(
+                StalenessFinding(
+                    category="age",
+                    severity=Severity.INFO,
+                    message=(
+                        f"Recorded {age_days:.0f} days ago "
+                        f"(threshold {self.max_age_days}) — consider re-recording."
+                    ),
+                    recorded_value=prov.recorded_at,
+                    current_value=self.max_age_days,
+                    metadata={"age_days": age_days},
                 )
+            )
 
         return report
+
+
+def _seconds(stamp: float) -> float:
+    # A stamp this large is milliseconds, not seconds.
+    return stamp / 1000.0 if stamp > 1e11 else stamp
+
+
+def recorded_at(cassette: Cassette) -> float | None:
+    """When ``cassette`` was recorded, as epoch seconds, or ``None`` if unknown.
+
+    Uses the provenance timestamp, else ``created_at``. A file with neither, or
+    with a zero timestamp, has an unknown age.
+    """
+    prov = cassette.provenance
+    if prov is not None and prov.recorded_at:
+        return _seconds(float(prov.recorded_at))
+    if cassette.created_at_unknown or not cassette.created_at:
+        return None
+    return _seconds(float(cassette.created_at))
+
+
+def cassette_age_days(cassette: Cassette, now: float | None = None) -> float | None:
+    """Age of the recording in days (never negative), or ``None`` if unknown."""
+    stamp = recorded_at(cassette)
+    if stamp is None:
+        return None
+    return max(0.0, ((now if now is not None else time.time()) - stamp) / _DAY_SECONDS)
+
+
+def is_expired(cassette: Cassette, expire_after_days: int | None) -> bool:
+    """True when a policy is set and the recording is known to be older than it."""
+    if expire_after_days is None:
+        return False
+    age = cassette_age_days(cassette)
+    return age is not None and age > expire_after_days
 
 
 def find_alias_moves(cassettes: Iterable[tuple[str, Cassette]]) -> list[StalenessFinding]:

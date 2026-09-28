@@ -66,6 +66,7 @@ nav:
     - Replay Engine: user-guide/replay.md
     - "Live Eval (catch drift)": user-guide/live-eval.md
     - "Check Stale (model retirement)": user-guide/check-stale.md
+    - "Keeping Recordings Fresh": user-guide/expiry.md
     - Mock LLM & Tools: user-guide/mock.md
     - Scorers: user-guide/scorers.md
     - "Structured Output ($0 shape checks)": user-guide/structured-output.md

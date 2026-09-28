@@ -28,10 +28,17 @@ CLI options:
                              all  — always re-record (overwrite existing)
     --evalcraft-missing WHAT fail | skip  (default: fail when the CI
                              environment variable is set, skip otherwise)
+    --evalcraft-expire-after-days N
+                             treat recordings older than N days as expired
+                             (default: expire_after_days in [tool.evalcraft])
 
 A plain ``pytest`` run never modifies committed cassettes: writing requires
 ``--evalcraft-record=new`` or ``all``. In CI a missing cassette fails rather
 than skips, so deleting a recording cannot quietly turn a red test into a skip.
+
+With an expiry policy set, a test that replays an expired cassette fails in CI
+and warns locally, and ``--evalcraft-record=new`` re-records expired cassettes
+along with missing ones.
 """
 
 from __future__ import annotations
@@ -44,11 +51,18 @@ from typing import Any
 import pytest
 
 from evalcraft.capture.recorder import CaptureContext
+from evalcraft.config import ConfigError, load_config, unknown_keys_message
 from evalcraft.core.models import Cassette
 from evalcraft.golden.manager import GoldenSet
 from evalcraft.mock.llm import MockLLM
 from evalcraft.mock.tool import MockTool
 from evalcraft.replay.engine import ReplayEngine
+from evalcraft.staleness.checker import cassette_age_days
+
+
+class EvalcraftExpiredCassetteWarning(UserWarning):
+    """A test replayed a cassette older than the expiry policy (outside CI)."""
+
 
 # ─────────────────────────────────────────────────────
 # Registration hooks
@@ -75,6 +89,7 @@ def pytest_configure(config: pytest.Config) -> None:
     )
     # Session-level list accumulates per-test metrics for the terminal summary.
     config._evalcraft_results = []  # type: ignore[attr-defined]
+    config._evalcraft_expiry = _resolve_expiry(config)  # type: ignore[attr-defined]
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -109,6 +124,18 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         help=(
             "What to do when a cassette is missing in replay-only mode: "
             "fail or skip (default: fail if the CI env var is set, else skip)"
+        ),
+    )
+    group.addoption(
+        "--evalcraft-expire-after-days",
+        default=None,
+        dest="evalcraft_expire_after_days",
+        type=int,
+        metavar="N",
+        help=(
+            "Recordings older than N days are expired: replaying one fails in CI "
+            "and warns locally, and --evalcraft-record=new re-records it "
+            "(default: expire_after_days in [tool.evalcraft] of pyproject.toml)"
         ),
     )
 
@@ -363,8 +390,49 @@ def _may_write_cassette(config: pytest.Config, path: Path) -> bool:
     if mode == "all":
         return True
     if mode == "new":
-        return not path.exists()
+        return not path.exists() or _file_is_expired(config, path)
     return False
+
+
+def _resolve_expiry(config: pytest.Config) -> int | None:
+    """The expiry policy: the command-line option, else ``[tool.evalcraft]``.
+
+    Resolved once per session so a bad config is one clear usage error. The
+    config is only read when the option isn't given, and 0 switches it off.
+    """
+    value: int | None = config.getoption("evalcraft_expire_after_days", default=None)
+    if value is not None:
+        if value < 0:
+            raise pytest.UsageError("--evalcraft-expire-after-days must be 0 or more")
+        return value or None
+    try:
+        cfg = load_config(config.rootpath)
+    except ConfigError as exc:
+        raise pytest.UsageError(str(exc)) from exc
+    unknown = unknown_keys_message(cfg)
+    if unknown:
+        config.issue_config_time_warning(UserWarning(unknown), stacklevel=2)
+    return cfg.expire_after_days
+
+
+def _expire_after_days(config: pytest.Config) -> int | None:
+    value: int | None = getattr(config, "_evalcraft_expiry", None)
+    return value
+
+
+def _file_is_expired(config: pytest.Config, path: Path) -> bool:
+    days = _expire_after_days(config)
+    if days is None:
+        return False
+    try:
+        age = cassette_age_days(Cassette.load(path))
+    except Exception:
+        return False
+    return age is not None and age > days
+
+
+def _in_ci() -> bool:
+    return os.environ.get("CI", "").strip().lower() not in ("", "0", "false", "no")
 
 
 def _missing_is_failure(config: pytest.Config) -> bool:
@@ -372,7 +440,7 @@ def _missing_is_failure(config: pytest.Config) -> bool:
     choice: str | None = config.getoption("evalcraft_missing", default=None)
     if choice is not None:
         return choice == "fail"
-    return os.environ.get("CI", "").strip().lower() not in ("", "0", "false", "no")
+    return _in_ci()
 
 
 def _safe_filename(name: str) -> str:
@@ -420,7 +488,26 @@ def _load_cassette_from_marker(request: pytest.FixtureRequest) -> Cassette | Non
         # returning None signals "no recorded cassette available".
         return None
 
-    return Cassette.load(path)
+    loaded = Cassette.load(path)
+    days = _expire_after_days(request.config)
+    if days is not None:
+        age = cassette_age_days(loaded)
+        if age is not None and age > days:
+            record_mode = request.config.getoption("evalcraft_record", default="none")
+            if record_mode != "none":
+                # Treated like a missing cassette so this run records a fresh one.
+                return None
+            message = (
+                f"Cassette expired: {path} was recorded {age:.0f} days ago, past the "
+                f"{days}-day policy  (run with --evalcraft-record=new to re-record it)"
+            )
+            if _in_ci():
+                pytest.fail(message, pytrace=False)
+            # The cassette and replay_engine fixtures both load; warn once per test.
+            if not getattr(request.node, "_evalcraft_expiry_warned", False):
+                request.node._evalcraft_expiry_warned = True  # type: ignore[attr-defined]
+                request.node.warn(EvalcraftExpiredCassetteWarning(message))
+    return loaded
 
 
 def _store_result(config: pytest.Config, node_id: str, cassette: Cassette) -> None:

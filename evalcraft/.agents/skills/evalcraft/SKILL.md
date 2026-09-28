@@ -4,7 +4,7 @@ description: Write offline, $0 pytest tests for AI agents with evalcraft. Record
 license: MIT
 compatibility: Requires Python 3.10+ and pytest 8+
 metadata:
-  version: "0.9.0"
+  version: "0.10.0"
 ---
 
 # Testing AI agents with evalcraft
@@ -98,10 +98,15 @@ recorded against a model not in that list, or from a reasoning model with its
 reasoning blocks missing (a recording that cannot be replayed faithfully). Add
 `--prompts FILE` to flag prompt drift, `--tools FILE` (a JSON list of the tool
 definitions the code ships) to flag tool definitions that changed since the
-recording, and `--max-age-days N` for age. It always warns about run-time values
+recording, `--max-age-days N` for an age note and `--expire-after-days N` to
+fail on recordings older than N days. It always warns about run-time values
 (UUIDs, timestamps, temp paths) baked into a recording and about a model alias
 served by different snapshots across cassettes. Warnings don't fail the run.
-Put it in CI next to the tests.
+Put it in CI next to the tests. The project can keep these as defaults in
+`[tool.evalcraft]` of `pyproject.toml` (`expire_after_days`, `max_age_days`,
+`models`, `tools`, `prompts`). To refresh expired recordings run
+`pytest --evalcraft-record=new`, which re-records only missing and expired
+cassettes, then review `git diff` before committing.
 
 ## Task 4 — Budgets and tool-call contracts
 
