@@ -622,6 +622,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../expiry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Keeping Recordings Fresh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../mock/" class="md-nav__link">
         
   
@@ -982,6 +1010,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#-evalcraft-expire-after-days-n" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --evalcraft-expire-after-days N
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1110,10 +1149,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_15" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_16" >
         
           
-          <label class="md-nav__link" for="__nav_2_15" id="__nav_2_15_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2_16" id="__nav_2_16_label" tabindex="">
             
   
   
@@ -1131,8 +1170,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_15_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_15">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_16_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_16">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1496,7 +1535,7 @@
 </tr>
 <tr>
 <td><code>new</code></td>
-<td>Record cassettes that don't exist yet. Existing cassettes are never modified.</td>
+<td>Record cassettes that don't exist yet, or that have <a href="../expiry/">expired</a>. Other existing cassettes are never modified.</td>
 </tr>
 <tr>
 <td><code>all</code></td>
@@ -1507,7 +1546,7 @@
 <p>Because the default never writes, running the suite cannot quietly change a
 committed recording. Re-recording is always an explicit decision, and the
 result shows up in the diff for review.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Record new cassettes for tests that don&#39;t have one yet</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Record new cassettes for tests that don&#39;t have one yet (and expired ones)</span>
 </span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>pytest<span class="w"> </span>--evalcraft-record<span class="o">=</span>new
 </span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
 </span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Re-record all cassettes</span>
@@ -1536,6 +1575,12 @@ result shows up in the diff for review.</p>
 <p>Failing in CI stops a deleted recording from turning a red test into a skip,
 which would otherwise leave CI green. Pass <code>--evalcraft-missing=skip</code> if you
 genuinely want the old behaviour.</p>
+<h3 id="-evalcraft-expire-after-days-n"><code>--evalcraft-expire-after-days N</code><a class="headerlink" href="#-evalcraft-expire-after-days-n" title="Permanent link">&para;</a></h3>
+<p>Recordings older than <code>N</code> days are expired. A test that replays one fails in CI
+and warns locally (<code>EvalcraftExpiredCassetteWarning</code>), and
+<code>--evalcraft-record=new</code> records it again. The default comes from
+<code>expire_after_days</code> in <code>[tool.evalcraft]</code> of <code>pyproject.toml</code>; without either,
+nothing expires, and <code>0</code> switches a configured policy off for one run. See <a href="../expiry/">Keeping recordings fresh</a>.</p>
 <hr />
 <h2 id="terminal-summary">Terminal summary<a class="headerlink" href="#terminal-summary" title="Permanent link">&para;</a></h2>
 <p>After each test run, Evalcraft appends a compact agent-run metrics table to the terminal output:</p>

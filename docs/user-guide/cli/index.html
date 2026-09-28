@@ -622,6 +622,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../expiry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Keeping Recordings Fresh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../mock/" class="md-nav__link">
         
   
@@ -1144,10 +1172,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_15" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_16" >
         
           
-          <label class="md-nav__link" for="__nav_2_15" id="__nav_2_15_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2_16" id="__nav_2_16_label" tabindex="">
             
   
   
@@ -1165,8 +1193,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_15_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_15">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_16_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_16">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1843,6 +1871,14 @@
 <td>Current prompts file; hash drift vs the recording is a WARNING</td>
 </tr>
 <tr>
+<td><code>--tools PATH</code></td>
+<td>Current tool definitions (JSON); each change vs the recording is a WARNING</td>
+</tr>
+<tr>
+<td><code>--expire-after-days N</code></td>
+<td>Recorded-at age over N days is CRITICAL (<code>expired</code>)</td>
+</tr>
+<tr>
 <td><code>--max-age-days N</code></td>
 <td>Recorded-at age over N days is INFO (defaults to 30 if no other check)</td>
 </tr>
@@ -1852,6 +1888,7 @@
 </tr>
 </tbody>
 </table>
+<p>Defaults for these options can live in <code>[tool.evalcraft]</code> in <code>pyproject.toml</code>; see <a href="../expiry/">Keeping recordings fresh</a>.</p>
 <p>See <a href="../check-stale/">Check Stale</a> for the full guide.</p>
 <hr />
 <h2 id="exit-codes">Exit codes<a class="headerlink" href="#exit-codes" title="Permanent link">&para;</a></h2>

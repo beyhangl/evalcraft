@@ -16,7 +16,7 @@
         <link rel="prev" href="../live-eval/">
       
       
-        <link rel="next" href="../mock/">
+        <link rel="next" href="../expiry/">
       
       
         
@@ -763,6 +763,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../expiry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Keeping Recordings Fresh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../mock/" class="md-nav__link">
         
   
@@ -949,10 +977,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_15" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_16" >
         
           
-          <label class="md-nav__link" for="__nav_2_15" id="__nav_2_15_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2_16" id="__nav_2_16_label" tabindex="">
             
   
   
@@ -970,8 +998,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_15_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_15">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_16_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_16">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1220,6 +1248,18 @@ into a CI gate.</p>
 </thead>
 <tbody>
 <tr>
+<td><code>expired</code></td>
+<td><strong>CRITICAL</strong></td>
+<td>The recording is older than the <code>--expire-after-days</code> / <code>expire_after_days</code> policy. See <a href="../expiry/">Keeping recordings fresh</a>.</td>
+<td><strong>Yes (exit 1)</strong></td>
+</tr>
+<tr>
+<td><code>unknown_age</code></td>
+<td>WARNING</td>
+<td>An expiry policy is set but the recording has no timestamp.</td>
+<td>No</td>
+</tr>
+<tr>
 <td><code>reasoning_state_missing</code></td>
 <td><strong>CRITICAL</strong></td>
 <td>Spans from a reasoning model carry no signed reasoning block, so replaying them is invalid.</td>
@@ -1281,7 +1321,7 @@ into a CI gate.</p>
 </tr>
 </tbody>
 </table>
-<p>Only a <strong>retired model</strong> or <strong>missing reasoning state</strong> blocks the build. Those
+<p>Only an <strong>expired recording</strong>, a <strong>retired model</strong> or <strong>missing reasoning state</strong> blocks the build. Those
 are the signals that mean "your deterministic test is lying." Everything else is
 visible but non-blocking.</p>
 <h2 id="flags">Flags<a class="headerlink" href="#flags" title="Permanent link">&para;</a></h2>
@@ -1306,8 +1346,16 @@ visible but non-blocking.</p>
 <td>The tool definitions your code ships today, as JSON. Each difference from the recorded definitions → WARNING. Omit to skip.</td>
 </tr>
 <tr>
+<td><code>--expire-after-days N</code></td>
+<td>Recorded-at age over <code>N</code> days → CRITICAL <code>expired</code>. Omit to skip, <code>0</code> to switch off a configured policy.</td>
+</tr>
+<tr>
 <td><code>--max-age-days N</code></td>
 <td>Recorded-at age over <code>N</code> days → INFO. Defaults to <code>30</code> if no other check is given.</td>
+</tr>
+<tr>
+<td>(config)</td>
+<td>Every option above except <code>--json</code> can default from <code>[tool.evalcraft]</code> in <code>pyproject.toml</code> (<code>expire_after_days</code>, <code>max_age_days</code>, <code>models</code>, <code>tools</code>, <code>prompts</code>). Flags win.</td>
 </tr>
 <tr>
 <td><code>--json</code></td>
