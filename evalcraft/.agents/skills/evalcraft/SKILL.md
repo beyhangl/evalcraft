@@ -4,7 +4,7 @@ description: Write offline, $0 pytest tests for AI agents with evalcraft. Record
 license: MIT
 compatibility: Requires Python 3.10+ and pytest 8+
 metadata:
-  version: "0.10.0"
+  version: "0.11.0"
 ---
 
 # Testing AI agents with evalcraft
@@ -102,15 +102,22 @@ recording, `--max-age-days N` for an age note and `--expire-after-days N` to
 fail on recordings older than N days. It always warns about run-time values
 (UUIDs, timestamps, temp paths) baked into a recording and about a model alias
 served by different snapshots across cassettes. Warnings don't fail the run.
-Put it in CI next to the tests. The project can keep these as defaults in
+It also checks every recorded model against the providers' retirement calendar:
+a model that has been shut down is CRITICAL, one retiring within 90 days a
+warning (`--retiring-within-days N`, `--no-retirement-calendar`). Put it in CI
+next to the tests. The project can keep these as defaults in
 `[tool.evalcraft]` of `pyproject.toml` (`expire_after_days`, `max_age_days`,
-`models`, `tools`, `prompts`). To refresh expired recordings run
+`retiring_within_days`, `models`, `tools`, `prompts`, and a `prices` table). To refresh expired recordings run
 `pytest --evalcraft-record=new`, which re-records only missing and expired
 cassettes, then review `git diff` before committing.
 
 ## Task 4 — Budgets and tool-call contracts
 
-- Cost: `assert_cost_under(run, max_usd=...)`
+- Cost: `assert_cost_under(run, max_usd=...)`. It fails when a paid model has no
+  known price; add one with `register_price(model, input_usd_per_mtok=...,
+  output_usd_per_mtok=...)` or `[tool.evalcraft.prices]` rather than ignoring it
+- Prompt cache: `assert_cache_hit_rate_at_least(run, min_rate)`
+- Reliability over k recorded runs of one task: `assert_pass_hat_k(runs, *checks)`
 - Tokens: `assert_token_count_under(run, max_tokens=...)`
 - Latency: `assert_latency_under(run, max_ms=...)`
 - A tool ran / never ran: `assert_tool_called(run, name, times=None, with_args=None)`,

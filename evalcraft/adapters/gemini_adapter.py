@@ -35,15 +35,21 @@ from typing import Any
 
 from evalcraft.capture.recorder import get_active_context
 from evalcraft.core.models import Span, SpanKind
+from evalcraft.core.pricing import (
+    NO_CACHE_DISCOUNT,
+    PriceTable,
+    resolve_price,
+)
 
 # ---------------------------------------------------------------------------
 # Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
 # Prices reflect Google's public rates as of early 2026; update as needed.
 # ---------------------------------------------------------------------------
-_MODEL_PRICING: dict[str, tuple[float, float]] = {
+_MODEL_PRICING: PriceTable = {
     # Gemini 2.5
     "gemini-2.5-pro": (1.25, 10.00),
-    "gemini-2.5-flash": (0.15, 0.60),
+    "gemini-2.5-flash": (0.30, 2.50),
+    "gemini-2.5-flash-lite": (0.10, 0.40),
     # Gemini 2.0
     "gemini-2.0-flash": (0.10, 0.40),
     "gemini-2.0-flash-lite": (0.075, 0.30),
@@ -67,17 +73,8 @@ _UNKNOWN_MODEL = "unknown"
 
 def _estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float | None:
     """Return an estimated USD cost or *None* if the model is not in the table."""
-    pricing = _MODEL_PRICING.get(model)
-    if pricing is None:
-        # Prefix-match for dated model variants not listed explicitly.
-        for key, prices in _MODEL_PRICING.items():
-            if model.startswith(key):
-                pricing = prices
-                break
-    if pricing is None:
-        return None
-    input_usd, output_usd = pricing
-    return (prompt_tokens * input_usd + completion_tokens * output_usd) / 1_000_000
+    price = resolve_price(model, _MODEL_PRICING, NO_CACHE_DISCOUNT, NO_CACHE_DISCOUNT)
+    return price.cost(prompt_tokens, completion_tokens) if price is not None else None
 
 
 def _contents_to_str(contents: Any) -> str:

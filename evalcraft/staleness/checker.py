@@ -12,6 +12,10 @@ model set / prompt and reports findings by severity:
 - ``reasoning_state_missing`` (CRITICAL) — spans recorded from a reasoning model
   carry no opaque reasoning state, so replaying them is invalid (the provider
   requires the signed reasoning block verbatim).
+- ``model_shut_down`` (CRITICAL) — the provider's retirement calendar says a
+  recorded model has stopped answering.
+- ``model_retiring`` (WARNING) — a recorded model retires within
+  ``retiring_within_days`` (default 90).
 - ``expired`` (CRITICAL) — the recording is older than the ``expire_after_days``
   policy and must be re-recorded.
 - ``unknown_age`` (WARNING) — a policy is set but the recording has no timestamp.
@@ -46,6 +50,7 @@ import json
 import time
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -53,6 +58,7 @@ from evalcraft.core.models import Cassette, compute_prompt_hash
 from evalcraft.core.reasoning import find_degraded_reasoning_spans
 from evalcraft.core.tool_defs import diff_tool_definitions
 from evalcraft.regression.detector import Severity
+from evalcraft.staleness.retirements import CALENDAR_DATE, find_retirement
 from evalcraft.staleness.volatile import find_volatile_values
 
 _DAY_SECONDS = 86400
@@ -122,9 +128,15 @@ class StalenessChecker:
         *,
         max_age_days: int | None = None,
         expire_after_days: int | None = None,
+        retirement_calendar: bool = True,
+        retiring_within_days: int = 90,
+        today: date | None = None,
     ) -> None:
         self.max_age_days = max_age_days
         self.expire_after_days = expire_after_days
+        self.retirement_calendar = retirement_calendar
+        self.retiring_within_days = retiring_within_days
+        self.today = today
 
     def check(
         self,
@@ -218,6 +230,9 @@ class StalenessChecker:
                     metadata={"age_days": age_days},
                 )
             )
+
+        if self.retirement_calendar:
+            report.findings.extend(self._calendar_findings(cassette))
 
         volatile = find_volatile_values(cassette)
         if volatile:
@@ -378,6 +393,50 @@ class StalenessChecker:
             )
 
         return report
+
+
+    def _calendar_findings(self, cassette: Cassette) -> list[StalenessFinding]:
+        # UTC, so CI in any timezone flips on the same day.
+        today = self.today or datetime.now(timezone.utc).date()
+        models = {s.model for s in cassette.get_llm_calls() if s.model}
+        if cassette.provenance is not None:
+            models |= set(cassette.provenance.models) | set(cassette.provenance.requested_models)
+        findings: list[StalenessFinding] = []
+        for model in sorted(models):
+            ret = find_retirement(model)
+            if ret is None:
+                continue
+            days_left = (ret.retires_on - today).days
+            instead = f" Its replacement is {ret.replacement!r}." if ret.replacement else ""
+            meta = {"retires_on": ret.retires_on.isoformat(), "source": ret.source,
+                    "calendar_date": CALENDAR_DATE.isoformat()}
+            if days_left <= 0:
+                findings.append(StalenessFinding(
+                    category="model_shut_down",
+                    severity=Severity.CRITICAL,
+                    message=(
+                        f"{model!r} was shut down by its provider on "
+                        f"{ret.retires_on.isoformat()}. This recording can't be re-recorded "
+                        f"or checked against a live run.{instead} Migrate and re-record."
+                    ),
+                    recorded_value=model,
+                    current_value=ret.retires_on.isoformat(),
+                    metadata=meta,
+                ))
+            elif days_left <= self.retiring_within_days:
+                findings.append(StalenessFinding(
+                    category="model_retiring",
+                    severity=Severity.WARNING,
+                    message=(
+                        f"{model!r} retires on {ret.retires_on.isoformat()} "
+                        f"({days_left} days).{instead} Plan the migration and re-record "
+                        "before then."
+                    ),
+                    recorded_value=model,
+                    current_value=ret.retires_on.isoformat(),
+                    metadata={**meta, "days_left": days_left},
+                ))
+        return findings
 
 
 def _seconds(stamp: float) -> float:

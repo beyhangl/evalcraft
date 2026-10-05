@@ -37,46 +37,19 @@ from typing import Any
 
 from evalcraft.capture.recorder import get_active_context
 from evalcraft.core.models import Span, SpanKind
+from evalcraft.core.pricing import (
+    NO_CACHE_DISCOUNT,
+    PriceTable,
+    price_for,
+    resolve_price,
+)
 
 # ---------------------------------------------------------------------------
-# Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
-# Pydantic AI uses model strings like "openai:gpt-4o-mini" or "anthropic:claude-..."
-# We strip the provider prefix and look up in a combined pricing table.
+# Pricing — OpenAI, Anthropic and Gemini models are priced from the shared
+# tables (evalcraft.core.pricing.price_for) so the adapters can't disagree.
+# This table only holds models served through other providers.
 # ---------------------------------------------------------------------------
-_MODEL_PRICING: dict[str, tuple[float, float]] = {
-    # OpenAI — GPT-5.x / GPT-4.1
-    "gpt-5.4": (2.50, 15.00),
-    "gpt-5.4-mini": (0.25, 2.00),
-    "gpt-5.4-nano": (0.05, 0.20),
-    "gpt-4.1": (2.00, 8.00),
-    "gpt-4.1-mini": (0.40, 1.60),
-    "gpt-4.1-nano": (0.10, 0.40),
-    # OpenAI — GPT-4o
-    "gpt-4o": (2.50, 10.00),
-    "gpt-4o-mini": (0.15, 0.60),
-    "gpt-4-turbo": (10.00, 30.00),
-    "gpt-4": (30.00, 60.00),
-    "gpt-3.5-turbo": (0.50, 1.50),
-    # OpenAI — Reasoning
-    "o3": (2.00, 8.00),
-    "o3-pro": (20.00, 80.00),
-    "o3-mini": (1.10, 4.40),
-    "o4-mini": (1.10, 4.40),
-    "o1": (15.00, 60.00),
-    "o1-mini": (3.00, 12.00),
-    # Anthropic
-    "claude-opus-4-6": (15.00, 75.00),
-    "claude-sonnet-4-6": (3.00, 15.00),
-    "claude-haiku-4-5-20251001": (0.80, 4.00),
-    "claude-3-5-sonnet-20241022": (3.00, 15.00),
-    "claude-3-5-haiku-20241022": (0.80, 4.00),
-    "claude-3-opus-20240229": (15.00, 75.00),
-    # Gemini
-    "gemini-2.5-pro": (1.25, 10.00),
-    "gemini-2.5-flash": (0.15, 0.60),
-    "gemini-2.0-flash": (0.10, 0.40),
-    "gemini-1.5-pro": (1.25, 5.00),
-    "gemini-1.5-flash": (0.075, 0.30),
+_MODEL_PRICING: PriceTable = {
     # Groq
     "llama-3.3-70b-versatile": (0.59, 0.79),
     "llama-3.1-8b-instant": (0.05, 0.08),
@@ -91,16 +64,10 @@ _UNKNOWN_MODEL = "unknown"
 
 def _estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float | None:
     """Return an estimated USD cost or *None* if the model is not in the table."""
-    pricing = _MODEL_PRICING.get(model)
-    if pricing is None:
-        for key, prices in _MODEL_PRICING.items():
-            if model.startswith(key):
-                pricing = prices
-                break
-    if pricing is None:
-        return None
-    input_usd, output_usd = pricing
-    return (prompt_tokens * input_usd + completion_tokens * output_usd) / 1_000_000
+    price = price_for(model) or resolve_price(
+        model, _MODEL_PRICING, NO_CACHE_DISCOUNT, NO_CACHE_DISCOUNT
+    )
+    return price.cost(prompt_tokens, completion_tokens) if price is not None else None
 
 
 def _normalize_model_name(model_str: str) -> str:

@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] — 2026-10-05
+
+Cost budgets and `check-stale` caught up with the model launches of the last few
+weeks (Claude Sonnet 5.5, GPT-6.1 Sol, and the retirements that came with them).
+Several of the fixes are for checks that passed when they should have failed.
+
+### Fixed
+- **Cost budgets passed for any model evalcraft didn't know.** A call to a model
+  missing from the price tables, which included every Claude 5.x and GPT-6.x
+  model, counted as $0, so `assert_cost_under` passed whatever the run cost.
+  Calls with no recorded cost are now priced from the current tables, and a
+  paid model with no known price fails the assertion with instructions to add
+  one (`on_unknown_price="ignore"` restores the old behaviour).
+- **Dated snapshots were priced as a bigger sibling.** OpenAI answers with ids
+  like `gpt-4o-mini-2024-07-18`, and the first-prefix lookup priced that as
+  `gpt-4o`, 16.7x too high (same for `gpt-4.1-mini-…`, `o3-mini-…`). The lookup
+  now takes the exact id or an id it is a dated snapshot of (`-2024-07-18`,
+  `-20251001`, `@20250929`, `-latest`), and never a different model that only
+  shares a prefix: `gpt-5.5` was priced as `gpt-5`, `o3-pro` as `o3` (10x too
+  low), `gpt-5-pro` as `gpt-5`, `gpt-4-1106-preview` as GPT-4 rather than GPT-4
+  Turbo.
+- **Wrong prices.** Claude Opus 4.6 was listed at 3x its price ($15/$75 instead
+  of $5/$25), Claude Haiku 4.5 at $0.80/$4 instead of $1/$5, `gpt-4.1-mini` and
+  `o4-mini` at half price, `gemini-2.5-flash` at its preview price. The
+  Pydantic AI adapter kept its own table that disagreed with the others; it now
+  uses the shared tables.
+- **False CRITICAL for OpenAI reasoning models.** Since 0.7.0 every o-series,
+  GPT-5 and `deepseek-reasoner` recording was reported as
+  `reasoning_state_missing`. OpenAI recommends passing encrypted reasoning back
+  but doesn't require it (and Chat Completions never returns it), and DeepSeek
+  rejects it in input. The check now covers only models that require it:
+  Claude Opus 5.5 and Fable 5.1.
+
+### Added
+- **Retirement calendar in `check-stale`.** Every recorded model is checked
+  against the retirement dates OpenAI and Anthropic publish. A model that has
+  been shut down is CRITICAL `model_shut_down`, one retiring within 90 days a
+  WARNING `model_retiring` (`--retiring-within-days`, `retiring_within_days` in
+  config, `--no-retirement-calendar`). For example Claude Sonnet 4.5 retires on
+  2026-11-30 and OpenAI shuts down `o1`, `o3-mini`, `o4-mini` and `gpt-4.1-nano`
+  on 2026-10-23. Dates are the providers' own platforms'; Bedrock, Google Cloud
+  and Azure set their own schedules.
+- **Prices for current models**: Claude Fable 5.1, Fable 5, Mythos 5.1/5, Opus
+  5.5, Opus 5, Opus 4.8, Opus 4.7, Sonnet 5.5, Sonnet 5, Opus 4.5, Sonnet 4.5 and
+  older 4.x snapshots; `o3-pro`, `gpt-5-pro`, `gemini-2.5-flash-lite`; GPT-6 Astra, GPT-6.1
+  Sol, GPT-6 Sol, GPT-6 Luna, GPT-5.6 Sol/Terra/Luna and GPT-5.5. Cache rates
+  are now per model (Opus 5.5 reads cache at 0.05x, GPT-6.1 Sol at 0.05x, GPT-5.x
+  at 0.1x).
+- **`register_price()` and `[tool.evalcraft.prices]`** to price fine-tunes
+  (`ft:…` ids are matched exactly) and models evalcraft doesn't list yet.
+  Registered prices also cover dated snapshots and win over the built-in table
+  for the same id, without affecting other models. Local models (Ollama
+  `name:tag` ids, `gpt-oss`) are never treated as unpriced paid models.
+- **pass^k**: `consistency(runs, *checks)` reports mean, pass@k, pass^k and the
+  gap between them over k recorded runs per task, and `assert_pass_hat_k`
+  gates on it. One good run shows an agent can do a task; pass^k shows it does
+  it every time.
+- **`assert_cache_hit_rate_at_least(run, min_rate)`** catches a run whose cached
+  prefix broke and now pays full price for re-sent context.
+
+### Changed (behaviour)
+- `assert_cost_under` can now fail where it used to pass (unknown paid model) or
+  report a different total (calls without a recorded cost are priced).
+- `check-stale` can now exit 1 on a recording of a model the provider has shut
+  down, without `--models`.
+
 ## [0.10.0] — 2026-09-28
 
 An opt-in expiry policy for recordings, so a suite can't quietly turn into a

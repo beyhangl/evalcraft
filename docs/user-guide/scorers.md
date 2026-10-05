@@ -32,7 +32,9 @@ fine inside replay's `NetworkGuard`:
 
 - `assert_tool_called`, `assert_tool_order`, `assert_tool_trajectory`, `assert_no_tool_called`
 - `assert_output_contains`, `assert_output_matches`
-- `assert_cost_under`, `assert_latency_under`, `assert_token_count_under`
+- `assert_cost_under`, `assert_latency_under`, `assert_token_count_under`,
+  `assert_cache_hit_rate_at_least`
+- `consistency` / `assert_pass_hat_k` (pass^k over k recorded runs)
 
 > Cost / latency / token assertions read the **recorded** numbers — they gate the
 > captured run, not a fresh live run.
@@ -217,7 +219,7 @@ assert result.passed
 
 ## Cost and performance assertions
 
-### `assert_cost_under(cassette, max_usd)`
+### `assert_cost_under(cassette, max_usd, *, on_unknown_price="fail")`
 
 Assert the total estimated cost is under a threshold.
 
@@ -227,8 +229,44 @@ assert result.passed
 # If failed: "Cost $0.0823 exceeds limit $0.0500"
 ```
 
-!!! note
-    Cost is only available if recorded during capture (e.g., via `record_llm_call(cost_usd=...)` or an adapter that estimates cost).
+Calls recorded without a cost are priced from evalcraft's current tables, so a
+cassette recorded before a model was added still counts. A call to a paid model
+that evalcraft has no price for **fails** the assertion instead of counting as
+$0. A budget that quietly skips calls proves nothing. Add the price yourself:
+
+```python
+from evalcraft import register_price
+
+register_price("my-finetune", input_usd_per_mtok=3.0, output_usd_per_mtok=12.0,
+               cached_input_usd_per_mtok=0.3)
+```
+
+or in `pyproject.toml`, which the pytest plugin and `evalcraft eval --max-cost`
+read:
+
+```toml
+[tool.evalcraft.prices]
+"my-finetune" = { input = 3.0, output = 12.0, cached_input = 0.3, cache_write = 3.75 }
+```
+
+Registered prices win over the built-in table for the same id and cover its
+dated snapshots, without affecting other models (registering `gpt-4o` leaves
+`gpt-4o-mini` alone). Fine-tune ids (`ft:gpt-4o-mini:…`) are matched exactly.
+Local models (Ollama `name:tag` ids, `gpt-oss`) are never counted as unpriced
+paid models. Pass `on_unknown_price="ignore"` to count unpriced calls as $0.
+
+### `assert_cache_hit_rate_at_least(cassette, min_rate)`
+
+Assert that at least `min_rate` of input tokens were served from the prompt
+cache: `cache_read / (fresh input + cache_read + cache_write)` over the run. In a
+long agent loop most of the prompt is re-sent every turn, so a falling hit rate
+usually means something broke the cached prefix, such as a timestamp in the
+system prompt or a reordered tool list, and the run now pays full price for it.
+
+```python
+result = assert_cache_hit_rate_at_least(run, 0.7)
+# If failed: "Cache hit rate 41.2% is below 70%"
+```
 
 ### `assert_latency_under(cassette, max_ms)`
 
@@ -249,6 +287,29 @@ result = assert_token_count_under(run, max_tokens=2000)
 assert result.passed
 # If failed: "Token count 2341 exceeds limit 2000"
 ```
+
+### `consistency(runs, *checks)` and `assert_pass_hat_k(runs, *checks, at_least=1.0)`
+
+One good run shows an agent *can* do a task. pass^k shows it does it every
+time. Record the same task k times, then score the k recordings:
+
+```python
+from evalcraft import assert_pass_hat_k, assert_tool_called, consistency
+
+checks = (lambda r: assert_tool_called(r, "lookup_order"),)
+result = consistency({"refund": refund_runs, "status": status_runs}, *checks)
+result.mean_at_k        # share of all runs that passed
+result.pass_at_k        # share of tasks that passed at least once
+result.pass_hat_k       # share of tasks that passed on every run
+result.consistency_gap  # mean_at_k - pass_hat_k
+
+assert assert_pass_hat_k({"refund": refund_runs}, *checks).passed
+```
+
+A run passes when every check passes. Each task needs the same number of runs.
+Published agent results show why this matters: an agent averaging 77% per run
+passed all five repeats on only 53% of tasks. Report pass^k next to the mean,
+with k of at least 3.
 
 ---
 

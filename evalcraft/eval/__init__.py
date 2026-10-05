@@ -51,6 +51,7 @@ from evalcraft.eval.rag_scorers import (
 )
 from evalcraft.eval.scorers import (
     Evaluator,
+    assert_cache_hit_rate_at_least,
     assert_cost_under,
     assert_latency_under,
     assert_no_tool_called,
@@ -75,7 +76,12 @@ from evalcraft.eval.scorers.structured import (
 )
 
 # Statistical evaluation
-from evalcraft.eval.statistical import eval_n
+from evalcraft.eval.statistical import (
+    ConsistencyResult,
+    assert_pass_hat_k,
+    consistency,
+    eval_n,
+)
 
 __all__ = [
     # Core
@@ -86,6 +92,7 @@ __all__ = [
     "assert_output_contains",
     "assert_output_matches",
     "assert_cost_under",
+    "assert_cache_hit_rate_at_least",
     "assert_latency_under",
     "assert_token_count_under",
     "Evaluator",
@@ -113,6 +120,9 @@ __all__ = [
     "pairwise_rank",
     # Statistical
     "eval_n",
+    "consistency",
+    "assert_pass_hat_k",
+    "ConsistencyResult",
     # Jury
     "JuryScorer",
     # Hallucination

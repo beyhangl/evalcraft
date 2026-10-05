@@ -58,7 +58,7 @@ _SPAN_COLORS: dict[SpanKind, str] = {
 # ─── CLI root ─────────────────────────────────────────────────────────────────
 
 @click.group()
-@click.version_option(version="0.10.0", prog_name="evalcraft")
+@click.version_option(version="0.11.0", prog_name="evalcraft")
 def cli() -> None:
     """evalcraft — capture, replay, and evaluate AI agent runs."""
 
@@ -396,6 +396,12 @@ def eval_cmd(
 
     evaluator = Evaluator()
     if max_cost is not None:
+        from evalcraft.config import ConfigError, apply_prices, load_config
+
+        try:
+            apply_prices(load_config())
+        except ConfigError as exc:
+            raise click.UsageError(str(exc)) from exc
         evaluator.add(assert_cost_under, c, max_cost)
     if max_tokens is not None:
         evaluator.add(assert_token_count_under, c, max_tokens)
@@ -907,6 +913,11 @@ def regression_cmd(cassette: str, golden: str, as_json: bool) -> None:
 @click.option("--expire-after-days", default=None, type=click.IntRange(min=0),
               help="Recorded-at age over N days is CRITICAL (expired, exit 1). "
                    "0 turns off a policy set in pyproject.toml.")
+@click.option("--retiring-within-days", default=None, type=click.IntRange(min=0),
+              help="Warn when a recorded model retires within N days, per the "
+                   "providers' published calendar (default 90).")
+@click.option("--no-retirement-calendar", is_flag=True,
+              help="Skip the built-in provider retirement calendar.")
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON")
 def check_stale_cmd(
     cassettes: tuple[str, ...],
@@ -915,6 +926,8 @@ def check_stale_cmd(
     tools_path: str | None,
     max_age_days: int | None,
     expire_after_days: int | None,
+    retiring_within_days: int | None,
+    no_retirement_calendar: bool,
     as_json: bool,
 ) -> None:
     """Flag CASSETTES that no longer mirror the model, prompt or tools you ship.
@@ -925,7 +938,9 @@ def check_stale_cmd(
 
     Always checks for run-time values (UUIDs, timestamps, temp paths) baked into
     the recording, and for a model alias served by different snapshots across
-    the given cassettes. Both are warnings.
+    the given cassettes (both warnings), and checks every recorded model
+    against the providers' retirement calendar: a model that has been shut down
+    is CRITICAL, one retiring within 90 days a warning.
 
     Defaults for every option can live in [tool.evalcraft] in pyproject.toml
     (expire_after_days, max_age_days, models, tools, prompts). Flags win.
@@ -983,8 +998,15 @@ def check_stale_cmd(
     ):
         effective_age = 30
 
+    if retiring_within_days is None:
+        retiring_within_days = (
+            cfg.retiring_within_days if cfg.retiring_within_days is not None else 90
+        )
     checker = StalenessChecker(
-        max_age_days=effective_age, expire_after_days=expire_after_days
+        max_age_days=effective_age,
+        expire_after_days=expire_after_days,
+        retirement_calendar=not no_retirement_calendar,
+        retiring_within_days=retiring_within_days,
     )
 
     reports = []

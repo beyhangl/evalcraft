@@ -41,55 +41,61 @@ def _cassette(*spans):
 
 class TestIsReasoningModel:
     @pytest.mark.parametrize("model", [
-        "o1-preview", "o3-mini", "o4-mini", "gpt-5.4",
-        "claude-sonnet-4-thinking", "deepseek-reasoner",
+        "claude-opus-5-5", "claude-fable-5-1", "kimi-k2-thinking",
     ])
     def test_recognised(self, model):
         assert is_reasoning_model(model)
 
     @pytest.mark.parametrize("model", [
         "gpt-4o-mini", "claude-3-haiku-20240307", "gemini-2.0-flash", "", None,
+        # Reasoning models whose provider does not require the state back.
+        "o1-preview", "o3-mini", "o4-mini", "gpt-5.4", "gpt-6-astra", "gpt-6.1-sol",
+        "deepseek-reasoner",
     ])
     def test_not_flagged(self, model):
         # Conservative by design: ordinary models must never be false-flagged.
         assert not is_reasoning_model(model)
 
     def test_case_insensitive(self):
-        assert is_reasoning_model("O3-Mini")
+        assert is_reasoning_model("Claude-Opus-5-5")
 
 
 # ── span-level state ─────────────────────────────────────────────────────────
 
 class TestSpanReasoningState:
     def test_detects_present_state(self):
-        assert span_has_reasoning_state(_llm_span("o3", {REASONING_METADATA_KEY: THINKING}))
+        span = _llm_span("claude-fable-5-1", {REASONING_METADATA_KEY: THINKING})
+        assert span_has_reasoning_state(span)
 
     def test_detects_absent_state(self):
-        assert not span_has_reasoning_state(_llm_span("o3"))
+        assert not span_has_reasoning_state(_llm_span("claude-fable-5-1"))
 
     def test_empty_list_counts_as_absent(self):
-        assert not span_has_reasoning_state(_llm_span("o3", {REASONING_METADATA_KEY: []}))
+        span = _llm_span("claude-fable-5-1", {REASONING_METADATA_KEY: []})
+        assert not span_has_reasoning_state(span)
 
 
 # ── degraded-cassette detection ──────────────────────────────────────────────
 
 class TestFindDegraded:
     def test_flags_reasoning_span_without_state(self):
-        assert len(find_degraded_reasoning_spans(_cassette(_llm_span("o3-mini")))) == 1
+        assert len(find_degraded_reasoning_spans(_cassette(_llm_span("claude-opus-5-5")))) == 1
 
     def test_ignores_reasoning_span_with_state(self):
-        c = _cassette(_llm_span("o3-mini", {REASONING_METADATA_KEY: THINKING}))
+        c = _cassette(_llm_span("claude-opus-5-5", {REASONING_METADATA_KEY: THINKING}))
         assert find_degraded_reasoning_spans(c) == []
 
     def test_ignores_non_reasoning_models(self):
         assert find_degraded_reasoning_spans(_cassette(_llm_span("gpt-4o"))) == []
 
     def test_ignores_tool_spans(self):
-        c = _cassette(Span(kind=SpanKind.TOOL_CALL, tool_name="t", model="o3"))
+        c = _cassette(Span(kind=SpanKind.TOOL_CALL, tool_name="t", model="claude-fable-5-1"))
         assert find_degraded_reasoning_spans(c) == []
 
     def test_reports_each_degraded_span(self):
-        c = _cassette(_llm_span("o3-mini"), _llm_span("o3-mini"), _llm_span("gpt-4o"))
+        c = _cassette(
+            _llm_span("claude-opus-5-5"), _llm_span("claude-opus-5-5"), _llm_span("gpt-4o")
+        )
         assert len(find_degraded_reasoning_spans(c)) == 2
 
 
@@ -97,14 +103,14 @@ class TestFindDegraded:
 
 class TestStalenessIntegration:
     def test_degraded_cassette_is_critical(self):
-        report = StalenessChecker().check(_cassette(_llm_span("o3-mini")))
+        report = StalenessChecker().check(_cassette(_llm_span("claude-opus-5-5")))
         assert report.has_critical
         finding = next(f for f in report.findings if f.category == "reasoning_state_missing")
         assert "invalid" in finding.message
-        assert finding.recorded_value == ["o3-mini"]
+        assert finding.recorded_value == ["claude-opus-5-5"]
 
     def test_captured_state_is_not_flagged(self):
-        c = _cassette(_llm_span("o3-mini", {REASONING_METADATA_KEY: THINKING}))
+        c = _cassette(_llm_span("claude-opus-5-5", {REASONING_METADATA_KEY: THINKING}))
         report = StalenessChecker().check(c)
         assert not report.has_critical
 
@@ -116,7 +122,7 @@ class TestStalenessIntegration:
     def test_runs_without_provenance(self):
         # A legacy cassette can be degraded too — the check must not be gated
         # behind provenance.
-        report = StalenessChecker().check(_cassette(_llm_span("o3-mini")))
+        report = StalenessChecker().check(_cassette(_llm_span("claude-opus-5-5")))
         cats = [f.category for f in report.findings]
         assert "reasoning_state_missing" in cats and "no_provenance" in cats
 

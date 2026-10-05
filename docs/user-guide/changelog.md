@@ -7,6 +7,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
+## [0.11.0] — 2026-10-05
+
+### Fixed
+- `assert_cost_under` counted calls to models missing from the price tables (every Claude 5.x and GPT-6.x model) as $0. Unpriced calls are now priced from current tables, and a paid model with no known price fails the budget.
+- Dated snapshot ids (`gpt-4o-mini-2024-07-18`) were priced as their bigger sibling, up to 16.7x too high. Opus 4.6, Haiku 4.5, `gpt-4.1-mini` and `o4-mini` had wrong prices.
+- OpenAI reasoning models and `deepseek-reasoner` no longer raise a false CRITICAL `reasoning_state_missing`.
+
+### Added
+- Provider retirement calendar in [`check-stale`](check-stale.md#retirement-calendar): `model_shut_down` (CRITICAL) and `model_retiring` (WARNING, 90 days).
+- Prices for Claude 5.x, GPT-6.x, GPT-5.6 and GPT-5.5, with per-model cache rates.
+- `register_price()` and `[tool.evalcraft.prices]` for models evalcraft doesn't list.
+- `consistency()` / `assert_pass_hat_k` (pass^k over k recorded runs) and `assert_cache_hit_rate_at_least`. See [Scorers](scorers.md).
+
+---
+
 ## [0.10.0] — 2026-09-28
 
 ### Added

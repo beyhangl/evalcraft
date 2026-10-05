@@ -33,6 +33,8 @@ evalcraft check-stale tests/cassettes/*.json --models "gpt-5.1,claude-sonnet-4-5
 
 | Finding | Severity | Meaning | Exits CI? |
 |---|---|---|---|
+| `model_shut_down` | **CRITICAL** | The provider's published retirement calendar says a recorded model has stopped answering. Always checked. | **Yes (exit 1)** |
+| `model_retiring` | WARNING | A recorded model retires within 90 days (`--retiring-within-days`). Always checked. | No |
 | `expired` | **CRITICAL** | The recording is older than the `--expire-after-days` / `expire_after_days` policy. See [Keeping recordings fresh](expiry.md). | **Yes (exit 1)** |
 | `unknown_age` | WARNING | An expiry policy is set but the recording has no timestamp. | No |
 | `reasoning_state_missing` | **CRITICAL** | Spans from a reasoning model carry no signed reasoning block, so replaying them is invalid. | **Yes (exit 1)** |
@@ -46,7 +48,7 @@ evalcraft check-stale tests/cassettes/*.json --models "gpt-5.1,claude-sonnet-4-5
 | `no_provenance` | INFO | A legacy / hand-built cassette with no provenance — re-record to enable checks. | No |
 | `no_tool_definitions` | INFO | `--tools` was given but the cassette predates tool recording (0.9). | No |
 
-Only an **expired recording**, a **retired model** or **missing reasoning state** blocks the build. Those
+Only an **expired recording**, a **retired or shut-down model** or **missing reasoning state** blocks the build. Those
 are the signals that mean "your deterministic test is lying." Everything else is
 visible but non-blocking.
 
@@ -57,9 +59,11 @@ visible but non-blocking.
 | `--models "a,b,c"` | The model set you ship today. Any recorded model not in this exact set → CRITICAL. Omit to skip the model check. |
 | `--prompts <file>` | A file of your current prompts; its hash is compared to the recorded `prompt_hash`. Omit to skip. |
 | `--tools <file>` | The tool definitions your code ships today, as JSON. Each difference from the recorded definitions → WARNING. Omit to skip. |
+| `--retiring-within-days N` | Warn when a recorded model retires within `N` days (default 90, `0` for shut-down models only). |
+| `--no-retirement-calendar` | Skip the built-in retirement calendar. |
 | `--expire-after-days N` | Recorded-at age over `N` days → CRITICAL `expired`. Omit to skip, `0` to switch off a configured policy. |
 | `--max-age-days N` | Recorded-at age over `N` days → INFO. Defaults to `30` if no other check is given. |
-| (config) | Every option above except `--json` can default from `[tool.evalcraft]` in `pyproject.toml` (`expire_after_days`, `max_age_days`, `models`, `tools`, `prompts`). Flags win. |
+| (config) | Most options above can default from `[tool.evalcraft]` in `pyproject.toml` (`expire_after_days`, `max_age_days`, `retiring_within_days`, `models`, `tools`, `prompts`). Flags win. |
 | `--json` | Emit `{"cassettes": [report, ...], "across_cassettes": [finding, ...]}` (severity strings `CRITICAL`/`WARNING`/`INFO`). Still exits 1 on any CRITICAL. |
 
 Matching is **exact and case-sensitive** — a swap from `gpt-5.1` to `gpt-5.1-mini`
@@ -84,6 +88,33 @@ reproduces the prompts matches byte-for-byte. Accepted shapes:
 
 // 3. anything else → treated as input_text
 ```
+
+## Retirement calendar
+
+Evalcraft ships the retirement dates OpenAI and Anthropic publish on their
+deprecation pages, so `check-stale` knows when a recorded model stops answering
+without being told your current model set:
+
+```
+  CRITICAL  [model_shut_down] 'o3-mini-2025-01-31' was shut down by its provider on
+            2026-10-23. This recording can't be re-recorded or checked against a live run.
+  WARNING   [model_retiring] 'claude-sonnet-4-5-20250929' retires on 2026-11-30 (56 days).
+            Its replacement is 'claude-sonnet-5-5'.
+```
+
+An entry covers the listed id and its dated snapshots (`o1` covers
+`o1-2024-12-17`, never `o1-mini`). The dates are the providers' own platforms':
+Amazon Bedrock, Google Cloud and Azure set their own schedules. The calendar is
+only as current as your evalcraft release: upgrade to pick up new announcements. `evalcraft.staleness.RETIREMENTS`
+lists every entry with its source.
+
+## Reasoning state
+
+`reasoning_state_missing` fires only for models whose provider *requires* the
+reasoning to be sent back verbatim, today Claude Opus 5.5 and Fable 5.1, which
+think on every turn. OpenAI's reasoning models are not flagged: OpenAI recommends
+passing `encrypted_content` back but doesn't require it, and Chat Completions
+never returns it. Before 0.11 these were flagged CRITICAL, which was a false alarm.
 
 ## Tool definitions (`--tools`)
 

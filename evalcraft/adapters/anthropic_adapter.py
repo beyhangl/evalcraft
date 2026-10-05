@@ -41,7 +41,8 @@ from evalcraft.core.models import Span, SpanKind
 from evalcraft.core.pricing import (
     ANTHROPIC_CACHE_READ,
     ANTHROPIC_CACHE_WRITE,
-    cache_adjusted_cost,
+    PriceTable,
+    resolve_price,
 )
 from evalcraft.core.reasoning import REASONING_METADATA_KEY
 from evalcraft.core.tool_defs import request_metadata
@@ -50,12 +51,35 @@ from evalcraft.core.tool_defs import request_metadata
 # Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
 # Prices reflect Anthropic's public rates as of early 2026; update as needed.
 # ---------------------------------------------------------------------------
-_MODEL_PRICING: dict[str, tuple[float, float]] = {
+_MODEL_PRICING: PriceTable = {
+    # Entries are (input, output) USD per million tokens, optionally followed by
+    # the cache-read and cache-write multipliers when they differ from the
+    # Anthropic defaults (0.1x / 1.25x). Verified against Anthropic's pricing
+    # page on 2026-10-05. An id also covers its dated snapshots.
+    # Claude 5.x
+    "claude-fable-5-1": (10.00, 50.00, 0.025, 1.25),
+    "claude-mythos-5-1": (10.00, 50.00, 0.025, 1.25),
+    "claude-fable-5": (10.00, 50.00),
+    "claude-mythos-5": (10.00, 50.00),
+    "claude-opus-5-5": (4.00, 20.00, 0.05, 1.25),
+    "claude-opus-5": (5.00, 25.00),
+    "claude-sonnet-5-5": (2.00, 10.00),
+    "claude-sonnet-5": (2.00, 10.00),
     # Claude 4.x
-    "claude-opus-4-6": (15.00, 75.00),
+    "claude-opus-4-8": (5.00, 25.00),
+    "claude-opus-4-7": (5.00, 25.00),
+    "claude-opus-4-6": (5.00, 25.00),
+    "claude-opus-4-5": (5.00, 25.00),
+    "claude-opus-4-1": (15.00, 75.00),
+    "claude-opus-4-0": (15.00, 75.00),
+    "claude-opus-4-20250514": (15.00, 75.00),
     "claude-sonnet-4-6": (3.00, 15.00),
-    "claude-haiku-4-5-20251001": (0.80, 4.00),
-    # Claude 3.5
+    "claude-sonnet-4-5": (3.00, 15.00),
+    "claude-sonnet-4-20250514": (3.00, 15.00),
+    "claude-sonnet-4-0": (3.00, 15.00),
+    "claude-haiku-4-5": (1.00, 5.00),
+    # Claude 3.7 / 3.5
+    "claude-3-7-sonnet-20250219": (3.00, 15.00),
     "claude-3-5-sonnet-20241022": (3.00, 15.00),
     "claude-3-5-sonnet-20240620": (3.00, 15.00),
     "claude-3-5-haiku-20241022": (0.80, 4.00),
@@ -90,26 +114,10 @@ def _estimate_cost(
     and 5-minute cache writes at 1.25x. Pricing them as ordinary input would
     overstate a cache-heavy agent loop by up to an order of magnitude.
     """
-    pricing = _MODEL_PRICING.get(model)
-    if pricing is None:
-        # Prefix-match for dated model variants not listed explicitly.
-        for key, prices in _MODEL_PRICING.items():
-            if model.startswith(key):
-                pricing = prices
-                break
-    if pricing is None:
+    price = resolve_price(model, _MODEL_PRICING, ANTHROPIC_CACHE_READ, ANTHROPIC_CACHE_WRITE)
+    if price is None:
         return None
-    input_usd, output_usd = pricing
-    return cache_adjusted_cost(
-        input_usd_per_mtok=input_usd,
-        output_usd_per_mtok=output_usd,
-        prompt_tokens=input_tokens,
-        completion_tokens=output_tokens,
-        cache_read_tokens=cache_read_tokens,
-        cache_write_tokens=cache_write_tokens,
-        cache_read_multiplier=ANTHROPIC_CACHE_READ,
-        cache_write_multiplier=ANTHROPIC_CACHE_WRITE,
-    )
+    return price.cost(input_tokens, output_tokens, cache_read_tokens, cache_write_tokens)
 
 
 def _int_or_zero(value: Any) -> int:

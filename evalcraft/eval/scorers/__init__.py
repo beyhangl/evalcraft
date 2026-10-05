@@ -21,6 +21,7 @@ from evalcraft.core.models import (
     AssertionResult,
     Cassette,
     EvalResult,
+    SpanKind,
 )
 from evalcraft.eval._utils import get_cassette as _get_cassette
 
@@ -327,21 +328,86 @@ def assert_output_matches(
 # Cost and performance assertions
 # ──────────────────────────────────────────────
 
+def _priced_total(c: Cassette) -> tuple[float, dict[str, int]]:
+    """Total cost, pricing calls recorded without a cost from today's tables.
+
+    Returns the total and, per model, the number of calls to a paid model that
+    used tokens but still has no price.
+    """
+    from evalcraft.core.pricing import looks_paid, price_for
+
+    total = 0.0
+    unpriced: dict[str, int] = {}
+    for span in c.spans:
+        if span.cost_usd:
+            total += span.cost_usd
+            continue
+        if span.cost_usd is not None or span.kind not in (
+            SpanKind.LLM_REQUEST, SpanKind.LLM_RESPONSE
+        ):
+            continue
+        usage = span.token_usage
+        if usage is None:
+            continue
+        tokens = (usage.prompt_tokens + usage.completion_tokens
+                  + usage.cache_read_tokens + usage.cache_write_tokens)
+        if tokens <= 0:
+            continue
+        price = price_for(span.model)
+        if price is not None:
+            total += price.cost(
+                usage.prompt_tokens, usage.completion_tokens,
+                usage.cache_read_tokens, usage.cache_write_tokens,
+            )
+        elif looks_paid(span.model):
+            unpriced[span.model or ""] = unpriced.get(span.model or "", 0) + 1
+    return total, unpriced
+
+
 def assert_cost_under(
     cassette: Cassette | AgentRun,
     max_usd: float,
+    *,
+    on_unknown_price: str = "fail",
 ) -> AssertionResult:
-    """Assert the total cost of the run is under a threshold."""
+    """Assert the total cost of the run is under a threshold.
+
+    Calls recorded without a cost are priced from evalcraft's current tables,
+    so a cassette recorded before a model was added still counts. A call to a
+    paid model that evalcraft can't price fails the assertion rather than
+    counting as $0, since a budget that silently ignores calls proves nothing.
+    Register the price with :func:`evalcraft.register_price` or
+    ``[tool.evalcraft.prices]``, or pass ``on_unknown_price="ignore"``.
+    """
+    if on_unknown_price not in ("fail", "ignore"):
+        raise ValueError("on_unknown_price must be 'fail' or 'ignore'")
     c = _get_cassette(cassette)
     c.compute_metrics()
+    total, unpriced = _priced_total(c)
+    name = f"assert_cost_under(${max_usd})"
+
+    if unpriced and on_unknown_price == "fail":
+        calls = sum(unpriced.values())
+        return AssertionResult(
+            name=name,
+            passed=False,
+            expected=max_usd,
+            actual=total,
+            message=(
+                f"Cost unknown for {calls} call(s) to {sorted(unpriced)}: evalcraft has "
+                "no price for these models, so the budget can't be checked. Add one "
+                "with evalcraft.register_price(...) or [tool.evalcraft.prices], or "
+                "pass on_unknown_price='ignore'."
+            ),
+        )
 
     return AssertionResult(
-        name=f"assert_cost_under(${max_usd})",
-        passed=c.total_cost_usd <= max_usd,
+        name=name,
+        passed=total <= max_usd,
         expected=max_usd,
-        actual=c.total_cost_usd,
-        message="" if c.total_cost_usd <= max_usd
-        else f"Cost ${c.total_cost_usd:.4f} exceeds limit ${max_usd:.4f}",
+        actual=total,
+        message="" if total <= max_usd
+        else f"Cost ${total:.4f} exceeds limit ${max_usd:.4f}",
     )
 
 
@@ -378,6 +444,52 @@ def assert_token_count_under(
         actual=c.total_tokens,
         message="" if c.total_tokens <= max_tokens
         else f"Token count {c.total_tokens} exceeds limit {max_tokens}",
+    )
+
+
+def cache_hit_rate(cassette: Cassette | AgentRun) -> float | None:
+    """Share of input tokens served from the prompt cache, or ``None`` if no input.
+
+    ``cache_read / (fresh input + cache_read + cache_write)`` over every LLM call.
+    """
+    c = _get_cassette(cassette)
+    read = total = 0
+    for span in c.get_llm_calls():
+        usage = span.token_usage
+        if usage is None:
+            continue
+        read += usage.cache_read_tokens
+        total += usage.prompt_tokens + usage.cache_read_tokens + usage.cache_write_tokens
+    return read / total if total else None
+
+
+def assert_cache_hit_rate_at_least(
+    cassette: Cassette | AgentRun,
+    min_rate: float,
+) -> AssertionResult:
+    """Assert that at least ``min_rate`` of input tokens were cache reads.
+
+    In a long agent loop most of the prompt is re-sent every turn, so a falling
+    hit rate usually means something changed the cached prefix (a timestamp in
+    the system prompt, a reordered tool list) and the run now pays full price
+    for it. The first call of a run always misses, so leave room for it.
+    """
+    if not 0.0 <= min_rate <= 1.0:
+        raise ValueError("min_rate must be between 0 and 1")
+    rate = cache_hit_rate(cassette)
+    name = f"assert_cache_hit_rate_at_least({min_rate:.0%})"
+    if rate is None:
+        return AssertionResult(
+            name=name, passed=False, expected=min_rate, actual=None,
+            message="No input tokens were recorded, so the cache hit rate is unknown.",
+        )
+    return AssertionResult(
+        name=name,
+        passed=rate >= min_rate,
+        expected=min_rate,
+        actual=rate,
+        message="" if rate >= min_rate
+        else f"Cache hit rate {rate:.1%} is below {min_rate:.0%}",
     )
 
 

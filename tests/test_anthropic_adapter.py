@@ -122,9 +122,11 @@ class TestEstimateCost:
         assert cost == pytest.approx(0.0)
 
     def test_prefix_match(self):
-        # "claude-3-5-sonnet-20241022-extra" should match "claude-3-5-sonnet-20241022"
-        cost = _estimate_cost("claude-3-5-sonnet-20241022-extra", 0, 1_000_000)
-        assert cost == pytest.approx(15.00)
+        # A dated snapshot of a listed id gets that id's price ...
+        assert _estimate_cost("claude-sonnet-4-6-20260101", 0, 1_000_000) == pytest.approx(15.00)
+        assert _estimate_cost("claude-sonnet-4-6@20260101", 0, 1_000_000) == pytest.approx(15.00)
+        # ... but a different model that only shares a prefix does not.
+        assert _estimate_cost("claude-3-5-sonnet-20241022-extra", 0, 1_000_000) is None
 
 
 class TestMessagesToStr:

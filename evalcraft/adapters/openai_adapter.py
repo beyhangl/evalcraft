@@ -41,7 +41,8 @@ from evalcraft.core.models import Span, SpanKind
 from evalcraft.core.pricing import (
     OPENAI_CACHE_READ,
     OPENAI_CACHE_WRITE,
-    cache_adjusted_cost,
+    PriceTable,
+    resolve_price,
 )
 from evalcraft.core.tool_defs import request_metadata
 
@@ -49,43 +50,60 @@ from evalcraft.core.tool_defs import request_metadata
 # Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
 # Prices reflect OpenAI's public rates as of early 2026; update as needed.
 # ---------------------------------------------------------------------------
-_MODEL_PRICING: dict[str, tuple[float, float]] = {
-    # GPT-5.4 (latest flagship, April 2026)
-    "gpt-5.4": (2.50, 15.00),
-    "gpt-5.4-mini": (0.75, 4.50),
-    "gpt-5.4-nano": (0.20, 1.25),
+_MODEL_PRICING: PriceTable = {
+    # Entries are (input, output) USD per million tokens, optionally followed by
+    # the cached-input and cache-write multipliers when they differ from the
+    # OpenAI defaults. Verified against OpenAI's pricing page on 2026-10-05.
+    # GPT-6 (always reasoning)
+    "gpt-6-astra": (10.00, 50.00, 0.10, 1.25),
+    "gpt-6.1-sol": (2.00, 10.00, 0.05, 1.25),
+    "gpt-6-sol": (2.00, 10.00, 0.10, 1.25),
+    "gpt-6-luna": (0.10, 0.50, 0.10, 1.25),
+    # GPT-5.6 (gpt-5.6-sol is at a promotional price through at least 2026-11-21)
+    "gpt-5.6-sol": (4.00, 20.00, 0.10, 1.25),
+    "gpt-5.6-terra": (2.00, 12.00, 0.10, 1.25),
+    "gpt-5.6-luna": (0.20, 1.20, 0.10, 1.25),
+    # GPT-5.5
+    "gpt-5.5": (5.00, 30.00, 0.10, 1.00),
+    # GPT-5.4
+    "gpt-5.4": (2.50, 15.00, 0.10, 1.00),
+    "gpt-5.4-mini": (0.75, 4.50, 0.10, 1.00),
+    "gpt-5.4-nano": (0.20, 1.25, 0.10, 1.00),
     "gpt-5.4-pro": (30.00, 180.00),
     # GPT-5.3
-    "gpt-5.3-codex": (1.75, 14.00),
+    "gpt-5.3-codex": (1.75, 14.00, 0.10, 1.00),
     # GPT-5.2
-    "gpt-5.2": (1.75, 14.00),
+    "gpt-5.2": (1.75, 14.00, 0.10, 1.00),
     "gpt-5.2-pro": (10.50, 84.00),
     # GPT-5.1
-    "gpt-5.1-codex-mini": (0.25, 2.00),
-    "gpt-5.1": (1.25, 10.00),
+    "gpt-5.1-codex-mini": (0.25, 2.00, 0.10, 1.00),
+    "gpt-5.1": (1.25, 10.00, 0.10, 1.00),
     # GPT-5
-    "gpt-5": (1.25, 10.00),
-    "gpt-5-mini": (0.25, 2.00),
-    "gpt-5-nano": (0.05, 0.40),
+    "gpt-5": (1.25, 10.00, 0.10, 1.00),
+    "gpt-5-pro": (15.00, 120.00),
+    "gpt-5-mini": (0.25, 2.00, 0.10, 1.00),
+    "gpt-5-nano": (0.05, 0.40, 0.10, 1.00),
     # GPT-4.1
     "gpt-4.1": (2.00, 8.00),
-    "gpt-4.1-mini": (0.20, 0.80),
+    "gpt-4.1-mini": (0.40, 1.60),
     "gpt-4.1-nano": (0.10, 0.40),
     # GPT-4o (legacy)
     "gpt-4o": (2.50, 10.00),
     "gpt-4o-mini": (0.15, 0.60),
     # GPT-4 (legacy)
     "gpt-4-turbo": (10.00, 30.00),
+    "gpt-4-1106-preview": (10.00, 30.00),
+    "gpt-4-0125-preview": (10.00, 30.00),
     "gpt-4": (30.00, 60.00),
     # GPT-3.5 (legacy)
     "gpt-3.5-turbo": (0.50, 1.50),
     # Reasoning (o-series)
     "o3": (2.00, 8.00),
+    "o3-pro": (20.00, 80.00),
     "o3-mini": (1.10, 4.40),
-    "o4-mini": (0.55, 2.20),
-    "o4-mini-high": (1.10, 4.40),
+    "o4-mini": (1.10, 4.40),
     "o1": (15.00, 60.00),
-    "o1-mini": (0.55, 2.20),
+    "o1-mini": (1.10, 4.40),
     "o1-pro": (150.00, 600.00),
     # GPT-OSS (open source)
     "gpt-oss-20b": (0.03, 0.10),
@@ -113,25 +131,10 @@ def _estimate_cost(
     *inclusive* of the cached portion. Cached input is discounted, so billing it
     at the full input rate overstates cache-heavy runs.
     """
-    pricing = _MODEL_PRICING.get(model)
-    if pricing is None:
-        # Prefix-match for dated model variants not listed explicitly.
-        for key, prices in _MODEL_PRICING.items():
-            if model.startswith(key):
-                pricing = prices
-                break
-    if pricing is None:
+    price = resolve_price(model, _MODEL_PRICING, OPENAI_CACHE_READ, OPENAI_CACHE_WRITE)
+    if price is None:
         return None
-    input_usd, output_usd = pricing
-    return cache_adjusted_cost(
-        input_usd_per_mtok=input_usd,
-        output_usd_per_mtok=output_usd,
-        prompt_tokens=prompt_tokens,
-        completion_tokens=completion_tokens,
-        cache_read_tokens=cache_read_tokens,
-        cache_read_multiplier=OPENAI_CACHE_READ,
-        cache_write_multiplier=OPENAI_CACHE_WRITE,
-    )
+    return price.cost(prompt_tokens, completion_tokens, cache_read_tokens)
 
 
 def _int_or_zero(value: Any) -> int:

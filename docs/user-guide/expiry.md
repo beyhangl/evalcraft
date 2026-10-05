@@ -70,9 +70,13 @@ doesn't need them spelled out:
 [tool.evalcraft]
 expire_after_days = 90                      # CRITICAL, fails CI
 max_age_days = 30                           # INFO note, never fails
+retiring_within_days = 90                   # warn before a provider retires a model
 models = ["gpt-5.1", "claude-sonnet-4-5"]   # a recorded model not in this list is CRITICAL
 tools = "tests/tools.json"                  # tool-definition drift is a WARNING
 prompts = "tests/prompts.json"              # prompt drift is a WARNING
+
+[tool.evalcraft.prices]                     # for models evalcraft can't price yet
+"my-finetune" = { input = 3.0, output = 12.0, cached_input = 0.3 }
 ```
 
 ```yaml

@@ -8,12 +8,15 @@ so they execute offline in milliseconds for $0. Mock LLMs/tools for code-level
 tests, and use live-eval on a schedule for questions that need a real model.
 """
 
-__version__ = "0.10.0"
+__version__ = "0.11.0"
 
 from evalcraft.capture.recorder import CaptureContext, capture
 from evalcraft.cloud.client import EvalcraftCloud
 from evalcraft.core.models import AgentRun, Cassette, EvalResult, Span
+from evalcraft.core.pricing import register_price
 from evalcraft.eval import (
+    # Statistical
+    ConsistencyResult,
     # Jury
     JuryScorer,
     LiveCaseResult,
@@ -25,6 +28,7 @@ from evalcraft.eval import (
     LoopFinding,
     LoopReport,
     assert_answer_relevance,
+    assert_cache_hit_rate_at_least,
     assert_context_recall,
     assert_context_relevance,
     assert_cost_under,
@@ -51,6 +55,7 @@ from evalcraft.eval import (
     assert_output_semantic,
     assert_output_value_in,
     assert_output_value_in_range,
+    assert_pass_hat_k,
     assert_token_count_under,
     assert_tone,
     # Core scorers
@@ -59,9 +64,9 @@ from evalcraft.eval import (
     assert_tool_order,
     assert_tool_trajectory,
     compare_to_baseline,
+    consistency,
     detect_hallucinations,
     detect_loops,
-    # Statistical
     eval_n,
     # Pairwise
     pairwise_compare,
@@ -89,6 +94,7 @@ __all__ = [
     "assert_output_contains",
     "assert_output_matches",
     "assert_cost_under",
+    "assert_cache_hit_rate_at_least",
     "assert_latency_under",
     "assert_token_count_under",
     "assert_output_json",
@@ -110,6 +116,9 @@ __all__ = [
     "pairwise_compare",
     "pairwise_rank",
     "eval_n",
+    "consistency",
+    "assert_pass_hat_k",
+    "ConsistencyResult",
     "JuryScorer",
     "assert_no_hallucination",
     "detect_hallucinations",
@@ -135,4 +144,5 @@ __all__ = [
     "StalenessFinding",
     "StalenessReport",
     "EvalcraftCloud",
+    "register_price",
 ]

@@ -51,7 +51,7 @@ from typing import Any
 import pytest
 
 from evalcraft.capture.recorder import CaptureContext
-from evalcraft.config import ConfigError, load_config, unknown_keys_message
+from evalcraft.config import ConfigError, apply_prices, load_config, unknown_keys_message
 from evalcraft.core.models import Cassette
 from evalcraft.golden.manager import GoldenSet
 from evalcraft.mock.llm import MockLLM
@@ -398,13 +398,11 @@ def _resolve_expiry(config: pytest.Config) -> int | None:
     """The expiry policy: the command-line option, else ``[tool.evalcraft]``.
 
     Resolved once per session so a bad config is one clear usage error. The
-    config is only read when the option isn't given, and 0 switches it off.
+    option wins over the config, and 0 switches the policy off.
     """
     value: int | None = config.getoption("evalcraft_expire_after_days", default=None)
-    if value is not None:
-        if value < 0:
-            raise pytest.UsageError("--evalcraft-expire-after-days must be 0 or more")
-        return value or None
+    if value is not None and value < 0:
+        raise pytest.UsageError("--evalcraft-expire-after-days must be 0 or more")
     try:
         cfg = load_config(config.rootpath)
     except ConfigError as exc:
@@ -412,6 +410,10 @@ def _resolve_expiry(config: pytest.Config) -> int | None:
     unknown = unknown_keys_message(cfg)
     if unknown:
         config.issue_config_time_warning(UserWarning(unknown), stacklevel=2)
+    # Prices from the config apply to every cost assertion in the session.
+    apply_prices(cfg)
+    if value is not None:
+        return value or None
     return cfg.expire_after_days
 
 

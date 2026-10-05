@@ -19,9 +19,13 @@ from evalcraft.staleness.checker import (
     is_expired,
     recorded_at,
 )
+from evalcraft.staleness.retirements import RETIREMENTS, Retirement, find_retirement
 from evalcraft.staleness.volatile import VolatileValue, find_volatile_values
 
 __all__ = [
+    "RETIREMENTS",
+    "Retirement",
+    "find_retirement",
     "StalenessChecker",
     "StalenessFinding",
     "StalenessReport",

@@ -11,8 +11,9 @@ recorded from a reasoning model *without* its reasoning blocks is not a faithful
 recording, and replaying it is invalid rather than merely lossy. This module
 detects that situation so it can be reported loudly instead of silently trusted.
 
-Detection is deliberately conservative — it only flags a span when the model is
-recognisably a reasoning model, so ordinary cassettes are never false-flagged.
+Detection is deliberately conservative — it only flags a span when the model's
+provider requires its reasoning state back, so ordinary cassettes are never
+false-flagged.
 """
 
 from __future__ import annotations
@@ -25,18 +26,21 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
 #: Span-metadata key under which adapters store captured reasoning blocks.
 REASONING_METADATA_KEY = "reasoning"
 
-#: Substrings identifying model families that emit opaque reasoning state.
-#: Matched case-insensitively against the recorded model name.
+#: Substrings identifying models whose recordings are invalid without their
+#: reasoning state. Matched case-insensitively against the recorded model name.
+#:
+#: Only models whose provider *requires* the reasoning to be sent back belong
+#: here. OpenAI's o-series and GPT-5/6 families are deliberately absent: OpenAI
+#: recommends passing ``encrypted_content`` back but does not require it, and
+#: Chat Completions never returns it, so a recording without it is complete.
+#: DeepSeek rejects ``reasoning_content`` in input, so ``*-reasoner`` is absent
+#: too. Claude 4.x is absent because thinking is opt-in there.
 REASONING_MODEL_MARKERS: tuple[str, ...] = (
-    "o1", "o3", "o4",              # OpenAI o-series
-    "gpt-5",                       # GPT-5 family (reasoning-capable)
     "thinking",                    # explicit extended-thinking variants
-    "reasoner",                    # DeepSeek-style naming
-    # Claude Opus 5.5 (2026-09-22) thinks on every turn and cannot disable it,
-    # so a recording without its thinking blocks is always degraded. Claude 4.x
-    # is deliberately NOT listed: thinking is opt-in there, so its absence is
-    # not evidence of a lossy recording and flagging it would be a false alarm.
+    # Claude Opus 5.5 (2026-09-22) and Fable 5.1 think on every turn and can't
+    # disable it, so a recording without their thinking blocks is degraded.
     "claude-opus-5-5",
+    "claude-fable-5-1",
 )
 
 

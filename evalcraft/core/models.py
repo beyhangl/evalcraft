@@ -370,7 +370,7 @@ class Cassette:
         self.compute_metrics()
         self.compute_fingerprint()
         return {
-            "evalcraft_version": "0.10.0",
+            "evalcraft_version": "0.11.0",
             "cassette": {
                 "id": self.id,
                 "name": self.name,

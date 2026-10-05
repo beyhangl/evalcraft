@@ -22,7 +22,7 @@ Usage::
 from __future__ import annotations
 
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -165,3 +165,138 @@ def _extract_scores(results: list[AssertionResult]) -> list[float]:
             except (ValueError, IndexError):
                 pass
     return scores
+
+
+# ──────────────────────────────────────────────
+# Consistency across repeated runs (pass^k)
+# ──────────────────────────────────────────────
+
+RunLike = Cassette | AgentRun
+Check = Callable[[RunLike], AssertionResult]
+
+
+@dataclass
+class ConsistencyResult:
+    """How reliably an agent repeats a success across k runs of the same task.
+
+    - ``mean_at_k``: share of all runs that passed (the usual "pass rate").
+    - ``pass_at_k``: share of tasks where at least one of the k runs passed.
+    - ``pass_hat_k``: share of tasks where every one of the k runs passed.
+    - ``consistency_gap``: ``mean_at_k - pass_hat_k``. A large gap means the
+      agent can do the task but doesn't do it reliably.
+    """
+
+    k: int = 0
+    tasks: int = 0
+    mean_at_k: float = 0.0
+    pass_at_k: float = 0.0
+    pass_hat_k: float = 0.0
+    consistency_gap: float = 0.0
+    per_task: dict[str, list[bool]] = field(default_factory=dict)
+    failures: dict[str, list[str]] = field(default_factory=dict)
+
+    def to_dict(self) -> dict:
+        return {
+            "k": self.k,
+            "tasks": self.tasks,
+            "mean_at_k": self.mean_at_k,
+            "pass_at_k": self.pass_at_k,
+            "pass_hat_k": self.pass_hat_k,
+            "consistency_gap": self.consistency_gap,
+            "per_task": {t: list(v) for t, v in self.per_task.items()},
+            "failures": {t: list(v) for t, v in self.failures.items()},
+        }
+
+
+def consistency(
+    runs: Mapping[str, Sequence[RunLike]] | Sequence[RunLike],
+    *checks: Check,
+) -> ConsistencyResult:
+    """Score k recorded runs per task with ``checks`` and report pass^k.
+
+    ``runs`` is either a list of runs of one task or a mapping of task name to
+    its runs; every task needs the same number of runs (k). A run passes when
+    every check passes. Checks take the run alone, so bind other arguments::
+
+        result = consistency(
+            {"refund": refund_runs, "status": status_runs},
+            lambda r: assert_tool_called(r, "lookup_order"),
+            lambda r: assert_cost_under(r, max_usd=0.01),
+        )
+        assert result.pass_hat_k >= 0.9
+
+    Deterministic and $0: it reads recordings, it does not run the agent.
+    Record the k runs first, for example by capturing the same scenario k times.
+    """
+    if not checks:
+        raise ValueError("consistency() needs at least one check")
+    if isinstance(runs, (str, bytes, Cassette, AgentRun)):
+        raise TypeError("consistency() takes a list of runs or a mapping of task -> runs")
+    tasks: dict[str, list[RunLike]] = (
+        {str(name): list(task_runs) for name, task_runs in runs.items()}
+        if isinstance(runs, Mapping)
+        else {"task": list(runs)}
+    )
+    if not tasks:
+        raise ValueError("consistency() needs at least one task")
+    sizes = {len(v) for v in tasks.values()}
+    if len(sizes) != 1 or 0 in sizes:
+        raise ValueError(
+            f"every task needs the same, non-zero number of runs; got {sorted(sizes)}"
+        )
+    k = sizes.pop()
+
+    per_task: dict[str, list[bool]] = {}
+    failures: dict[str, list[str]] = {}
+    for name, task_runs in tasks.items():
+        outcomes: list[bool] = []
+        for index, run in enumerate(task_runs):
+            failed = [r for r in (check(run) for check in checks) if not r.passed]
+            outcomes.append(not failed)
+            for r in failed:
+                failures.setdefault(name, []).append(
+                    f"run {index + 1}: {r.name}: {r.message}".rstrip(": ")
+                )
+        per_task[name] = outcomes
+
+    total_runs = len(tasks) * k
+    mean = sum(sum(v) for v in per_task.values()) / total_runs
+    any_pass = sum(1 for v in per_task.values() if any(v)) / len(tasks)
+    all_pass = sum(1 for v in per_task.values() if all(v)) / len(tasks)
+    return ConsistencyResult(
+        k=k,
+        tasks=len(tasks),
+        mean_at_k=mean,
+        pass_at_k=any_pass,
+        pass_hat_k=all_pass,
+        consistency_gap=mean - all_pass,
+        per_task=per_task,
+        failures=failures,
+    )
+
+
+def assert_pass_hat_k(
+    runs: Mapping[str, Sequence[RunLike]] | Sequence[RunLike],
+    *checks: Check,
+    at_least: float = 1.0,
+) -> AssertionResult:
+    """Assert that at least ``at_least`` of tasks pass on every one of their k runs.
+
+    The default, 1.0, means every task must succeed on every recorded run. A
+    single good run proves the agent *can* do a task; pass^k shows it does so
+    reliably.
+    """
+    result = consistency(runs, *checks)
+    ok = result.pass_hat_k >= at_least
+    flaky = sorted(t for t, v in result.per_task.items() if not all(v))
+    return AssertionResult(
+        name=f"assert_pass_hat_k(k={result.k}, at_least={at_least})",
+        passed=ok,
+        expected=at_least,
+        actual=result.pass_hat_k,
+        message="" if ok else (
+            f"pass^{result.k} = {result.pass_hat_k:.0%} (mean {result.mean_at_k:.0%}, "
+            f"pass@{result.k} {result.pass_at_k:.0%}); tasks not passing on every run: "
+            f"{flaky}. First failures: {[result.failures[t][0] for t in flaky[:3]]}"
+        ),
+    )

@@ -479,6 +479,8 @@ evalcraft check-stale CASSETTES... [OPTIONS]
 | `--prompts PATH` | Current prompts file; hash drift vs the recording is a WARNING |
 | `--tools PATH` | Current tool definitions (JSON); each change vs the recording is a WARNING |
 | `--expire-after-days N` | Recorded-at age over N days is CRITICAL (`expired`) |
+| `--retiring-within-days N` | Warn when a recorded model retires within N days (default 90) |
+| `--no-retirement-calendar` | Skip the built-in provider retirement calendar |
 | `--max-age-days N` | Recorded-at age over N days is INFO (defaults to 30 if no other check) |
 | `--json` | Emit JSON; still exits 1 on any CRITICAL |
 
