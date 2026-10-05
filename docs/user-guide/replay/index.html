@@ -461,7 +461,7 @@
   <span class="md-ellipsis">
     
   
-    Case Study: Catching a Regression
+    Walkthrough: Catching a Regression
   
 
     
@@ -1695,6 +1695,15 @@
 </span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="c1"># Tool sequence: [&#39;search&#39;] → [&#39;search&#39;, &#39;summarize&#39;]</span>
 </span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="c1"># Tokens: 135 → 210</span>
 </span></code></pre></div>
+<p>Tool calls are compared field by field, so two runs that call the same tools
+and end with the same answer still differ when an argument changed:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">diff</span> <span class="o">=</span> <span class="n">ReplayDiff</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">ignore_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*.arguments.request_id&quot;</span><span class="p">])</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">diff</span><span class="o">.</span><span class="n">contract_changes</span><span class="p">:</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">change</span><span class="o">.</span><span class="n">tool</span><span class="p">,</span> <span class="n">change</span><span class="o">.</span><span class="n">field</span><span class="p">,</span> <span class="n">change</span><span class="o">.</span><span class="n">old</span><span class="p">,</span> <span class="s2">&quot;→&quot;</span><span class="p">,</span> <span class="n">change</span><span class="o">.</span><span class="n">new</span><span class="p">)</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># lookup_order arguments.order_id ORDER-123 → ORDER-999</span>
+</span></code></pre></div>
+<p>In a test, <code>assert_same_tool_calls(run, "tests/cassettes/baseline.json")</code> fails
+with the changed field.</p>
 <h3 id="replaydiff-properties"><code>ReplayDiff</code> properties<a class="headerlink" href="#replaydiff-properties" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1709,6 +1718,21 @@
 <td><code>has_changes</code></td>
 <td><code>bool</code></td>
 <td>True if any field changed</td>
+</tr>
+<tr>
+<td><code>tool_args_changed</code></td>
+<td><code>bool</code></td>
+<td>A paired tool call was made with different arguments</td>
+</tr>
+<tr>
+<td><code>tool_changes</code></td>
+<td><code>list[ToolFieldChange]</code></td>
+<td>Every changed argument/result field (<code>tool</code>, <code>call</code>, <code>field</code>, <code>old</code>, <code>new</code>, <code>severity</code>)</td>
+</tr>
+<tr>
+<td><code>contract_changes</code></td>
+<td><code>list[ToolFieldChange]</code></td>
+<td>Only the argument changes</td>
 </tr>
 <tr>
 <td><code>tool_sequence_changed</code></td>
@@ -1769,22 +1793,22 @@
 </table>
 <h3 id="replaydiffcomputeold-new"><code>ReplayDiff.compute(old, new)</code><a class="headerlink" href="#replaydiffcomputeold-new" title="Permanent link">&para;</a></h3>
 <p>Static factory to compare two cassettes directly.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span> <span class="nn">evalcraft.core.models</span> <span class="kn">import</span> <span class="n">Cassette</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="kn">from</span> <span class="nn">evalcraft.replay.engine</span> <span class="kn">import</span> <span class="n">ReplayDiff</span>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">c1</span> <span class="o">=</span> <span class="n">Cassette</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;cassettes/v1.json&quot;</span><span class="p">)</span>
-</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="n">c2</span> <span class="o">=</span> <span class="n">Cassette</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;cassettes/v2.json&quot;</span><span class="p">)</span>
-</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="n">diff</span> <span class="o">=</span> <span class="n">ReplayDiff</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">)</span>
-</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span> <span class="nn">evalcraft.core.models</span> <span class="kn">import</span> <span class="n">Cassette</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="kn">from</span> <span class="nn">evalcraft.replay.engine</span> <span class="kn">import</span> <span class="n">ReplayDiff</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="n">c1</span> <span class="o">=</span> <span class="n">Cassette</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;cassettes/v1.json&quot;</span><span class="p">)</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="n">c2</span> <span class="o">=</span> <span class="n">Cassette</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;cassettes/v2.json&quot;</span><span class="p">)</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="n">diff</span> <span class="o">=</span> <span class="n">ReplayDiff</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">)</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
 </span></code></pre></div>
 <hr />
 <h2 id="common-patterns">Common patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="regression-test-with-fingerprint">Regression test with fingerprint<a class="headerlink" href="#regression-test-with-fingerprint" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">def</span> <span class="nf">test_no_regression</span><span class="p">():</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="n">run</span> <span class="o">=</span> <span class="n">replay</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/baseline.json&quot;</span><span class="p">)</span>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="c1"># Fingerprint is computed from span content</span>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="c1"># Store the expected fingerprint in your test</span>
-</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    <span class="k">assert</span> <span class="n">run</span><span class="o">.</span><span class="n">cassette</span><span class="o">.</span><span class="n">fingerprint</span> <span class="o">==</span> <span class="s2">&quot;a3f1c2d4e5b6a7c8&quot;</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">def</span> <span class="nf">test_no_regression</span><span class="p">():</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="n">run</span> <span class="o">=</span> <span class="n">replay</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/baseline.json&quot;</span><span class="p">)</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    <span class="c1"># Fingerprint is computed from span content</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="c1"># Store the expected fingerprint in your test</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    <span class="k">assert</span> <span class="n">run</span><span class="o">.</span><span class="n">cassette</span><span class="o">.</span><span class="n">fingerprint</span> <span class="o">==</span> <span class="s2">&quot;a3f1c2d4e5b6a7c8&quot;</span>
 </span></code></pre></div>
 <blockquote>
 <p><strong>Scope of this check.</strong> Because <code>replay()</code> re-emits the recorded spans
@@ -1796,31 +1820,31 @@ model / prompt / retrieval drift you must re-record against the live model
 (which updates the fingerprint) or run a live eval.</p>
 </blockquote>
 <h3 id="testing-different-tool-responses">Testing different tool responses<a class="headerlink" href="#testing-different-tool-responses" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">import</span> <span class="nn">pytest</span>
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kn">from</span> <span class="nn">evalcraft.replay.engine</span> <span class="kn">import</span> <span class="n">ReplayEngine</span>
-</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
-</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;weather,expected_tone&quot;</span><span class="p">,</span> <span class="p">[</span>
-</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    <span class="p">({</span><span class="s2">&quot;temp&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;sunny&quot;</span><span class="p">},</span> <span class="s2">&quot;hot&quot;</span><span class="p">),</span>
-</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>    <span class="p">({</span><span class="s2">&quot;temp&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;blizzard&quot;</span><span class="p">},</span> <span class="s2">&quot;cold&quot;</span><span class="p">),</span>
-</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="p">])</span>
-</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="k">def</span> <span class="nf">test_agent_adapts_to_weather</span><span class="p">(</span><span class="n">weather</span><span class="p">,</span> <span class="n">expected_tone</span><span class="p">):</span>
-</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    <span class="n">engine</span> <span class="o">=</span> <span class="n">ReplayEngine</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/weather.json&quot;</span><span class="p">)</span>
-</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>    <span class="n">engine</span><span class="o">.</span><span class="n">override_tool_result</span><span class="p">(</span><span class="s2">&quot;get_weather&quot;</span><span class="p">,</span> <span class="n">weather</span><span class="p">)</span>
-</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>    <span class="n">run</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>    <span class="c1"># The output changes because the tool result changed</span>
-</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>    <span class="k">assert</span> <span class="n">run</span><span class="o">.</span><span class="n">cassette</span><span class="o">.</span><span class="n">output_text</span>  <span class="c1"># non-empty</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">import</span> <span class="nn">pytest</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="kn">from</span> <span class="nn">evalcraft.replay.engine</span> <span class="kn">import</span> <span class="n">ReplayEngine</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;weather,expected_tone&quot;</span><span class="p">,</span> <span class="p">[</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="p">({</span><span class="s2">&quot;temp&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;sunny&quot;</span><span class="p">},</span> <span class="s2">&quot;hot&quot;</span><span class="p">),</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="p">({</span><span class="s2">&quot;temp&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;blizzard&quot;</span><span class="p">},</span> <span class="s2">&quot;cold&quot;</span><span class="p">),</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="p">])</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="k">def</span> <span class="nf">test_agent_adapts_to_weather</span><span class="p">(</span><span class="n">weather</span><span class="p">,</span> <span class="n">expected_tone</span><span class="p">):</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>    <span class="n">engine</span> <span class="o">=</span> <span class="n">ReplayEngine</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/weather.json&quot;</span><span class="p">)</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>    <span class="n">engine</span><span class="o">.</span><span class="n">override_tool_result</span><span class="p">(</span><span class="s2">&quot;get_weather&quot;</span><span class="p">,</span> <span class="n">weather</span><span class="p">)</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>    <span class="n">run</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>    <span class="c1"># The output changes because the tool result changed</span>
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>    <span class="k">assert</span> <span class="n">run</span><span class="o">.</span><span class="n">cassette</span><span class="o">.</span><span class="n">output_text</span>  <span class="c1"># non-empty</span>
 </span></code></pre></div>
 <h3 id="detecting-regressions-between-versions">Detecting regressions between versions<a class="headerlink" href="#detecting-regressions-between-versions" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span> <span class="nn">evalcraft.replay.engine</span> <span class="kn">import</span> <span class="n">ReplayEngine</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="k">def</span> <span class="nf">test_no_new_tool_calls</span><span class="p">():</span>
-</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    <span class="n">diff</span> <span class="o">=</span> <span class="n">ReplayEngine</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/baseline.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/current.json&quot;</span><span class="p">)</span>
-</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="k">if</span> <span class="n">diff</span><span class="o">.</span><span class="n">tool_sequence_changed</span><span class="p">:</span>
-</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>        <span class="n">pytest</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span>
-</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>            <span class="sa">f</span><span class="s2">&quot;Tool sequence changed!</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>            <span class="sa">f</span><span class="s2">&quot;  Before: </span><span class="si">{</span><span class="n">diff</span><span class="o">.</span><span class="n">old_tool_sequence</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>            <span class="sa">f</span><span class="s2">&quot;  After:  </span><span class="si">{</span><span class="n">diff</span><span class="o">.</span><span class="n">new_tool_sequence</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>        <span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">from</span> <span class="nn">evalcraft.replay.engine</span> <span class="kn">import</span> <span class="n">ReplayEngine</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="k">def</span> <span class="nf">test_no_new_tool_calls</span><span class="p">():</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    <span class="n">diff</span> <span class="o">=</span> <span class="n">ReplayEngine</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/baseline.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="s2">&quot;tests/cassettes/current.json&quot;</span><span class="p">)</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    <span class="k">if</span> <span class="n">diff</span><span class="o">.</span><span class="n">tool_sequence_changed</span><span class="p">:</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>        <span class="n">pytest</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>            <span class="sa">f</span><span class="s2">&quot;Tool sequence changed!</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>            <span class="sa">f</span><span class="s2">&quot;  Before: </span><span class="si">{</span><span class="n">diff</span><span class="o">.</span><span class="n">old_tool_sequence</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>            <span class="sa">f</span><span class="s2">&quot;  After:  </span><span class="si">{</span><span class="n">diff</span><span class="o">.</span><span class="n">new_tool_sequence</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>        <span class="p">)</span>
 </span></code></pre></div>
 <hr />
 <h2 id="what-replay-does-and-doesnt-test">What replay does and doesn't test<a class="headerlink" href="#what-replay-does-and-doesnt-test" title="Permanent link">&para;</a></h2>

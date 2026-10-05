@@ -27,7 +27,7 @@
     
     
       
-        <title>Case Study: Catching a Regression - Evalcraft</title>
+        <title>Walkthrough: Catching a Regression - Evalcraft</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#case-study-how-a-weather-agent-team-caught-a-50day-regression" class="md-skip">
+        <a href="#walkthrough-catching-a-50day-regression" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Case Study: Catching a Regression
+              Walkthrough: Catching a Regression
             
           </span>
         </div>
@@ -470,7 +470,7 @@
   <span class="md-ellipsis">
     
   
-    Case Study: Catching a Regression
+    Walkthrough: Catching a Regression
   
 
     
@@ -488,7 +488,7 @@
   <span class="md-ellipsis">
     
   
-    Case Study: Catching a Regression
+    Walkthrough: Catching a Regression
   
 
     
@@ -1206,11 +1206,19 @@
   
 
 
-<h1 id="case-study-how-a-weather-agent-team-caught-a-50day-regression">Case Study: How a Weather Agent Team Caught a $50/day Regression<a class="headerlink" href="#case-study-how-a-weather-agent-team-caught-a-50day-regression" title="Permanent link">&para;</a></h1>
-<p>This is the story of a team that saved $1,500/month by catching a broken model swap before it hit production — in under 5 minutes of CI time.</p>
+<h1 id="walkthrough-catching-a-50day-regression">Walkthrough: Catching a $50/day Regression<a class="headerlink" href="#walkthrough-catching-a-50day-regression" title="Permanent link">&para;</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Illustrative scenario</p>
+<p>This is a constructed example, not a report from a real customer. The team,
+the traffic and the dollar figures are made up to show how the workflow fits
+together. The code and commands are real and runnable.</p>
+</div>
+<p>This walkthrough follows a hypothetical team that catches a broken model swap
+before it reaches production, in under 5 minutes of CI time. At the scale
+assumed below, the regression would have cost about $50 a day.</p>
 <hr />
 <h2 id="the-setup">The setup<a class="headerlink" href="#the-setup" title="Permanent link">&para;</a></h2>
-<p><strong>Team:</strong> 3 engineers at a logistics startup building a weather-aware routing agent.</p>
+<p><strong>Team (hypothetical):</strong> 3 engineers at a logistics startup building a weather-aware routing agent.</p>
 <p><strong>Agent:</strong> Takes a city name, calls a <code>get_weather</code> tool, and returns a natural-language forecast. Powers route planning for 10,000+ daily deliveries.</p>
 <p><strong>Stack:</strong> Python, OpenAI SDK (GPT-4o), pytest, GitHub Actions.</p>
 <p>The agent is straightforward — one tool call, one LLM call:</p>
