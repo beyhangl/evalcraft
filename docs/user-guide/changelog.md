@@ -7,6 +7,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
+## [0.12.0] — 2026-10-05
+
+### Fixed
+- `evalcraft diff` now compares tool calls field by field, so a run that called the same tools with different arguments (`order_id` `ORDER-123` → `ORDER-999`) is no longer reported as unchanged. `--ignore` and `--fail-on-contract` added.
+
+### Added
+- `assert_same_tool_calls(run, baseline)`. See [Scorers](scorers.md).
+
+### Documentation
+- The walkthrough formerly titled "Case Study" is labelled as an illustrative scenario.
+
+---
+
 ## [0.11.0] — 2026-10-05
 
 ### Fixed

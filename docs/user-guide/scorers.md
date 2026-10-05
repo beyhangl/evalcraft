@@ -154,6 +154,22 @@ assert result.passed, result.message
 # If failed: "Tool 'send_email' was called 1 times, expected 0"
 ```
 
+### `assert_same_tool_calls(cassette, baseline, *, ignore_fields=(), compare_results=False)`
+
+Assert the run called the same tools, in the same order, with the same
+arguments as a baseline recording (a `Cassette` or a path). A run that looks
+identical in aggregate but sent a different argument fails with the field:
+
+```python
+result = assert_same_tool_calls(run, "tests/cassettes/refund_baseline.json",
+                                ignore_fields=["*.arguments.request_id"])
+# If failed: 'Tool calls differ from the baseline: lookup_order (call 1)
+#             arguments.order_id: "ORDER-123" → "ORDER-999"'
+```
+
+`ignore_fields` takes glob patterns on `<tool>.<field>` or `<field>`. Results
+are only compared with `compare_results=True`, since they come from the tool.
+
 ### `assert_tool_trajectory(cassette, expected_tools, *, mode="strict")`
 
 Match the whole tool-call trajectory against a reference under one of four

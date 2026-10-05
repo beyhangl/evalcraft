@@ -144,12 +144,14 @@ Compare two cassettes and show what changed.
 evalcraft diff OLD NEW [OPTIONS]
 ```
 
-Useful for detecting regressions between agent runs — changes in tool order, output text, token usage, or cost.
+Useful for detecting regressions between agent runs — changes in tool order, tool arguments and results (field by field), output text, token usage, or cost.
 
 ### Options
 
 | Option | Description |
 |--------|-------------|
+| `--ignore PATTERN` | Tool field to ignore, as a glob on `<tool>.<field>` or `<field>` (e.g. `'*.arguments.request_id'`). Repeatable. |
+| `--fail-on-contract` | Exit 1 if any tool was called with different arguments |
 | `--json` | Output diff as JSON |
 
 ### Example
@@ -181,6 +183,19 @@ evalcraft diff cassettes/baseline.json cassettes/new_run.json
   ~  cost                   $0.0008  →  $0.0024
   ~  span count             4  →  6
 ```
+
+**Output (same tools, different arguments):**
+
+```
+  =  tool sequence          unchanged
+  =  output text            unchanged
+  ...
+  !  tool contract changed: lookup_order (call 1)
+     arguments.order_id: "ORDER-123" → "ORDER-999"
+```
+
+Argument changes are contract changes. Result changes, and arguments whose old
+and new values are both run-time timestamps or IDs, are shown as informational.
 
 **JSON output:**
 

@@ -58,7 +58,7 @@ _SPAN_COLORS: dict[SpanKind, str] = {
 # ─── CLI root ─────────────────────────────────────────────────────────────────
 
 @click.group()
-@click.version_option(version="0.11.0", prog_name="evalcraft")
+@click.version_option(version="0.12.0", prog_name="evalcraft")
 def cli() -> None:
     """evalcraft — capture, replay, and evaluate AI agent runs."""
 
@@ -274,12 +274,20 @@ def replay(cassette: str, verbose: bool, block_network: bool, allow_hosts: tuple
 @cli.command()
 @click.argument("old", type=click.Path(exists=True, dir_okay=False))
 @click.argument("new", type=click.Path(exists=True, dir_okay=False))
+@click.option("--ignore", "ignore_fields", multiple=True, metavar="PATTERN",
+              help="Tool field to ignore, as a glob on <tool>.<field> or <field> "
+                   "(e.g. '*.arguments.request_id'). Repeatable.")
+@click.option("--fail-on-contract", is_flag=True,
+              help="Exit 1 if any tool was called with different arguments.")
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON")
-def diff(old: str, new: str, as_json: bool) -> None:
+def diff(
+    old: str, new: str, ignore_fields: tuple[str, ...], fail_on_contract: bool, as_json: bool
+) -> None:
     """Compare two cassettes and show what changed.
 
     Useful for detecting regressions between agent runs — changes in tool
-    order, output text, token usage, or cost.
+    order, tool arguments and results (field by field), output text, token
+    usage, or cost.
 
     Example:
 
@@ -288,10 +296,13 @@ def diff(old: str, new: str, as_json: bool) -> None:
     c_old = _load_cassette(old)
     c_new = _load_cassette(new)
 
-    d = ReplayDiff.compute(c_old, c_new)
+    d = ReplayDiff.compute(c_old, c_new, ignore_fields=ignore_fields)
+    failed = fail_on_contract and d.tool_args_changed
 
     if as_json:
-        click.echo(json.dumps(d.to_dict(), indent=2))
+        click.echo(json.dumps(d.to_dict(), indent=2, default=str))
+        if failed:
+            sys.exit(1)
         return
 
     click.echo(
@@ -329,6 +340,18 @@ def diff(old: str, new: str, as_json: bool) -> None:
     _row("token count", d.token_count_changed, d.old_tokens, d.new_tokens)
     _row("cost", d.cost_changed, _fmt_cost(d.old_cost), _fmt_cost(d.new_cost))
     _row("span count", d.span_count_changed, d.old_span_count, d.new_span_count)
+
+    if d.tool_changes:
+        click.echo()
+        for change in d.tool_changes:
+            contract = change.severity == "contract"
+            click.echo(
+                "  " + click.style("!" if contract else "~", fg="red" if contract else "yellow")
+                + f"  {change.label.lower()}: {change.tool} (call {change.call})"
+            )
+            click.echo(f"     {change.describe()}")
+    if failed:
+        sys.exit(1)
 
 
 # ─── eval ─────────────────────────────────────────────────────────────────────

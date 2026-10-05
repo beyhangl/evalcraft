@@ -247,7 +247,7 @@ evalcraft golden compare tests/cassettes/weather.json --against golden/weather_a
 
 | Guide | What you'll learn |
 |-------|------------------|
-| [Case Study](five-minute-case-study.md) | See how a team caught a $50/day regression with evalcraft |
+| [Walkthrough](five-minute-case-study.md) | An illustrative scenario: catching a $50/day regression |
 | [Concepts](concepts.md) | Cassettes, spans, fingerprints — the full data model |
 | [Capture API](capture.md) | `CaptureContext`, `@capture` decorator, `record_*` methods |
 | [Replay Engine](replay.md) | Tool overrides, step iteration, diffs |

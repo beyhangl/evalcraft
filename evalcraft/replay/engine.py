@@ -20,7 +20,7 @@ Usage:
 from __future__ import annotations
 
 import copy
-from collections.abc import Callable, Collection
+from collections.abc import Callable, Collection, Iterable
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +31,7 @@ from evalcraft.core.models import (
     SpanKind,
 )
 from evalcraft.replay.network_guard import NetworkGuard
+from evalcraft.replay.tool_diff import CONTRACT, ToolFieldChange, diff_tool_calls
 
 
 class ReplayEngine:
@@ -229,6 +230,17 @@ class ReplayDiff:
         self.new_cost: float = 0.0
         self.old_span_count: int = 0
         self.new_span_count: int = 0
+        self.tool_changes: list[ToolFieldChange] = []
+
+    @property
+    def tool_args_changed(self) -> bool:
+        """True when a paired tool call was made with different arguments."""
+        return any(c.severity == CONTRACT for c in self.tool_changes)
+
+    @property
+    def contract_changes(self) -> list[ToolFieldChange]:
+        """Changes in what the agent asked its tools for."""
+        return [c for c in self.tool_changes if c.severity == CONTRACT]
 
     @property
     def has_changes(self) -> bool:
@@ -238,11 +250,28 @@ class ReplayDiff:
             self.token_count_changed,
             self.cost_changed,
             self.span_count_changed,
+            bool(self.tool_changes),
         ])
 
     @classmethod
-    def compute(cls, old: Cassette, new: Cassette) -> ReplayDiff:
+    def compute(
+        cls,
+        old: Cassette,
+        new: Cassette,
+        *,
+        ignore_fields: Iterable[str] = (),
+        compare_results: bool = True,
+    ) -> ReplayDiff:
+        """Compare two cassettes.
+
+        Besides the aggregate changes (tool sequence, output, tokens, cost),
+        every tool call is compared field by field; see
+        :func:`evalcraft.replay.tool_diff.diff_tool_calls` for ``ignore_fields``.
+        """
         diff = cls()
+        diff.tool_changes = diff_tool_calls(
+            old, new, ignore=ignore_fields, compare_results=compare_results
+        )
 
         diff.old_tool_sequence = old.get_tool_sequence()
         diff.new_tool_sequence = new.get_tool_sequence()
@@ -282,6 +311,8 @@ class ReplayDiff:
             "new_tokens": self.new_tokens,
             "old_cost": self.old_cost,
             "new_cost": self.new_cost,
+            "tool_args_changed": self.tool_args_changed,
+            "tool_changes": [c.to_dict() for c in self.tool_changes],
         }
 
     def summary(self) -> str:
@@ -290,6 +321,10 @@ class ReplayDiff:
             return "No changes detected."
 
         parts = []
+        for change in self.tool_changes:
+            parts.append(
+                f"{change.label}: {change.tool} (call {change.call})  {change.describe()}"
+            )
         if self.tool_sequence_changed:
             parts.append(
                 f"Tool sequence: {self.old_tool_sequence} → {self.new_tool_sequence}"

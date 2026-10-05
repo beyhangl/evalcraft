@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] — 2026-10-05
+
+### Fixed
+- **`evalcraft diff` missed argument changes.** Two runs that called the same
+  tools in the same order and ended with the same answer were reported as
+  unchanged even when the agent sent different arguments, for example
+  `lookup_order(order_id="ORDER-999")` instead of `"ORDER-123"`. Tool calls are
+  now compared field by field: argument changes are contract changes, result
+  changes are informational, and arguments that are run-time timestamps or IDs
+  on both sides are informational too. `--ignore PATTERN` drops fields and
+  `--fail-on-contract` exits 1 on any argument change.
+
+### Added
+- `assert_same_tool_calls(run, baseline, ignore_fields=...)` fails a test with
+  the exact field that changed against a baseline recording.
+- `ReplayDiff.tool_changes`, `contract_changes` and `tool_args_changed`, and
+  `evalcraft.replay.tool_diff.diff_tool_calls`.
+
+### Documentation
+- The case study is now labelled as an illustrative scenario. The team and the
+  dollar figures were made up to show the workflow, and the page didn't say so.
+- `CONTRIBUTING.md` said Python 3.9+ and that CI runs ruff and mypy. The floor
+  is 3.10 and CI runs the tests and the build only. The README still called the
+  project v0.1.0.
+
 ## [0.11.0] — 2026-10-05
 
 Cost budgets and `check-stale` caught up with the model launches of the last few

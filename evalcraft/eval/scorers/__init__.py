@@ -447,6 +447,43 @@ def assert_token_count_under(
     )
 
 
+def assert_same_tool_calls(
+    cassette: Cassette | AgentRun,
+    baseline: Cassette | AgentRun | str,
+    *,
+    ignore_fields: list[str] | tuple[str, ...] = (),
+    compare_results: bool = False,
+) -> AssertionResult:
+    """Assert the run called the same tools, in order, with the same arguments.
+
+    Compares against a baseline recording field by field, so a run that looks
+    identical in aggregate but looked up ``ORDER-999`` instead of ``ORDER-123``
+    fails with exactly that field. ``ignore_fields`` takes glob patterns on
+    ``<tool>.<field>`` or ``<field>`` (``"*.arguments.request_id"``). Results
+    are not compared unless ``compare_results`` is set, since they come from
+    the tool, not the agent.
+    """
+    from evalcraft.replay.tool_diff import CONTRACT, diff_tool_calls
+
+    c = _get_cassette(cassette)
+    base = Cassette.load(baseline) if isinstance(baseline, str) else _get_cassette(baseline)
+    old_seq, new_seq = base.get_tool_sequence(), c.get_tool_sequence()
+    changes = diff_tool_calls(base, c, ignore=ignore_fields, compare_results=compare_results)
+    relevant = [ch for ch in changes if ch.severity == CONTRACT or compare_results]
+    problems: list[str] = []
+    if old_seq != new_seq:
+        problems.append(f"tool sequence {old_seq} → {new_seq}")
+    problems += [f"{ch.tool} (call {ch.call}) {ch.describe()}" for ch in relevant]
+    return AssertionResult(
+        name="assert_same_tool_calls",
+        passed=not problems,
+        expected=old_seq,
+        actual=new_seq,
+        message="" if not problems
+        else "Tool calls differ from the baseline: " + "; ".join(problems),
+    )
+
+
 def cache_hit_rate(cassette: Cassette | AgentRun) -> float | None:
     """Share of input tokens served from the prompt cache, or ``None`` if no input.
 

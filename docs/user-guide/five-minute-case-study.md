@@ -1,12 +1,19 @@
-# Case Study: How a Weather Agent Team Caught a $50/day Regression
+# Walkthrough: Catching a $50/day Regression
 
-This is the story of a team that saved $1,500/month by catching a broken model swap before it hit production — in under 5 minutes of CI time.
+!!! note "Illustrative scenario"
+    This is a constructed example, not a report from a real customer. The team,
+    the traffic and the dollar figures are made up to show how the workflow fits
+    together. The code and commands are real and runnable.
+
+This walkthrough follows a hypothetical team that catches a broken model swap
+before it reaches production, in under 5 minutes of CI time. At the scale
+assumed below, the regression would have cost about $50 a day.
 
 ---
 
 ## The setup
 
-**Team:** 3 engineers at a logistics startup building a weather-aware routing agent.
+**Team (hypothetical):** 3 engineers at a logistics startup building a weather-aware routing agent.
 
 **Agent:** Takes a city name, calls a `get_weather` tool, and returns a natural-language forecast. Powers route planning for 10,000+ daily deliveries.
 

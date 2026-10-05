@@ -36,11 +36,13 @@ pytest
 pytest --cov=evalcraft --cov-report=term-missing
 ```
 
-All three checks (format, lint, type check) must pass before a PR is merged. CI enforces this.
+Run all three checks (format, lint, type check) before opening a PR. Reviewers
+will ask for them to pass. CI currently runs the test suite on Python 3.10 to
+3.14 and builds the package, but does not run ruff or mypy.
 
 ## Code conventions
 
-- **Python 3.9+** — no syntax or stdlib features above 3.9 unless gated
+- **Python 3.10+** — no syntax or stdlib features above 3.10 unless gated
 - **Line length** — 100 characters (configured in `pyproject.toml`)
 - **Types** — strict mypy; all public functions need type annotations
 - **Tests** — every new feature or bug fix needs a test in `tests/`

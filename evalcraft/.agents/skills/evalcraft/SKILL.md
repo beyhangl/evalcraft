@@ -4,7 +4,7 @@ description: Write offline, $0 pytest tests for AI agents with evalcraft. Record
 license: MIT
 compatibility: Requires Python 3.10+ and pytest 8+
 metadata:
-  version: "0.11.0"
+  version: "0.12.0"
 ---
 
 # Testing AI agents with evalcraft
@@ -125,6 +125,9 @@ cassettes, then review `git diff` before committing.
 - Tool order: `assert_tool_trajectory(run, tools, mode=...)` with `strict`,
   `unordered`, `subset` or `superset`
 - Argument shape: `assert_tool_args_match_schema(run, name, schema)`
+- Same tools and arguments as a baseline recording:
+  `assert_same_tool_calls(run, baseline_path, ignore_fields=[...])`; on the CLI,
+  `evalcraft diff old.json new.json --fail-on-contract`
 - Output shape: `assert_output_json_schema(run, schema)`
 
 The full list, and which assertions cost money, is in

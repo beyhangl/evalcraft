@@ -8,7 +8,7 @@ so they execute offline in milliseconds for $0. Mock LLMs/tools for code-level
 tests, and use live-eval on a schedule for questions that need a real model.
 """
 
-__version__ = "0.11.0"
+__version__ = "0.12.0"
 
 from evalcraft.capture.recorder import CaptureContext, capture
 from evalcraft.cloud.client import EvalcraftCloud
@@ -56,6 +56,7 @@ from evalcraft.eval import (
     assert_output_value_in,
     assert_output_value_in_range,
     assert_pass_hat_k,
+    assert_same_tool_calls,
     assert_token_count_under,
     assert_tone,
     # Core scorers
@@ -95,6 +96,7 @@ __all__ = [
     "assert_output_matches",
     "assert_cost_under",
     "assert_cache_hit_rate_at_least",
+    "assert_same_tool_calls",
     "assert_latency_under",
     "assert_token_count_under",
     "assert_output_json",

@@ -229,11 +229,27 @@ print(diff.summary())
 # Tokens: 135 → 210
 ```
 
+Tool calls are compared field by field, so two runs that call the same tools
+and end with the same answer still differ when an argument changed:
+
+```python
+diff = ReplayDiff.compute(old, new, ignore_fields=["*.arguments.request_id"])
+for change in diff.contract_changes:
+    print(change.tool, change.field, change.old, "→", change.new)
+# lookup_order arguments.order_id ORDER-123 → ORDER-999
+```
+
+In a test, `assert_same_tool_calls(run, "tests/cassettes/baseline.json")` fails
+with the changed field.
+
 ### `ReplayDiff` properties
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `has_changes` | `bool` | True if any field changed |
+| `tool_args_changed` | `bool` | A paired tool call was made with different arguments |
+| `tool_changes` | `list[ToolFieldChange]` | Every changed argument/result field (`tool`, `call`, `field`, `old`, `new`, `severity`) |
+| `contract_changes` | `list[ToolFieldChange]` | Only the argument changes |
 | `tool_sequence_changed` | `bool` | Tool call order changed |
 | `output_changed` | `bool` | Agent output text changed |
 | `token_count_changed` | `bool` | Total token count changed |

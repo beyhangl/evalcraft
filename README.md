@@ -319,7 +319,7 @@ evalcraft generate-tests tests/cassettes/weather.json -o tests/test_weather.py
 ```bash
 evalcraft doctor
 #   ✓ Python 3.11.5
-#   ✓ evalcraft 0.1.0
+#   ✓ evalcraft 0.12.0
 #   ✓ openai 2.30.0
 #   ! anthropic not installed
 #   ✓ OPENAI_API_KEY configured
@@ -642,7 +642,7 @@ PRs welcome. Please open an issue first for significant changes. See [CONTRIBUTI
 
 ## Design Partners
 
-**We're looking for design partners.** evalcraft is early (v0.1.0), and we'd like a few teams to help shape it. Partners get:
+**We're looking for design partners.** evalcraft is pre-1.0 and has few users so far, and we'd like a few teams to help shape it. Partners get:
 
 - **Hands-on setup help** — we'll pair with you to get evalcraft into your CI pipeline
 - **Direct access to the maintainer** — not a support queue
