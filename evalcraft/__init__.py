@@ -8,7 +8,7 @@ so they execute offline in milliseconds for $0. Mock LLMs/tools for code-level
 tests, and use live-eval on a schedule for questions that need a real model.
 """
 
-__version__ = "0.12.0"
+__version__ = "0.13.0"
 
 from evalcraft.capture.recorder import CaptureContext, capture
 from evalcraft.cloud.client import EvalcraftCloud
@@ -77,6 +77,7 @@ from evalcraft.eval import (
 from evalcraft.golden.manager import GoldenSet
 from evalcraft.mock.llm import MockLLM
 from evalcraft.mock.tool import MockTool
+from evalcraft.playback import Playback, PlaybackError, playback
 from evalcraft.regression.detector import RegressionDetector, RegressionReport
 from evalcraft.replay.engine import ReplayEngine, replay
 from evalcraft.staleness import StalenessChecker, StalenessFinding, StalenessReport
@@ -86,6 +87,9 @@ __all__ = [
     "CaptureContext",
     "replay",
     "ReplayEngine",
+    "playback",
+    "Playback",
+    "PlaybackError",
     "MockLLM",
     "MockTool",
     "assert_tool_called",

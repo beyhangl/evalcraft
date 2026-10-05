@@ -23,6 +23,50 @@ That's it. Swap `generic` for `openai`, `anthropic`, `langgraph` or `crewai` to 
 
 ---
 
+## Break your agent, watch the test fail
+
+The question that matters: *when I change my agent, will this test tell me I broke it?* With
+**playback**, your real agent code runs (its prompts, its tools, its control flow) and only the
+model calls are answered from a recording. Try it with [`examples/order-agent`](examples/order-agent),
+no API key needed:
+
+```python
+@pytest.mark.evalcraft_playback("tests/cassettes/order_status.json")
+def test_answers_order_status(evalcraft_playback):
+    answer = run_agent(OpenAI(api_key="playback"), "Where is ORDER-123?")
+    assert "shipped" in answer
+    assert assert_tool_called(evalcraft_playback.cassette, "lookup_order",
+                              with_args={"order_id": "ORDER-123"}).passed
+```
+
+```text
+$ pytest                                    # 1 passed, offline, $0
+$ # in agent.py, stop running the tool:  result = {"status": "unknown"}
+$ pytest
+E   PlaybackMismatchError: model call 2 (recording: tests/cassettes/order_status.json)
+E   does not match the recording:
+E     messages[3].content.eta: recorded "2026-10-09", now (missing)
+E     messages[3].content.status: recorded "shipped", now "unknown"
+$ # undo the change
+$ pytest                                    # 1 passed
+```
+
+The recording didn't change; the code did, and the test says exactly where. A request with no
+recording fails too, and other network access is blocked, so nothing falls through to a paid API.
+Record a new cassette from a live run with `pytest --evalcraft-record=new`. Supported today:
+OpenAI Chat Completions and Anthropic Messages (sync and async, not streaming). See
+[Playback](https://beyhangl.github.io/evalcraft/docs/user-guide/playback/).
+
+### Three ways to test, three different guarantees
+
+| Mode | Runs your current code? | Calls a model? | What a green test proves |
+|---|---|---|---|
+| **Playback** (`evalcraft_playback`) | Yes | No, answered from the recording | Your code still makes the same calls, sends the same tool results and handles the recorded replies |
+| **Recorded-run checks** (`evalcraft_cassette`, `replay()`) | No | No | A saved run satisfies your contracts: tools, arguments, shape, cost |
+| **Live evals** (`live-eval`, scheduled) | Yes | Yes | The current model, prompt and code behave acceptably together |
+
+---
+
 ## What it catches
 
 A model swap. The agent still answers "shipped" and the run still succeeds, but
@@ -319,7 +363,7 @@ evalcraft generate-tests tests/cassettes/weather.json -o tests/test_weather.py
 ```bash
 evalcraft doctor
 #   ✓ Python 3.11.5
-#   ✓ evalcraft 0.12.0
+#   ✓ evalcraft 0.13.0
 #   ✓ openai 2.30.0
 #   ! anthropic not installed
 #   ✓ OPENAI_API_KEY configured

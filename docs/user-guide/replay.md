@@ -1,5 +1,11 @@
 # Replay Engine
 
+!!! tip "Testing a change to your agent?"
+    `replay()` reads a recording back and does not run your code. To run your
+    current agent code against recorded model responses, use
+    [playback](playback.md).
+
+
 The replay engine loads a recorded cassette and feeds the recorded responses back deterministically — no API calls, zero cost.
 
 ---
