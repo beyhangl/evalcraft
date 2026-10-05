@@ -45,6 +45,8 @@ from evalcraft.core.pricing import (
     resolve_price,
 )
 from evalcraft.core.tool_defs import request_metadata
+from evalcraft.playback.canonical import recording_metadata
+from evalcraft.playback.registry import was_played_back
 
 # ---------------------------------------------------------------------------
 # Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
@@ -323,7 +325,8 @@ class OpenAIAdapter:
 
     def _record_response(self, kwargs: dict[str, Any], response: Any, duration_ms: float) -> None:
         ctx = get_active_context()
-        if ctx is None:
+        if ctx is None or was_played_back(response):
+            # A played-back response is recorded by playback itself.
             return
 
         model: str = getattr(response, "model", None) or kwargs.get("model", _UNKNOWN_MODEL)
@@ -383,6 +386,7 @@ class OpenAIAdapter:
             metadata={
                 "finish_reason": _get_finish_reason(response),
                 **request_metadata(kwargs, model),
+                **recording_metadata("openai", kwargs, response),
             },
         )
 

@@ -7,6 +7,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 
 ---
 
+## [0.13.0] — unreleased
+
+### Added
+- [Playback](playback.md): run your current agent code with each OpenAI / Anthropic call answered from a recording. A changed request fails with the field that changed. `@pytest.mark.evalcraft_playback` + the `evalcraft_playback` fixture, live recording with `--evalcraft-record`.
+- `examples/order-agent`: break the agent, not the recording, and the offline test fails.
+
+### Changed
+- Adapters store the exact request and response of each call so playback can reproduce it.
+
+---
+
 ## [0.12.0] — 2026-10-05
 
 ### Fixed

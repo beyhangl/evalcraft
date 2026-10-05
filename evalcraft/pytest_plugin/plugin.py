@@ -9,6 +9,9 @@ Fixtures:
     mock_tool               — factory fixture that creates MockTool instances
     cassette                — load a Cassette from @pytest.mark.evalcraft_cassette
     replay_engine           — load a ReplayEngine from @pytest.mark.evalcraft_cassette
+    evalcraft_playback      — run the test's agent code against the model responses of
+                              @pytest.mark.evalcraft_playback (records them live with
+                              --evalcraft-record=new|all)
 
 Markers:
     @pytest.mark.evalcraft_cassette("tests/cassettes/foo.json")
@@ -19,6 +22,9 @@ Markers:
 
     @pytest.mark.evalcraft_agent
         Informational marker — tag tests as agent evaluation tests for filtering.
+
+    @pytest.mark.evalcraft_playback("tests/cassettes/foo.json", match="strict")
+        Answer the test's OpenAI / Anthropic calls from this recording.
 
 CLI options:
     --cassette-dir DIR       Where to store/load cassettes (default: tests/cassettes)
@@ -43,6 +49,7 @@ along with missing ones.
 
 from __future__ import annotations
 
+import contextlib
 import os
 from collections.abc import Generator
 from pathlib import Path
@@ -56,6 +63,7 @@ from evalcraft.core.models import Cassette
 from evalcraft.golden.manager import GoldenSet
 from evalcraft.mock.llm import MockLLM
 from evalcraft.mock.tool import MockTool
+from evalcraft.playback.player import Playback
 from evalcraft.replay.engine import ReplayEngine
 from evalcraft.staleness.checker import cassette_age_days
 
@@ -86,6 +94,11 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line(
         "markers",
         "evalcraft_golden(path): path to golden-set file for regression comparison",
+    )
+    config.addinivalue_line(
+        "markers",
+        "evalcraft_playback(path, match='strict', ignore_request_fields=(), "
+        "block_network=True): answer the test's model calls from this recording",
     )
     # Session-level list accumulates per-test metrics for the terminal summary.
     config._evalcraft_results = []  # type: ignore[attr-defined]
@@ -322,6 +335,155 @@ def golden_set(request: pytest.FixtureRequest) -> GoldenSet | None:
     return GoldenSet.load(path)
 
 
+class PlaybackRun:
+    """What :func:`evalcraft_playback` gives a test.
+
+    ``cassette`` is the run happening now (recorded as the test's code makes
+    its calls), ``recorded`` the recording being played back (``None`` when
+    the test runs live to record), and ``live`` says which of the two it is.
+    """
+
+    def __init__(self, ctx: CaptureContext, recorded: Cassette | None, path: Path) -> None:
+        self.ctx = ctx
+        self.recorded = recorded
+        self.path = path
+
+    @property
+    def cassette(self) -> Cassette:
+        return self.ctx.cassette
+
+    @property
+    def live(self) -> bool:
+        return self.recorded is None
+
+
+def _live_adapters() -> list[Any]:
+    adapters: list[Any] = []
+    try:
+        import openai  # noqa: F401
+
+        from evalcraft.adapters.openai_adapter import OpenAIAdapter
+
+        adapters.append(OpenAIAdapter())
+    except ImportError:
+        pass
+    try:
+        import anthropic  # noqa: F401
+
+        from evalcraft.adapters.anthropic_adapter import AnthropicAdapter
+
+        adapters.append(AnthropicAdapter())
+    except ImportError:
+        pass
+    return adapters
+
+
+@pytest.fixture
+def evalcraft_playback(request: pytest.FixtureRequest) -> Generator[PlaybackRun, None, None]:
+    """Run the test's agent code against a recording's model responses.
+
+    With ``@pytest.mark.evalcraft_playback("tests/cassettes/refund.json")`` the
+    test's OpenAI Chat Completions and Anthropic Messages calls are answered
+    from the recording. Each call must match the recorded request, so a change
+    in what the current code sends fails the test with the field that changed,
+    and other network access is blocked.
+
+    With ``--evalcraft-record=new`` (missing or expired cassettes) or ``all``,
+    the test runs against the real provider instead and the run is saved as
+    the new recording.
+
+    Example::
+
+        @pytest.mark.evalcraft_playback("tests/cassettes/order_status.json")
+        def test_order_status(evalcraft_playback):
+            answer = run_agent(client, "Where is ORDER-123?")
+            assert_tool_called(evalcraft_playback.cassette, "lookup_order",
+                               with_args={"order_id": "ORDER-123"})
+    """
+    marker = request.node.get_closest_marker("evalcraft_playback")
+    if marker is None or not marker.args:
+        pytest.fail(
+            "evalcraft_playback needs @pytest.mark.evalcraft_playback('tests/cassettes/x.json')",
+            pytrace=False,
+        )
+    path = Path(str(marker.args[0]))
+    if not path.is_absolute():
+        path = request.config.rootpath / path
+    options = dict(marker.kwargs)
+    mode: str = request.config.getoption("evalcraft_record", default="none")
+
+    recorded: Cassette | None = None
+    live = mode == "all"
+    if not live:
+        if path.exists():
+            recorded = Cassette.load(path)
+            if _handle_expiry(request, path, recorded):
+                recorded, live = None, True
+        elif mode == "none":
+            message = f"Cassette not found: {path}  (run with --evalcraft-record=new to record it)"
+            if _missing_is_failure(request.config):
+                pytest.fail(message + "  [missing cassettes fail in CI; "
+                            "pass --evalcraft-missing=skip to allow]", pytrace=False)
+            pytest.skip(message)
+        else:
+            live = True
+
+    meta = {"pytest_node_id": request.node.nodeid}
+    node = request.node
+    if live:
+        ctx = CaptureContext(name=path.stem, metadata=meta)
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(ctx)
+            for adapter in _live_adapters():
+                stack.enter_context(adapter)
+            yield PlaybackRun(ctx, None, path)
+        # A failing run must not replace a good recording, and a half-written
+        # file must never be left behind.
+        if getattr(node, "_evalcraft_call_passed", False) and _may_write_cassette(
+            request.config, path
+        ):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = path.with_name(path.name + ".tmp")
+            ctx.cassette.save(tmp)
+            os.replace(tmp, path)
+    else:
+        ctx = CaptureContext(name=path.stem, metadata=meta)
+        player = Playback(path, **options)
+        with ctx:
+            player.start()
+            node._evalcraft_player = player
+            try:
+                yield PlaybackRun(ctx, recorded, path)
+            finally:
+                player.stop()
+                node._evalcraft_player = None
+    _store_result(request.config, request.node.nodeid, ctx.cassette)
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_call(item: pytest.Item) -> Generator[None, None, None]:
+    """Report playback failures as failures of the test itself.
+
+    A mismatch the agent caught and swallowed, or a run that stopped short of
+    the recording, is only known once the test function returns. Raising it
+    here makes it a test failure rather than a teardown error. If the test
+    already failed, that failure is the one reported.
+    """
+    try:
+        result = yield
+    except BaseException:
+        item._evalcraft_call_passed = False  # type: ignore[attr-defined]
+        raise
+    player = getattr(item, "_evalcraft_player", None)
+    if player is not None:
+        failure = player.pending_failure()
+        if failure is not None:
+            item._evalcraft_call_passed = False  # type: ignore[attr-defined]
+            raise failure
+    item._evalcraft_call_passed = True  # type: ignore[attr-defined]
+    return result
+
+
 # ─────────────────────────────────────────────────────
 # Terminal reporting hook
 # ─────────────────────────────────────────────────────
@@ -491,25 +653,38 @@ def _load_cassette_from_marker(request: pytest.FixtureRequest) -> Cassette | Non
         return None
 
     loaded = Cassette.load(path)
-    days = _expire_after_days(request.config)
-    if days is not None:
-        age = cassette_age_days(loaded)
-        if age is not None and age > days:
-            record_mode = request.config.getoption("evalcraft_record", default="none")
-            if record_mode != "none":
-                # Treated like a missing cassette so this run records a fresh one.
-                return None
-            message = (
-                f"Cassette expired: {path} was recorded {age:.0f} days ago, past the "
-                f"{days}-day policy  (run with --evalcraft-record=new to re-record it)"
-            )
-            if _in_ci():
-                pytest.fail(message, pytrace=False)
-            # The cassette and replay_engine fixtures both load; warn once per test.
-            if not getattr(request.node, "_evalcraft_expiry_warned", False):
-                request.node._evalcraft_expiry_warned = True  # type: ignore[attr-defined]
-                request.node.warn(EvalcraftExpiredCassetteWarning(message))
+    if _handle_expiry(request, path, loaded):
+        return None
     return loaded
+
+
+def _handle_expiry(request: pytest.FixtureRequest, path: Path, loaded: Cassette) -> bool:
+    """Apply the expiry policy to a loaded cassette.
+
+    Returns True when the cassette is expired and this run records a fresh one.
+    Otherwise an expired cassette fails the test in CI and warns locally.
+    """
+    days = _expire_after_days(request.config)
+    if days is None:
+        return False
+    age = cassette_age_days(loaded)
+    if age is None or age <= days:
+        return False
+    record_mode = request.config.getoption("evalcraft_record", default="none")
+    if record_mode != "none":
+        # Treated like a missing cassette so this run records a fresh one.
+        return True
+    message = (
+        f"Cassette expired: {path} was recorded {age:.0f} days ago, past the "
+        f"{days}-day policy  (run with --evalcraft-record=new to re-record it)"
+    )
+    if _in_ci():
+        pytest.fail(message, pytrace=False)
+    # The cassette and replay_engine fixtures both load; warn once per test.
+    if not getattr(request.node, "_evalcraft_expiry_warned", False):
+        request.node._evalcraft_expiry_warned = True  # type: ignore[attr-defined]
+        request.node.warn(EvalcraftExpiredCassetteWarning(message))
+    return False
 
 
 def _store_result(config: pytest.Config, node_id: str, cassette: Cassette) -> None:

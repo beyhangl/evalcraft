@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] — unreleased
+
+Playback: run your current agent code against recorded model responses.
+
+Until now an offline evalcraft test read a recording back. That checks a saved
+run against your contracts, but it can't tell you whether a change to your
+agent broke something, which is the first thing people want to know.
+
+### Added
+- **`playback(cassette)`** and **`@pytest.mark.evalcraft_playback(path)`** with
+  the `evalcraft_playback` fixture. Your agent runs for real, and each OpenAI
+  Chat Completions or Anthropic Messages call (sync or async) is answered from
+  the recording. Every call must match the recorded request (model, messages,
+  tool calls and results, system prompt, tool names), so a tool that stopped
+  running, a tool bug or an edited prompt fails with the field that changed:
+  `messages[3].content.status: recorded "shipped", now "unknown"`. Tool results
+  are matched to the call they answer, and tool descriptions, schemas and
+  settings such as `temperature` and `tool_choice` are compared too. More calls
+  than recorded, fewer calls, a request with no recording, an unsupported
+  client method (Responses API, `.parse()`, streaming) and errors the agent
+  swallows all fail. Other network access, sync or async, is blocked except
+  localhost. `match="sequence"`, `ignore_request_fields`, `allow_hosts` and
+  `require_all` relax it.
+- In pytest the fixture plays back by default and records live with
+  `--evalcraft-record=new` (missing or expired) or `all`. Playback problems are
+  reported as a failure of the test, once. A live recording is saved only if
+  the test passes.
+- **`examples/order-agent`**: a support agent and one offline test. Break the
+  agent, not the recording, and the test fails; undo it and it passes. The
+  test suite checks this on every run.
+
+### Changed
+- The OpenAI and Anthropic adapters store the exact request (in a normalised
+  form) and response of each call in span metadata, so playback can reproduce
+  them. Cassettes are larger. Older cassettes still play back, rebuilt from the
+  recorded text.
+
 ## [0.12.0] — 2026-10-05
 
 ### Fixed

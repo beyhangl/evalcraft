@@ -72,6 +72,12 @@ class TestDiffToolCalls:
         assert diff_tool_calls(old, new, ignore=["arguments.request_id"]) == []
         assert diff_tool_calls(old, new, ignore=["other.arguments.request_id"]) != []
 
+    def test_ignore_pattern_with_list_index(self):
+        old = _run(("send", {"to": ["a@x.io", "b@x.io"]}, None))
+        new = _run(("send", {"to": ["a@x.io", "c@x.io"]}, None))
+        assert diff_tool_calls(old, new, ignore=["arguments.to[1]"]) == []
+        assert diff_tool_calls(old, new, ignore=["arguments.to[0]"]) != []
+
     def test_runtime_values_are_info(self):
         old = _run(("log", {"at": "2026-10-05T10:00:00Z"}, None))
         new = _run(("log", {"at": "2026-10-06T11:00:00Z"}, None))
