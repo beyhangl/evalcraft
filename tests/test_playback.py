@@ -7,6 +7,7 @@ Anthropic SDKs, driven through a scripted HTTP transport instead of a model.
 from __future__ import annotations
 
 import asyncio
+import importlib
 import json
 import os
 import shutil
@@ -31,6 +32,18 @@ from evalcraft.playback import (  # noqa: E402
     PlaybackMismatchError,
     load_interactions,
 )
+
+
+def _sdk_http_module(sdk):
+    """Use the HTTP library accepted by this installed SDK, including 0.x/1.x."""
+    base_client = importlib.import_module(f"{sdk.__name__}._base_client")
+    return getattr(base_client, "httpx2", httpx)
+
+
+O_HTTP = _sdk_http_module(openai)
+A_HTTP = _sdk_http_module(anthropic)
+HTTP_MODULES = ["httpx"] + (["httpx2"] if importlib.util.find_spec("httpx2") else [])
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TOOLS = [{"type": "function", "function": {
@@ -58,8 +71,8 @@ OPENAI_SCRIPT = [
 
 def _scripted_openai(script):
     replies = iter(script)
-    transport = httpx.MockTransport(lambda r: httpx.Response(200, json=next(replies)))
-    return openai.OpenAI(api_key="x", http_client=httpx.Client(transport=transport))
+    transport = O_HTTP.MockTransport(lambda r: O_HTTP.Response(200, json=next(replies)))
+    return openai.OpenAI(api_key="x", http_client=O_HTTP.Client(transport=transport))
 
 
 def openai_agent(client, question, *, run_tool=True, extra_turn=False):
@@ -237,8 +250,8 @@ def anthropic_agent(client, question, *, run_tool=True):
 @pytest.fixture
 def anthropic_cassette(tmp_path):
     replies = iter(ANTHROPIC_SCRIPT)
-    transport = httpx.MockTransport(lambda r: httpx.Response(200, json=next(replies)))
-    client = anthropic.Anthropic(api_key="x", http_client=httpx.Client(transport=transport))
+    transport = A_HTTP.MockTransport(lambda r: A_HTTP.Response(200, json=next(replies)))
+    client = anthropic.Anthropic(api_key="x", http_client=A_HTTP.Client(transport=transport))
     path = tmp_path / "a.json"
     with CaptureContext(name="a", save_path=path), AnthropicAdapter():
         anthropic_agent(client, "Where is ORDER-123?")
@@ -255,6 +268,48 @@ class TestAnthropic:
         with pytest.raises(PlaybackMismatchError, match="tool_result"), \
                 playback(anthropic_cassette):
             anthropic_agent(live, "Where is ORDER-123?", run_tool=False)
+
+    async def test_async_capture_and_playback_with_sdk_transport(self):
+        replies = iter(ANTHROPIC_SCRIPT)
+        requests = []
+
+        def respond(request):
+            requests.append(request)
+            return A_HTTP.Response(200, json=next(replies))
+
+        transport = A_HTTP.MockTransport(respond)
+        client = anthropic.AsyncAnthropic(
+            api_key="synthetic-key", http_client=A_HTTP.AsyncClient(transport=transport),
+        )
+        try:
+            with CaptureContext(name="async_anthropic") as recorded, AnthropicAdapter():
+                first = await client.messages.create(
+                    model="claude-sonnet-5-5", max_tokens=512,
+                    messages=[{"role": "user", "content": "Find my order"}],
+                )
+                second = await client.messages.create(
+                    model="claude-sonnet-5-5", max_tokens=512,
+                    messages=[{"role": "user", "content": "And its status?"}],
+                )
+            assert first.content[0].type == "tool_use"
+            assert second.content[0].text == "It has shipped."
+            assert len(requests) == 2
+            async with playback(recorded.cassette):
+                with CaptureContext(name="played") as played:
+                    replayed_first = await client.messages.create(
+                        model="claude-sonnet-5-5", max_tokens=512,
+                        messages=[{"role": "user", "content": "Find my order"}],
+                    )
+                    replayed_second = await client.messages.create(
+                        model="claude-sonnet-5-5", max_tokens=512,
+                        messages=[{"role": "user", "content": "And its status?"}],
+                    )
+            assert replayed_first.model_dump() == first.model_dump()
+            assert replayed_second.model_dump() == second.model_dump()
+            assert played.cassette.llm_call_count == 2
+            assert len(requests) == 2  # The transport is never called during playback.
+        finally:
+            await client.close()
 
     def test_wrong_provider_is_a_mismatch(self, anthropic_cassette):
         with pytest.raises(PlaybackMismatchError, match="openai"), \
@@ -384,6 +439,57 @@ class TestNetworkAndUnsupported:
     def test_sync_http_is_blocked(self, openai_cassette):
         with pytest.raises(PlaybackUnsupportedError), playback(openai_cassette, require_all=False):
             httpx.get("http://example.com/")
+
+    @pytest.mark.parametrize("module_name", HTTP_MODULES)
+    def test_native_sync_transport_blocked_before_dispatch(
+        self, openai_cassette, monkeypatch, module_name,
+    ):
+        http = importlib.import_module(module_name)
+        dispatched = []
+
+        def fake_dispatch(transport, request):
+            dispatched.append(str(request.url))
+            return http.Response(200, text="local fake response", request=request)
+
+        monkeypatch.setattr(http.HTTPTransport, "handle_request", fake_dispatch)
+        with http.Client(trust_env=False) as client:
+            with pytest.raises(PlaybackUnsupportedError, match="example.com"), \
+                    playback(openai_cassette, require_all=False):
+                try:
+                    client.get("https://example.com/")
+                except PlaybackUnsupportedError:
+                    pass  # Playback exit must still fail.
+            assert dispatched == []
+            with playback(openai_cassette, require_all=False):
+                assert client.get("http://127.0.0.1/").text == "local fake response"
+        assert dispatched == ["http://127.0.0.1/"]
+        assert http.HTTPTransport.handle_request is fake_dispatch
+
+    @pytest.mark.parametrize("module_name", HTTP_MODULES)
+    async def test_native_async_transport_blocked_before_dispatch(
+        self, openai_cassette, monkeypatch, module_name,
+    ):
+        http = importlib.import_module(module_name)
+        dispatched = []
+
+        async def fake_dispatch(transport, request):
+            dispatched.append(str(request.url))
+            return http.Response(200, text="local fake response", request=request)
+
+        monkeypatch.setattr(http.AsyncHTTPTransport, "handle_async_request", fake_dispatch)
+        async with http.AsyncClient(trust_env=False) as client:
+            with pytest.raises(PlaybackUnsupportedError, match="example.com"), \
+                    playback(openai_cassette, require_all=False):
+                try:
+                    await client.get("https://example.com/")
+                except PlaybackUnsupportedError:
+                    pass
+            assert dispatched == []
+            with playback(openai_cassette, require_all=False):
+                reply = await client.get("http://127.0.0.1/")
+                assert reply.text == "local fake response"
+        assert dispatched == ["http://127.0.0.1/"]
+        assert http.AsyncHTTPTransport.handle_async_request is fake_dispatch
 
     def test_localhost_is_allowed(self, openai_cassette):
         import http.server

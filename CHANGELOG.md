@@ -37,10 +37,25 @@ agent broke something, which is the first thing people want to know.
   test suite checks this on every run.
 
 ### Changed
+- `GeminiAdapter` uses the current `google-genai` client, including sync and async
+  non-streaming calls. Fresh/cache input and thinking-token accounting are
+  recorded separately; requested functions are not labelled as executed tools.
+  The Gemini extras and doctor discovery now use `google-genai`.
+- Contributor onboarding reflects the package layout and gives an API-key-free
+  first contribution path. Author metadata is `beyhangl <beyhangl@gmail.com>`.
 - The OpenAI and Anthropic adapters store the exact request (in a normalised
   form) and response of each call in span metadata, so playback can reproduce
   them. Cassettes are larger. Older cassettes still play back, rebuilt from the
   recorded text.
+
+### Fixed
+- Playback blocks and restores both `httpx` and `httpx2` transports, covering
+  current provider SDKs while retaining legacy SDK support. HTTP-mocked tests
+  use the installed SDK's actual transport backend.
+
+### Integration
+- Documented the optional Pactrun cassette bridge and synthetic refund workflow,
+  including the distinction between policy replay and changed-code playback.
 
 ## [0.12.0] — 2026-10-05
 

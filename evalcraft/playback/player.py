@@ -22,6 +22,7 @@ cassette, so assertions read what the current code did.
 from __future__ import annotations
 
 import ast
+import importlib
 import json
 import re
 import threading
@@ -468,10 +469,6 @@ class Playback:
         Blocking sockets alone misses async clients, which connect through the
         event loop, so the httpx transports are patched as well.
         """
-        try:
-            import httpx
-        except ImportError:
-            return
         player = self
 
         def blocked(request: Any) -> PlaybackUnsupportedError:
@@ -480,24 +477,34 @@ class Playback:
         def allowed(request: Any) -> bool:
             return request.url.host in player.allow_hosts
 
-        sync_original = httpx.HTTPTransport.handle_request
-        async_original = httpx.AsyncHTTPTransport.handle_async_request
+        def sync_handler(original: Any) -> Any:
+            def handle_request(transport: Any, request: Any) -> Any:
+                if not allowed(request):
+                    raise blocked(request)
+                return original(transport, request)
+            return handle_request
 
-        def handle_request(transport: Any, request: Any) -> Any:
-            if not allowed(request):
-                raise blocked(request)
-            return sync_original(transport, request)
+        def async_handler(original: Any) -> Any:
+            async def handle_async_request(transport: Any, request: Any) -> Any:
+                if not allowed(request):
+                    raise blocked(request)
+                return await original(transport, request)
+            return handle_async_request
 
-        async def handle_async_request(transport: Any, request: Any) -> Any:
-            if not allowed(request):
-                raise blocked(request)
-            return await async_original(transport, request)
-
-        for cls, name, fn in ((httpx.HTTPTransport, "handle_request", handle_request),
-                              (httpx.AsyncHTTPTransport, "handle_async_request",
-                               handle_async_request)):
-            self._restore.append((cls, name, cls.__dict__.get(name, _MISSING)))
-            setattr(cls, name, fn)
+        # Current OpenAI/Anthropic clients use httpx2; older SDKs and Google
+        # clients use httpx. Async requests never pass socket.create_connection.
+        for module_name in ("httpx", "httpx2"):
+            try:
+                http = importlib.import_module(module_name)
+            except ImportError:
+                continue
+            for cls, name, factory in (
+                (http.HTTPTransport, "handle_request", sync_handler),
+                (http.AsyncHTTPTransport, "handle_async_request", async_handler),
+            ):
+                original = getattr(cls, name)
+                self._restore.append((cls, name, cls.__dict__.get(name, _MISSING)))
+                setattr(cls, name, factory(original))
 
     def _unpatch(self) -> None:
         for cls, name, original in reversed(self._restore):

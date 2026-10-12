@@ -84,7 +84,7 @@ def run_doctor(cassette_dir: str = "tests/cassettes", golden_dir: str | None = N
     optional_sdks = [
         ("openai", "openai", "evalcraft[openai]"),
         ("anthropic", "anthropic", "evalcraft[anthropic]"),
-        ("google.generativeai", "google-generativeai", "evalcraft[gemini]"),
+        ("google.genai", "google-genai", "evalcraft[gemini]"),
         ("pydantic_ai", "pydantic-ai", "evalcraft[pydantic-ai]"),
         ("langchain_core", "langchain-core", "evalcraft[langchain]"),
     ]

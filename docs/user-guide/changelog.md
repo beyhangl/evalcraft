@@ -14,7 +14,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 - `examples/order-agent`: break the agent, not the recording, and the offline test fails.
 
 ### Changed
+- Gemini uses the current `google-genai` client for sync and async non-streaming
+  calls; fresh/cache input and thinking tokens are normalized. See the
+  [migration guide](adapters/gemini.md).
+- Contributor onboarding and author metadata now use the current package layout
+  and `beyhangl <beyhangl@gmail.com>`.
 - Adapters store the exact request and response of each call so playback can reproduce it.
+
+### Fixed
+- Playback blocks/restores both `httpx` and `httpx2`, with offline tests for
+  current and legacy provider SDKs.
+
+### Integration
+- The optional Pactrun bridge and synthetic refund example are documented in
+  the README. Policy replay evaluates saved observations; playback reruns code.
 
 ---
 

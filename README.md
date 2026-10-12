@@ -500,17 +500,33 @@ with CaptureContext(name="openai_run", save_path="tests/cassettes/openai_run.jso
 ```python
 from evalcraft.adapters import GeminiAdapter
 from evalcraft import CaptureContext
-import google.generativeai as genai
+from google import genai
 
-genai.configure(api_key="...")
-model = genai.GenerativeModel("gemini-2.0-flash")
+client = genai.Client(api_key="...")
 
 with CaptureContext(name="gemini_run", save_path="tests/cassettes/gemini_run.json") as ctx:
     with GeminiAdapter():
         ctx.record_input("What is quantum computing?")
-        response = model.generate_content("What is quantum computing?")
+        response = client.models.generate_content(
+            model="gemini-2.5-flash", contents="What is quantum computing?",
+        )
         ctx.record_output(response.text)
 ```
+
+The adapter uses `google-genai` for non-streaming sync and async calls. See the
+[Gemini adapter guide](docs/user-guide/adapters/gemini.md) for cache accounting,
+tool-request semantics, and migration from the legacy SDK.
+
+### Support actions with Pactrun
+
+The optional [Pactrun cassette bridge](https://github.com/beyhangl/pactrun/blob/main/docs/EVALCRAFT_BRIDGE.md)
+records runtime contract events as Evalcraft cassettes and evaluates saved
+observations against another policy. It normalizes the two projects' different
+cache-token conventions. Policy replay evaluates recorded behavior; use
+`playback()` to run changed application code against recorded model replies.
+The [synthetic refund example](https://github.com/beyhangl/pactrun/blob/main/examples/support_refund.py)
+covers bound approvals, tenant ownership, uncertain provider results and
+restart reconciliation without model keys or real payments.
 
 ### Pydantic AI
 

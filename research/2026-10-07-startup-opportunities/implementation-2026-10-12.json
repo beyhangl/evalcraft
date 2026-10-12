@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-12",
+  "timezone": "Europe/Istanbul",
+  "status": "application_changes_implemented_and_validated_locally",
+  "identity": {
+    "username": "beyhangl",
+    "email": "beyhangl@gmail.com",
+    "applied_to": "project author metadata and maintainer documentation"
+  },
+  "agents": [
+    "wrapper_budget",
+    "approval_tokens",
+    "evalcraft_onboarding",
+    "review_controls"
+  ],
+  "repositories": {
+    "evalcraft": "/Users/puser/evalcraft",
+    "pactrun": "/Users/puser/agentpact"
+  },
+  "implemented": [
+    "Explicit refusal of unsupported OpenAI Responses wrapper calls",
+    "Atomic per-wrapper estimated cost reservation and conservative settlement across sync/async/streams/failure/cancellation",
+    "Incomplete and invalid usage does not free reserved budget",
+    "System blocks, tool definitions and historical tool arguments included in supported text estimates",
+    "Async SDK subclass response enforcement",
+    "Approval v2 binds issuance timestamp, nonce, selected arguments and host-owned context",
+    "Durable atomic approval/quorum consumption, without consuming live grants during monitor replay",
+    "Enforcement uses wall-clock approval freshness",
+    "Evalcraft cassette bridge with cache normalization, stable IDs, observed result annotations and strict ambiguity rejection",
+    "Turn count retained during event and cassette replay",
+    "Synthetic refund ownership/approval/idempotency/uncertain-result/restart application and changed-code playback tests",
+    "Current google-genai migration and httpx/httpx2 playback coverage",
+    "Contributor onboarding, scoped contributor tasks, pilot scope and migration documentation"
+  ],
+  "validation": {
+    "evalcraft": {
+      "pytest_passed": 1237,
+      "skipped": 0,
+      "ruff": "passed",
+      "mypy_source_files": 74
+    },
+    "pactrun": {
+      "pytest_passed": 924,
+      "skipped": 22,
+      "ruff": "passed",
+      "mypy_source_files": 65
+    },
+    "support_refund_cases": 18,
+    "docs_build": "passed; output /private/tmp/evalcraft-action-docs-20261012",
+    "review": "All five reported probes plus duplicate result/ID and approval clock probes independently rechecked successfully",
+    "runtime": "Python 3.14; provider SDK calls mocked; no paid model calls or real payments",
+    "sdk_versions": {
+      "openai": "3.29.0",
+      "anthropic": "1.13.0",
+      "google_genai": "2.29.0"
+    },
+    "legacy_playback_check": {
+      "openai": "1.109.1",
+      "anthropic": "0.125.0",
+      "passed": 39,
+      "scope": "intermediate sandbox test run"
+    }
+  },
+  "demo": {
+    "folder": "/Users/puser/evalcraft/research/2026-10-07-startup-opportunities/refund-demo/2555da69a6b7474aaf3d901bfc264f41",
+    "result": {
+      "timeout_outcome": "unknown",
+      "after_restart": "verified",
+      "repeat_blocked": true,
+      "provider_refunds": 1,
+      "recorded_policy_compliant": true
+    }
+  },
+  "migration": {
+    "approval_tokens": "Pre-v2 envelopes are rejected; reissue host tokens. Durable consumption requires an HMAC secret and persistent store.",
+    "gemini": "Use google-genai Client.models / Client.aio.models; non-streaming capture only."
+  },
+  "limits": [
+    "Estimated budgets are scoped to one covered wrapper, not a universal provider billing cap.",
+    "Approval consumption is authorization use, not proof of human identity or exactly-once external effects.",
+    "Refund application uses synthetic provider/storage and must be adapted to customer-owned endpoints.",
+    "Revenue/pricing and contributor growth remain validation hypotheses.",
+    "Existing research and reproduction script describe the baseline checkout; fixed vulnerabilities need current regression tests rather than expecting old probes to succeed."
+  ],
+  "unchanged": [
+    "CI and deployment configuration",
+    "shell scripts",
+    "infrastructure",
+    "release automation",
+    "existing recorded cassettes and golden fixtures",
+    "package versions"
+  ],
+  "devops_handoff": "A user-designated DEVOPS agent must handle any approved version/release/distribution or deployment work.",
+  "next_customer_validation": "Test one paid customer workflow before building a hosted platform or splitting a new framework repository."
+}
