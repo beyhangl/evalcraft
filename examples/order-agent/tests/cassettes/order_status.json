@@ -1,0 +1,255 @@
+{
+  "evalcraft_version": "0.13.0",
+  "cassette": {
+    "id": "d928af3a-6b0e-421a-9938-4041e7ca81b6",
+    "name": "order_status",
+    "version": "1.0",
+    "created_at": 1791208839.579251,
+    "agent_name": "",
+    "framework": "",
+    "input_text": "",
+    "output_text": "",
+    "total_tokens": 269,
+    "total_cost_usd": 0.00081,
+    "total_duration_ms": 25.39133292157203,
+    "llm_call_count": 2,
+    "tool_call_count": 1,
+    "fingerprint": "a47c4a492131e6f0",
+    "metadata": {},
+    "provenance": {
+      "recorded_at": 1791208839.704431,
+      "sdk_version": "0.13.0",
+      "python_version": "3.10.9",
+      "models": [
+        "gpt-6.1-sol"
+      ],
+      "prompt_hash": "901be5dcbca52f63",
+      "tools": [
+        {
+          "name": "lookup_order",
+          "description": "Look up an order's status and delivery date by its id.",
+          "schema_hash": "4f7d53c02bc0b136"
+        }
+      ]
+    }
+  },
+  "spans": [
+    {
+      "id": "37283cbe-d6ba-44e7-bdf2-b395f67c01bc",
+      "kind": "tool_call",
+      "name": "tool:lookup_order",
+      "timestamp": 1791208839.7025611,
+      "duration_ms": 0.0,
+      "parent_id": null,
+      "input": null,
+      "output": null,
+      "error": null,
+      "model": null,
+      "token_usage": null,
+      "cost_usd": null,
+      "tool_name": "lookup_order",
+      "tool_args": {
+        "order_id": "ORDER-123"
+      },
+      "tool_result": null,
+      "metadata": {}
+    },
+    {
+      "id": "206c0a6e-0470-44b2-8c8d-6ca4d77dfcb5",
+      "kind": "llm_response",
+      "name": "llm:gpt-6.1-sol",
+      "timestamp": 1791208839.702692,
+      "duration_ms": 23.86520802974701,
+      "parent_id": null,
+      "input": "system: You are a support agent. Use lookup_order for any order question.\nuser: Where is ORDER-123?",
+      "output": "[tool_call:lookup_order({\"order_id\": \"ORDER-123\"})]",
+      "error": null,
+      "model": "gpt-6.1-sol",
+      "token_usage": {
+        "prompt_tokens": 96,
+        "completion_tokens": 18,
+        "total_tokens": 114,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "cost_usd": 0.000372,
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "metadata": {
+        "finish_reason": "tool_calls",
+        "tool_definitions": [
+          {
+            "name": "lookup_order",
+            "description": "Look up an order's status and delivery date by its id.",
+            "schema_hash": "4f7d53c02bc0b136"
+          }
+        ],
+        "provider": "openai",
+        "request": {
+          "model": "gpt-6.1-sol",
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are a support agent. Use lookup_order for any order question."
+            },
+            {
+              "role": "user",
+              "content": "Where is ORDER-123?"
+            }
+          ],
+          "tools": {
+            "lookup_order": {
+              "description": "Look up an order's status and delivery date by its id.",
+              "schema": "4f7d53c02bc0b136"
+            }
+          }
+        },
+        "response": {
+          "id": "chatcmpl-1",
+          "choices": [
+            {
+              "finish_reason": "tool_calls",
+              "index": 0,
+              "logprobs": null,
+              "message": {
+                "content": null,
+                "refusal": null,
+                "role": "assistant",
+                "annotations": null,
+                "audio": null,
+                "function_call": null,
+                "tool_calls": [
+                  {
+                    "id": "call_1",
+                    "function": {
+                      "arguments": "{\"order_id\": \"ORDER-123\"}",
+                      "name": "lookup_order"
+                    },
+                    "type": "function"
+                  }
+                ]
+              }
+            }
+          ],
+          "created": 1759600000,
+          "model": "gpt-6.1-sol",
+          "object": "chat.completion",
+          "service_tier": null,
+          "system_fingerprint": null,
+          "usage": {
+            "completion_tokens": 18,
+            "prompt_tokens": 96,
+            "total_tokens": 114,
+            "completion_tokens_details": null,
+            "prompt_tokens_details": null
+          }
+        }
+      }
+    },
+    {
+      "id": "3dc61053-2755-4579-9079-2d1b29d98e52",
+      "kind": "llm_response",
+      "name": "llm:gpt-6.1-sol",
+      "timestamp": 1791208839.7043269,
+      "duration_ms": 1.5261248918250203,
+      "parent_id": null,
+      "input": "system: You are a support agent. Use lookup_order for any order question.\nuser: Where is ORDER-123?\nassistant: \ntool: {\"status\": \"shipped\", \"eta\": \"2026-10-09\"}",
+      "output": "ORDER-123 has shipped and should arrive on 2026-10-09.",
+      "error": null,
+      "model": "gpt-6.1-sol",
+      "token_usage": {
+        "prompt_tokens": 139,
+        "completion_tokens": 16,
+        "total_tokens": 155,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "cost_usd": 0.000438,
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "metadata": {
+        "finish_reason": "stop",
+        "tool_definitions": [
+          {
+            "name": "lookup_order",
+            "description": "Look up an order's status and delivery date by its id.",
+            "schema_hash": "4f7d53c02bc0b136"
+          }
+        ],
+        "provider": "openai",
+        "request": {
+          "model": "gpt-6.1-sol",
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are a support agent. Use lookup_order for any order question."
+            },
+            {
+              "role": "user",
+              "content": "Where is ORDER-123?"
+            },
+            {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "ref": "2.0",
+                  "name": "lookup_order",
+                  "arguments": {
+                    "order_id": "ORDER-123"
+                  }
+                }
+              ]
+            },
+            {
+              "role": "tool",
+              "answers": "2.0",
+              "content": {
+                "status": "shipped",
+                "eta": "2026-10-09"
+              }
+            }
+          ],
+          "tools": {
+            "lookup_order": {
+              "description": "Look up an order's status and delivery date by its id.",
+              "schema": "4f7d53c02bc0b136"
+            }
+          }
+        },
+        "response": {
+          "id": "chatcmpl-2",
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "logprobs": null,
+              "message": {
+                "content": "ORDER-123 has shipped and should arrive on 2026-10-09.",
+                "refusal": null,
+                "role": "assistant",
+                "annotations": null,
+                "audio": null,
+                "function_call": null,
+                "tool_calls": null
+              }
+            }
+          ],
+          "created": 1759600001,
+          "model": "gpt-6.1-sol",
+          "object": "chat.completion",
+          "service_tier": null,
+          "system_fingerprint": null,
+          "usage": {
+            "completion_tokens": 16,
+            "prompt_tokens": 139,
+            "total_tokens": 155,
+            "completion_tokens_details": null,
+            "prompt_tokens_details": null
+          }
+        }
+      }
+    }
+  ]
+}

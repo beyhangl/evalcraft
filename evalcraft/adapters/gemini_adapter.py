@@ -1,50 +1,41 @@
-"""Google Gemini SDK adapter — auto-captures LLM calls into evalcraft spans.
+"""Google GenAI SDK adapter for non-streaming Gemini content generation.
 
-Monkey-patches ``google.generativeai.GenerativeModel`` so every call to
-``model.generate_content()`` (sync or async) is automatically recorded into
-the active :class:`~evalcraft.capture.recorder.CaptureContext`.
+``GeminiAdapter()`` records ``client.models.generate_content()`` and
+``await client.aio.models.generate_content()`` into the active CaptureContext.
+It patches the SDK resource classes, covering clients created before entry.
+The legacy ``google-generativeai`` SDK and streaming methods are not captured.
 
 Usage::
 
-    from evalcraft.adapters import GeminiAdapter
+    from google import genai
     from evalcraft import CaptureContext
-    import google.generativeai as genai
+    from evalcraft.adapters import GeminiAdapter
 
-    genai.configure(api_key="...")
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    client = genai.Client(api_key="...")
+    with CaptureContext(name="gemini_test") as ctx, GeminiAdapter():
+        response = client.models.generate_content(
+            model="gemini-2.5-flash", contents="What's the weather?"
+        )
 
-    with CaptureContext(name="gemini_test") as ctx:
-        with GeminiAdapter():
-            response = model.generate_content("What's the weather?")
-
-    cassette = ctx.cassette
-    print(cassette.total_tokens, cassette.total_cost_usd)
-
-The adapter patches the class-level method rather than a specific model
-instance, so all ``GenerativeModel`` instances are captured.
-
-Thread / async safety: the adapter is NOT reentrant — don't nest two
-``GeminiAdapter`` context managers.  It restores the original methods on
-exit even if an exception is raised.
+Model function-call requests are recorded in output and metadata. They do not
+prove that a function ran; use evalcraft's tool capture around actual execution.
+Do not nest adapters. Original methods are restored even when a call fails.
 """
 
 from __future__ import annotations
 
 import time
-from typing import Any
+from functools import wraps
+from typing import Any, ClassVar
 
+from evalcraft.adapters.openai_adapter import _int_or_zero
 from evalcraft.capture.recorder import get_active_context
 from evalcraft.core.models import Span, SpanKind
-from evalcraft.core.pricing import (
-    NO_CACHE_DISCOUNT,
-    PriceTable,
-    resolve_price,
-)
+from evalcraft.core.pricing import NO_CACHE_DISCOUNT, PriceTable, resolve_price
 
-# ---------------------------------------------------------------------------
-# Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
-# Prices reflect Google's public rates as of early 2026; update as needed.
-# ---------------------------------------------------------------------------
+# Historical text-token rates, retained for cassette cost estimates. Cache
+# storage, multimodal tiers, grounding, and provider tool charges are not priced.
+# Register current account-specific rates with evalcraft.register_price().
 _MODEL_PRICING: PriceTable = {
     # Gemini 2.5
     "gemini-2.5-pro": (1.25, 10.00),
@@ -67,119 +58,121 @@ _MODEL_PRICING: PriceTable = {
 _UNKNOWN_MODEL = "unknown"
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+def _estimate_cost(
+    model: str,
+    prompt_tokens: int,
+    completion_tokens: int,
+    cache_read_tokens: int = 0,
+) -> float | None:
+    """Estimate text-token cost, or return None for an unlisted model.
 
-def _estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float | None:
-    """Return an estimated USD cost or *None* if the model is not in the table."""
+    Prompt tokens are fresh input. Built-in rates conservatively price cache
+    reads at the input rate; register_price can supply a cached-input discount.
+    """
     price = resolve_price(model, _MODEL_PRICING, NO_CACHE_DISCOUNT, NO_CACHE_DISCOUNT)
-    return price.cost(prompt_tokens, completion_tokens) if price is not None else None
+    if price is None:
+        return None
+    return price.cost(prompt_tokens, completion_tokens, cache_read_tokens)
+
+
+def _field(value: Any, name: str, default: Any = None) -> Any:
+    return value.get(name, default) if isinstance(value, dict) else getattr(value, name, default)
+
+
+def _part_to_str(part: Any) -> str:
+    if isinstance(part, str):
+        return part
+    text = _field(part, "text")
+    if isinstance(text, str) and text and _field(part, "thought") is not True:
+        return text
+    for field in ("function_call", "function_response"):
+        function = _field(part, field)
+        name = _field(function, "name")
+        if isinstance(name, str) and name:
+            payload = _field(function, "args" if field == "function_call" else "response", {})
+            return f"[{field}:{name}({payload if isinstance(payload, dict) else {}})]"
+    return ""
 
 
 def _contents_to_str(contents: Any) -> str:
-    """Flatten Gemini ``contents`` into a single readable string."""
+    """Extract readable text and function parts from dicts or SDK types."""
     if isinstance(contents, str):
         return contents
+    if isinstance(contents, (list, tuple)):
+        return "\n".join(_contents_to_str(item) for item in contents)
+    parts = _field(contents, "parts")
+    if isinstance(parts, (list, tuple)):
+        text = " ".join(filter(None, (_part_to_str(part) for part in parts)))
+        role = _field(contents, "role")
+        return f"{role}: {text}" if isinstance(role, str) and role else text
+    return _part_to_str(contents)
 
-    if isinstance(contents, list):
-        parts: list[str] = []
-        for item in contents:
-            if isinstance(item, str):
-                parts.append(item)
-            elif isinstance(item, dict):
-                # {"role": "user", "parts": ["text"]}
-                role = item.get("role", "")
-                item_parts = item.get("parts", [])
-                text_parts = []
-                for p in item_parts:
-                    if isinstance(p, str):
-                        text_parts.append(p)
-                    elif isinstance(p, dict) and "text" in p:
-                        text_parts.append(p["text"])
-                parts.append(f"{role}: {' '.join(text_parts)}" if role else " ".join(text_parts))
-            elif hasattr(item, "text"):
-                parts.append(item.text)
-            elif hasattr(item, "parts"):
-                for p in item.parts:
-                    if hasattr(p, "text"):
-                        parts.append(p.text)
-        return "\n".join(parts)
 
-    # Protobuf Content or Part objects
-    if hasattr(contents, "parts"):
-        return " ".join(p.text for p in contents.parts if hasattr(p, "text"))
-
-    return str(contents)
+def _response_parts(response: Any) -> list[Any]:
+    candidates = _field(response, "candidates")
+    if isinstance(candidates, (list, tuple)) and candidates:
+        parts = _field(_field(candidates[0], "content"), "parts")
+        if isinstance(parts, (list, tuple)):
+            return list(parts)
+    return []
 
 
 def _response_to_str(response: Any) -> str:
-    """Extract text from a Gemini GenerateContentResponse."""
+    """Extract the first candidate's visible text and function-call requests."""
+    parts = _response_parts(response)
+    if parts:
+        return " ".join(filter(None, (_part_to_str(part) for part in parts)))
     try:
-        # response.text is the convenience accessor
-        return response.text
+        text = response.text
     except (AttributeError, ValueError):
-        pass
-
-    # Fallback: iterate candidates
-    try:
-        parts: list[str] = []
-        for candidate in response.candidates:
-            for part in candidate.content.parts:
-                if hasattr(part, "text") and part.text:
-                    parts.append(part.text)
-                elif hasattr(part, "function_call"):
-                    fc = part.function_call
-                    parts.append(f"[function_call:{fc.name}({dict(fc.args)})]")
-        return " ".join(parts)
-    except (AttributeError, IndexError):
-        return str(response)
+        return ""
+    return text if isinstance(text, str) else ""
 
 
-def _extract_model_name(model_obj: Any) -> str:
-    """Extract the model name string from a GenerativeModel instance."""
-    # GenerativeModel stores the model name in model_name attribute
-    if hasattr(model_obj, "model_name"):
-        name = model_obj.model_name
-        # Remove "models/" prefix if present
-        if isinstance(name, str) and name.startswith("models/"):
-            return name[len("models/"):]
-        return str(name)
-    return _UNKNOWN_MODEL
+def _extract_model_name(model: Any) -> str:
+    return model.removeprefix("models/") if isinstance(model, str) and model else _UNKNOWN_MODEL
 
 
-# ---------------------------------------------------------------------------
-# Adapter
-# ---------------------------------------------------------------------------
+def _get_finish_reason(response: Any) -> str:
+    candidates = _field(response, "candidates")
+    if isinstance(candidates, (list, tuple)) and candidates:
+        reason = _field(candidates[0], "finish_reason")
+        name = _field(reason, "name")
+        if isinstance(name, str):
+            return name
+        if isinstance(reason, str):
+            return reason
+    return ""
+
+
+def _function_calls(response: Any) -> list[dict[str, Any]]:
+    calls = []
+    for part in _response_parts(response):
+        function = _field(part, "function_call")
+        name = _field(function, "name")
+        arguments = _field(function, "args")
+        if isinstance(name, str) and name:
+            calls.append({"name": name, "args": arguments if isinstance(arguments, dict) else {}})
+    return calls
+
 
 class GeminiAdapter:
-    """Patches the Google Gemini SDK to auto-record every generate_content call.
+    """Capture google-genai Models/AsyncModels non-streaming calls.
 
-    Works as both a **sync** and **async** context manager.  Patches the
-    ``GenerativeModel`` class so *all* model instances are captured.
-
-    .. code-block:: python
-
-        with GeminiAdapter():
-            response = model.generate_content(...)
-
-        async with GeminiAdapter():
-            response = await model.generate_content_async(...)
-
-    Spans are silently dropped when no :class:`CaptureContext` is active —
-    so the adapter is safe to leave in place during non-test code paths.
-
-    Raises:
-        ImportError: if ``google-generativeai`` is not installed.
+    This helper works as a sync or async context manager. An active capture
+    context is needed to record a span. Streaming, Live API, and legacy SDK
+    methods are outside its coverage. Automatic SDK tool executions are not
+    separately captured; wrap those functions explicitly to record tool spans.
     """
 
+    _active: ClassVar[GeminiAdapter | None] = None
+
     def __init__(self) -> None:
-        self._GenerativeModel: Any = None
+        self._Models: Any = None
+        self._AsyncModels: Any = None
         self._original_generate: Any = None
         self._original_generate_async: Any = None
-        self._patched: bool = False
-
-    # -- context manager protocol ------------------------------------------
+        self._patched = False
 
     def __enter__(self) -> GeminiAdapter:
         self._patch()
@@ -195,73 +188,61 @@ class GeminiAdapter:
     async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self._unpatch()
 
-    # -- patching -----------------------------------------------------------
-
     def _patch(self) -> None:
-        if self._patched:
-            return
+        if GeminiAdapter._active is not None:
+            raise RuntimeError("GeminiAdapter context managers must not be nested")
         try:
-            from google.generativeai import GenerativeModel  # type: ignore[import]
+            from google.genai.models import AsyncModels, Models
         except ImportError as exc:
             raise ImportError(
-                "The 'google-generativeai' package is required for GeminiAdapter. "
+                "The 'google-genai' package is required for GeminiAdapter. "
                 "Install it with: pip install 'evalcraft[gemini]'"
             ) from exc
 
-        self._GenerativeModel = GenerativeModel
-        self._original_generate = GenerativeModel.generate_content
-        self._original_generate_async = getattr(GenerativeModel, "generate_content_async", None)
-
+        self._Models, self._AsyncModels = Models, AsyncModels
+        self._original_generate = Models.generate_content
+        self._original_generate_async = AsyncModels.generate_content
         adapter = self
         original_generate = self._original_generate
         original_generate_async = self._original_generate_async
 
-        def patched_generate(self_model: Any, *args: Any, **kwargs: Any) -> Any:
+        @wraps(original_generate)
+        def patched_generate(self_models: Any, *args: Any, **kwargs: Any) -> Any:
             start = time.monotonic()
             try:
-                response = original_generate(self_model, *args, **kwargs)
+                response = original_generate(self_models, *args, **kwargs)
             except Exception as exc:
-                duration_ms = (time.monotonic() - start) * 1000
-                adapter._record_error(self_model, args, kwargs, duration_ms, str(exc))
+                adapter._record_error(kwargs, (time.monotonic() - start) * 1000, str(exc))
                 raise
-            duration_ms = (time.monotonic() - start) * 1000
-            adapter._record_response(self_model, args, kwargs, response, duration_ms)
+            adapter._record_response(kwargs, response, (time.monotonic() - start) * 1000)
             return response
 
-        GenerativeModel.generate_content = patched_generate  # type: ignore[method-assign]
+        @wraps(original_generate_async)
+        async def patched_generate_async(self_models: Any, *args: Any, **kwargs: Any) -> Any:
+            start = time.monotonic()
+            try:
+                response = await original_generate_async(self_models, *args, **kwargs)
+            except Exception as exc:
+                adapter._record_error(kwargs, (time.monotonic() - start) * 1000, str(exc))
+                raise
+            adapter._record_response(kwargs, response, (time.monotonic() - start) * 1000)
+            return response
 
-        if original_generate_async is not None:
-            async def patched_generate_async(self_model: Any, *args: Any, **kwargs: Any) -> Any:
-                start = time.monotonic()
-                try:
-                    response = await original_generate_async(self_model, *args, **kwargs)
-                except Exception as exc:
-                    duration_ms = (time.monotonic() - start) * 1000
-                    adapter._record_error(self_model, args, kwargs, duration_ms, str(exc))
-                    raise
-                duration_ms = (time.monotonic() - start) * 1000
-                adapter._record_response(self_model, args, kwargs, response, duration_ms)
-                return response
-
-            GenerativeModel.generate_content_async = patched_generate_async  # type: ignore[method-assign]
-
+        Models.generate_content = patched_generate
+        AsyncModels.generate_content = patched_generate_async
         self._patched = True
+        GeminiAdapter._active = self
 
     def _unpatch(self) -> None:
         if not self._patched:
             return
-        if self._GenerativeModel is not None and self._original_generate is not None:
-            self._GenerativeModel.generate_content = self._original_generate  # type: ignore[method-assign]
-        if self._GenerativeModel is not None and self._original_generate_async is not None:
-            self._GenerativeModel.generate_content_async = self._original_generate_async  # type: ignore[method-assign]
+        self._Models.generate_content = self._original_generate
+        self._AsyncModels.generate_content = self._original_generate_async
         self._patched = False
-
-    # -- recording helpers --------------------------------------------------
+        GeminiAdapter._active = None
 
     def _record_response(
         self,
-        model_obj: Any,
-        args: tuple[Any, ...],
         kwargs: dict[str, Any],
         response: Any,
         duration_ms: float,
@@ -269,76 +250,45 @@ class GeminiAdapter:
         ctx = get_active_context()
         if ctx is None:
             return
-
-        model_name = _extract_model_name(model_obj)
-
-        # Build input string from positional contents arg or kwarg
-        contents = args[0] if args else kwargs.get("contents", "")
-        input_str = _contents_to_str(contents)
-        output_str = _response_to_str(response)
-
-        prompt_tokens = 0
-        completion_tokens = 0
-        try:
-            usage = response.usage_metadata
-            if usage:
-                prompt_tokens = getattr(usage, "prompt_token_count", 0) or 0
-                completion_tokens = getattr(usage, "candidates_token_count", 0) or 0
-        except AttributeError:
-            pass
-
-        cost_usd = _estimate_cost(model_name, prompt_tokens, completion_tokens)
-
+        model_name = _extract_model_name(kwargs.get("model"))
+        usage = _field(response, "usage_metadata")
+        total_prompt = max(_int_or_zero(_field(usage, "prompt_token_count")), 0)
+        cached = min(
+            max(_int_or_zero(_field(usage, "cached_content_token_count")), 0), total_prompt
+        )
+        fresh = total_prompt - cached
+        candidates = max(_int_or_zero(_field(usage, "candidates_token_count")), 0)
+        thoughts = max(_int_or_zero(_field(usage, "thoughts_token_count")), 0)
+        completion_tokens = candidates + thoughts
         ctx.record_llm_call(
             model=model_name,
-            input=input_str,
-            output=output_str,
+            input=_contents_to_str(kwargs.get("contents", "")),
+            output=_response_to_str(response),
             duration_ms=duration_ms,
-            prompt_tokens=prompt_tokens,
+            prompt_tokens=fresh,
             completion_tokens=completion_tokens,
-            cost_usd=cost_usd,
+            cache_read_tokens=cached,
+            cost_usd=_estimate_cost(model_name, fresh, completion_tokens, cached),
             metadata={
                 "finish_reason": _get_finish_reason(response),
+                "thoughts_token_count": thoughts,
+                "function_calls": _function_calls(response),
             },
         )
 
-    def _record_error(
-        self,
-        model_obj: Any,
-        args: tuple[Any, ...],
-        kwargs: dict[str, Any],
-        duration_ms: float,
-        error: str,
-    ) -> None:
+    def _record_error(self, kwargs: dict[str, Any], duration_ms: float, error: str) -> None:
         ctx = get_active_context()
         if ctx is None:
             return
-
-        model_name = _extract_model_name(model_obj)
-        contents = args[0] if args else kwargs.get("contents", "")
-        input_str = _contents_to_str(contents)
-
-        span = Span(
-            kind=SpanKind.LLM_RESPONSE,
-            name=f"llm:{model_name}",
-            duration_ms=duration_ms,
-            input=input_str,
-            output=None,
-            model=model_name,
-            error=error,
+        model_name = _extract_model_name(kwargs.get("model"))
+        ctx.record_span(
+            Span(
+                kind=SpanKind.LLM_RESPONSE,
+                name=f"llm:{model_name}",
+                duration_ms=duration_ms,
+                input=_contents_to_str(kwargs.get("contents", "")),
+                output=None,
+                model=model_name,
+                error=error,
+            )
         )
-        ctx.record_span(span)
-
-
-def _get_finish_reason(response: Any) -> str:
-    """Extract the finish reason from a Gemini response."""
-    try:
-        candidates = response.candidates
-        if candidates:
-            reason = candidates[0].finish_reason
-            if reason is not None:
-                # finish_reason is an enum in the Gemini SDK
-                return str(reason.name) if hasattr(reason, "name") else str(reason)
-    except (AttributeError, IndexError):
-        pass
-    return ""

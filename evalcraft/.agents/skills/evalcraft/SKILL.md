@@ -4,7 +4,7 @@ description: Write offline, $0 pytest tests for AI agents with evalcraft. Record
 license: MIT
 compatibility: Requires Python 3.10+ and pytest 8+
 metadata:
-  version: "0.12.0"
+  version: "0.13.0"
 ---
 
 # Testing AI agents with evalcraft
@@ -140,9 +140,11 @@ The full list, and which assertions cost money, is in
   the agent, or ask the user before updating the recorded baseline. Cassette
   changes should show up in the diff for a human to review.
 - `replay()` does not run the agent. It reads the recording back. A green
-  replay test does not prove new agent code works. Use `evalcraft mock` and
-  run the real agent against the mocks, or re-record and compare with
-  `evalcraft diff old.json new.json`.
+  replay test does not prove new agent code works. To test current code, use
+  playback: `@pytest.mark.evalcraft_playback("tests/cassettes/x.json")` with
+  the `evalcraft_playback` fixture (OpenAI Chat Completions and Anthropic
+  Messages). The agent runs for real and each model call is answered from the
+  recording; a changed request fails with the field that changed.
 - Prefer `mode="unordered"` for trajectories unless order genuinely matters.
   Models reorder independent tool calls between versions, and `strict` makes
   those harmless reorderings fail.

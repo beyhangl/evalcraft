@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import importlib
+from types import SimpleNamespace
+
 from evalcraft.cli.doctor_cmd import run_doctor
 
 
@@ -38,3 +41,34 @@ class TestDoctor:
     def test_returns_bool(self):
         result = run_doctor()
         assert isinstance(result, bool)
+
+    def test_detects_current_google_genai_sdk(self, monkeypatch, capsys):
+        original = importlib.import_module
+        imports = []
+
+        def fake_import(name, *args, **kwargs):
+            imports.append(name)
+            if name == "google.genai":
+                return SimpleNamespace(__version__="test-sdk")
+            return original(name, *args, **kwargs)
+
+        monkeypatch.setattr(importlib, "import_module", fake_import)
+        run_doctor(cassette_dir="nonexistent/path")
+        assert "google-genai test-sdk" in capsys.readouterr().out
+        assert "google.genai" in imports
+        assert "google.generativeai" not in imports
+
+    def test_missing_google_genai_install_hint(self, monkeypatch, capsys):
+        original = importlib.import_module
+
+        def fake_import(name, *args, **kwargs):
+            if name == "google.genai":
+                raise ImportError("optional SDK absent")
+            return original(name, *args, **kwargs)
+
+        monkeypatch.setattr(importlib, "import_module", fake_import)
+        run_doctor(cassette_dir="nonexistent/path")
+        output = capsys.readouterr().out
+        assert (
+            'google-genai not installed — install with: pip install "evalcraft[gemini]"' in output
+        )

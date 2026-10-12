@@ -1,0 +1,31 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Implementation handoff — 12 October 2026</title><style>body{font:16px/1.65 system-ui,sans-serif;color:#17262f;max-width:920px;margin:40px auto;padding:0 24px}h1{line-height:1.2}h2{margin-top:30px}a{color:#096c76}table{border-collapse:collapse;width:100%}th,td{padding:10px;border-bottom:1px solid #d7e0e3;text-align:left}code{background:#eef3f3;padding:2px 5px}li{margin:8px 0}.note{border-left:4px solid #136c63;padding:10px 20px;background:#eff7f4}</style></head><body>
+<p>12 October 2026 • Europe/Istanbul • Maintainer: beyhangl &lt;beyhangl@gmail.com&gt;</p>
+<h1>Research changes implemented and validated</h1>
+<p>Four subagents handled controls, approval integrity, SDK/onboarding modernization and independent review. The application changes are present in the two local checkouts. Both project author records and maintainer guides use the requested identity.</p>
+<table><tr><th>Project</th><th>Tests</th><th>Lint / typing</th></tr><tr><td>Evalcraft</td><td>1,237 passed</td><td>Ruff passed; mypy 74 files passed</td></tr><tr><td>Pactrun</td><td>924 passed; 22 optional skipped</td><td>Ruff passed; mypy 65 files passed</td></tr></table>
+<h2>Implemented behavior</h2><ul>
+<li>Pactrun refuses the unsupported Responses API path. Covered calls reserve estimated spend atomically; streams, failures, cancellation and uncertain usage settle conservatively. Async SDK subclasses remain enforced.</li>
+<li>Approval v2 authenticates timestamps, nonces, selected arguments and host-owned context. SQLite consumes grants/quorums atomically across sessions and restarts. Monitor replay simulates consumption without touching live grants.</li>
+<li>The cassette bridge normalizes fresh/cache tokens and retains observed result provenance, IDs and turns. Missing cost and ambiguous or duplicate results are refused.</li>
+<li>The synthetic refund application enforces ownership, state and bound approval; persists action state; uses provider idempotency; and reconciles unknown results. Tests execute changed application code against a recorded SDK reply.</li>
+<li>Gemini uses google-genai. Playback covers current and legacy httpx/httpx2 transport paths. Contributor tasks and a one-workflow customer pilot scope are documented.</li>
+</ul>
+<h2>Inspect the runnable result</h2>
+<p>The saved <a href="refund-demo/2555da69a6b7474aaf3d901bfc264f41/report.json">demo report</a> shows an unknown result after timeout, verified outcome after restart, one provider refund and a blocked repeat. Its <a href="refund-demo/2555da69a6b7474aaf3d901bfc264f41/refund.json">cassette</a> and SQLite state use synthetic data.</p>
+<pre><code>cd /Users/puser/agentpact
+python examples/support_refund.py --output-dir /tmp/pactrun-refund</code></pre>
+<p>Install Evalcraft alongside Pactrun first. The normal demo needs no model SDK or API key; SDK playback tests use an HTTP mock.</p>
+<h2>Migration and practical limits</h2>
+<p class="note"><strong>Reissue approval tokens:</strong> pre-v2 envelopes are rejected. Durable replay protection requires a signing secret and a persistent host-owned store. Grant consumption does not prove a named human approved or guarantee exactly-once execution of a real remote payment.</p>
+<p>Budget reservations cover one wrapper and remain estimates. The refund application is a reference simulator to adapt to actual customer endpoints. Existing baseline research remains historical; current regression tests verify the fixes. No real payments, paid model calls, customer outreach or revenue validation occurred.</p>
+<h2>Local documentation</h2><ul>
+<li><a href="/Users/puser/agentpact/docs/SUPPORT_REFUND.md">Refund workflow and customer pilot scope</a></li>
+<li><a href="/Users/puser/agentpact/docs/APPROVAL_TOKENS.md">Approval migration and durable store</a></li>
+<li><a href="/Users/puser/agentpact/docs/EVALCRAFT_BRIDGE.md">Cassette bridge and evidence limits</a></li>
+<li><a href="/Users/puser/agentpact/docs/wrapper-coverage.md">Wrapper coverage and accounting</a></li>
+<li><a href="/Users/puser/agentpact/docs/CONTRIBUTOR_TASKS.md">Scoped contributor tasks</a></li>
+<li><a href="/Users/puser/evalcraft/docs/user-guide/adapters/gemini.md">Gemini migration</a></li>
+<li><a href="implementation-2026-10-12.json">Machine-readable handoff and validation evidence</a></li>
+</ul>
+<p>Existing cassettes/golden fixtures, package versions, CI/workflows, shell scripts, infrastructure and release automation were left unchanged. Release/distribution and deployment actions require a user-designated DEVOPS agent.</p>
+</body></html>

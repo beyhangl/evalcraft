@@ -15,8 +15,8 @@ drop fields entirely.
 
 from __future__ import annotations
 
-import fnmatch
 import json
+import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
@@ -100,10 +100,19 @@ def _volatile(value: Any) -> bool:
     return any(p.fullmatch(value) for p in VOLATILE_PATTERNS.values())
 
 
+def glob_match(pattern: str, text: str) -> bool:
+    """Glob match where only ``*`` and ``?`` are wildcards.
+
+    Field paths contain list indices (``messages[1].content``), which
+    :mod:`fnmatch` would read as character classes.
+    """
+    regex = re.escape(pattern).replace(r"\*", ".*").replace(r"\?", ".")
+    return re.fullmatch(regex, text) is not None
+
+
 def _ignored(tool: str, field: str, patterns: Iterable[str]) -> bool:
     qualified = f"{tool}.{field}"
-    return any(fnmatch.fnmatchcase(qualified, p) or fnmatch.fnmatchcase(field, p)
-               for p in patterns)
+    return any(glob_match(p, qualified) or glob_match(p, field) for p in patterns)
 
 
 def diff_tool_calls(

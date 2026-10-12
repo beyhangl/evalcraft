@@ -63,6 +63,7 @@ nav:
     - "Walkthrough: Catching a Regression": user-guide/five-minute-case-study.md
     - Concepts: user-guide/concepts.md
     - Capture API: user-guide/capture.md
+    - "Playback (test current code)": user-guide/playback.md
     - Replay Engine: user-guide/replay.md
     - "Live Eval (catch drift)": user-guide/live-eval.md
     - "Check Stale (model retirement)": user-guide/check-stale.md

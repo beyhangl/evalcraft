@@ -1,0 +1,8 @@
+{
+  "timeout_outcome": "unknown",
+  "after_restart": "verified",
+  "repeat_blocked": true,
+  "provider_refunds": 1,
+  "recorded_policy_compliant": true,
+  "cassette": "/Users/puser/evalcraft/research/2026-10-07-startup-opportunities/refund-demo/2555da69a6b7474aaf3d901bfc264f41/refund.json"
+}

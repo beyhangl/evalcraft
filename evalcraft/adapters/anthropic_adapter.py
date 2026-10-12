@@ -46,6 +46,8 @@ from evalcraft.core.pricing import (
 )
 from evalcraft.core.reasoning import REASONING_METADATA_KEY
 from evalcraft.core.tool_defs import request_metadata
+from evalcraft.playback.canonical import recording_metadata
+from evalcraft.playback.registry import was_played_back
 
 # ---------------------------------------------------------------------------
 # Pricing table — approximate cost per 1 M tokens (input_usd, output_usd).
@@ -333,7 +335,8 @@ class AnthropicAdapter:
 
     def _record_response(self, kwargs: dict[str, Any], response: Any, duration_ms: float) -> None:
         ctx = get_active_context()
-        if ctx is None:
+        if ctx is None or was_played_back(response):
+            # A played-back response is recorded by playback itself.
             return
 
         model: str = getattr(response, "model", None) or kwargs.get("model", _UNKNOWN_MODEL)
@@ -379,6 +382,7 @@ class AnthropicAdapter:
                 {
                     "stop_reason": _get_stop_reason(response),
                     **request_metadata(kwargs, model),
+                    **recording_metadata("anthropic", kwargs, response),
                 },
                 response,
             ),

@@ -1,0 +1,90 @@
+{
+  "evalcraft_version": "0.13.0",
+  "cassette": {
+    "id": "c1d7bdd9-f6ef-4148-a8f7-17e4d462f538",
+    "name": "support-refund",
+    "version": "1.0",
+    "created_at": 1791756939.59986,
+    "agent_name": "",
+    "framework": "pactrun",
+    "input_text": "",
+    "output_text": "",
+    "total_tokens": 0,
+    "total_cost_usd": 0.0,
+    "total_duration_ms": 0.0,
+    "llm_call_count": 0,
+    "tool_call_count": 1,
+    "fingerprint": "1a085221990a5f7d",
+    "metadata": {},
+    "provenance": null
+  },
+  "spans": [
+    {
+      "id": "4884e4d3-736f-4a04-bb09-1351e3acc8f9",
+      "kind": "tool_call",
+      "name": "refund",
+      "timestamp": 1791756939.6019258,
+      "duration_ms": 0.0,
+      "parent_id": null,
+      "input": null,
+      "output": null,
+      "error": null,
+      "model": null,
+      "token_usage": null,
+      "cost_usd": null,
+      "tool_name": "refund",
+      "tool_args": {
+        "action_id": "refund-1",
+        "order_id": "order-1",
+        "amount_minor": 2500,
+        "currency": "USD",
+        "expected_version": 1
+      },
+      "tool_result": null,
+      "metadata": {
+        "user_consent": {
+          "version": 2,
+          "kind": "consent",
+          "action": "refund",
+          "issued_at": 1791756939.601681,
+          "nonce": "a932901fe7804f299ca466f8eaf92ad9",
+          "context": {
+            "customer_id": "customer-a",
+            "order_version": 1,
+            "policy_version": "refund-policy-1",
+            "principal_id": "beyhangl",
+            "tenant_id": "tenant-a"
+          },
+          "sig": "616ec8c38d0eea7331f0415e990c2cdc12d9fd17ed42e4da80c85dfde93f9e80"
+        },
+        "pactrun_bridge": {
+          "event_kind": "tool_call",
+          "reasoning_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "79f03ff9-8635-414b-9e14-cc4eabe19903",
+      "kind": "agent_output",
+      "name": "output",
+      "timestamp": 1791756939.606508,
+      "duration_ms": 0.0,
+      "parent_id": null,
+      "input": null,
+      "output": "{\"action_id\": \"refund-1\", \"status\": \"unknown\", \"receipt\": null}",
+      "error": null,
+      "model": null,
+      "token_usage": null,
+      "cost_usd": null,
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "metadata": {
+        "pactrun_bridge": {
+          "event_kind": "output",
+          "reasoning_tokens": 0
+        }
+      }
+    }
+  ]
+}
