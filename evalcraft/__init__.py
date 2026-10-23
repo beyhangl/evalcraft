@@ -80,6 +80,18 @@ from evalcraft.mock.tool import MockTool
 from evalcraft.playback import Playback, PlaybackError, playback
 from evalcraft.regression.detector import RegressionDetector, RegressionReport
 from evalcraft.replay.engine import ReplayEngine, replay
+from evalcraft.scenarios import (
+    Scenario,
+    ScenarioAction,
+    ScenarioEnvironment,
+    ScenarioReport,
+    ScenarioStep,
+    ScenarioSuiteReport,
+    StepObservation,
+    StepOutcome,
+    run_scenario,
+    run_scenarios,
+)
 from evalcraft.staleness import StalenessChecker, StalenessFinding, StalenessReport
 
 __all__ = [
@@ -151,4 +163,14 @@ __all__ = [
     "StalenessReport",
     "EvalcraftCloud",
     "register_price",
+    "Scenario",
+    "ScenarioAction",
+    "ScenarioEnvironment",
+    "ScenarioReport",
+    "ScenarioStep",
+    "ScenarioSuiteReport",
+    "StepObservation",
+    "StepOutcome",
+    "run_scenario",
+    "run_scenarios",
 ]

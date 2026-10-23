@@ -10,6 +10,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and
 ## [0.13.0] — unreleased
 
 ### Added
+- [Stateful scenarios](stateful-scenarios.md): execute fresh environments against
+  independently authored action, result, and business-state expectations. The
+  runner preserves observed state and cassettes without overwriting artifacts.
+  A key-free inventory example and optional Pactrun refund case pack demonstrate
+  reusable application-level tests alongside recorded-run checks and playback.
 - [Playback](playback.md): run your current agent code with each OpenAI / Anthropic call answered from a recording. A changed request fails with the field that changed. `@pytest.mark.evalcraft_playback` + the `evalcraft_playback` fixture, live recording with `--evalcraft-record`.
 - `examples/order-agent`: break the agent, not the recording, and the offline test fails.
 
