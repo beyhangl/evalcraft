@@ -57,13 +57,36 @@ Record a new cassette from a live run with `pytest --evalcraft-record=new`. Supp
 OpenAI Chat Completions and Anthropic Messages (sync and async, not streaming). See
 [Playback](https://beyhangl.github.io/evalcraft/docs/user-guide/playback/).
 
-### Three ways to test, three different guarantees
+### Four ways to test, four different guarantees
 
 | Mode | Runs your current code? | Calls a model? | What a green test proves |
 |---|---|---|---|
 | **Playback** (`evalcraft_playback`) | Yes | No, answered from the recording | Your code still makes the same calls, sends the same tool results and handles the recorded replies |
 | **Recorded-run checks** (`evalcraft_cassette`, `replay()`) | No | No | A saved run satisfies your contracts: tools, arguments, shape, cost |
+| **Stateful scenarios** (`run_scenarios`) | Yes, supplied environment code | No implicit model call | Explicit action, result, and business-state expectations hold across the tested sequence |
 | **Live evals** (`live-eval`, scheduled) | Yes | Yes | The current model, prompt and code behave acceptably together |
+
+### Test state changes across actions
+
+Keep cassettes and add reusable [stateful scenarios](docs/user-guide/stateful-scenarios.md)
+for business rules. Each case starts with fresh state, executes real environment
+code, and checks independently authored expectations. The environment receives
+actions, arguments, and host-controlled faults; it never receives the expected
+answers. The runner retains before/after observations and a cassette.
+
+```bash
+# From this source checkout; no API key or model SDK required
+python -m pip install -e .
+python examples/stateful_scenarios.py
+```
+
+The inventory example reserves available stock and verifies that an oversized
+request is blocked without changing the balance. The optional
+[Pactrun refund case pack](https://github.com/beyhangl/pactrun/blob/main/pactrun/scenarios/refund_cases.py)
+adds approval, ownership, timeout, concurrent-attempt, and restart scenarios.
+Use matching source checkouts until releases include these features. Synthetic
+passes establish only the tested local behavior; use live evaluation to assess
+actual model decisions.
 
 ---
 

@@ -14,6 +14,13 @@ run against your contracts, but it can't tell you whether a change to your
 agent broke something, which is the first thing people want to know.
 
 ### Added
+- **Reusable stateful scenarios**: `Scenario`, `ScenarioStep`, `ScenarioAction`,
+  `StepOutcome`, `run_scenario`, and `run_scenarios` execute isolated environment
+  code against explicit status, result, and business-state expectations.
+  Detached before/after observations, independent expectation handling, honest
+  action-attempt cassettes, and fresh-directory reports preserve evidence.
+  `examples/stateful_scenarios.py` runs without model keys or optional SDKs;
+  Pactrun provides the optional synthetic refund environment and case pack.
 - **`playback(cassette)`** and **`@pytest.mark.evalcraft_playback(path)`** with
   the `evalcraft_playback` fixture. Your agent runs for real, and each OpenAI
   Chat Completions or Anthropic Messages call (sync or async) is answered from
